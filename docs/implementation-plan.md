@@ -1,0 +1,90 @@
+# DAXDiff – Implementation Plan
+
+Source of truth: `DAXDiff_Requirements.docx` (SRS v1.0, 25 Oct 2026). Requirement IDs (FR-xxx, NFR-xx, AT-xx) refer to that document.
+
+## Technology decisions
+
+| Concern | Choice | Why |
+|---|---|---|
+| Runtime | .NET 10 (LTS), Windows x64 | Pinned LTS. Desktop attach and ADOMD are Windows-native |
+| UI | WPF + MVVM (CommunityToolkit.Mvvm) | Stable, virtualized `DataGrid`, high-DPI aware |
+| Query / metadata | Microsoft.AnalysisServices.AdomdClient 19.x (DAX + DMVs) | Same code path for Desktop and Service XMLA; DMVs avoid a TOM dependency |
+| REST fallback | `HttpClient` against Power BI `executeQueries` | Bounded fallback when XMLA is unavailable (FR-003) |
+| Auth | MSAL.NET + Msal.Extensions (DPAPI-encrypted token cache) | Interactive delegated sign-in, no passwords (§9) |
+| Excel | ClosedXML | XLSX without needing Office |
+| Logging | Serilog file sink, no measure values or DAX literals | NFR-07, §9 |
+| Tests | xUnit | NFR-06 |
+
+## Solution layout
+
+```
+src/DaxDiff.Domain        Pure domain contracts: references, metadata, mappings, config, results, project file
+src/DaxDiff.Comparison    DAX builder, key normalization, comparison engine, auto-matcher, mapping validator
+src/DaxDiff.Connectors    IModelConnector + Desktop / Service XMLA / Service REST connectors, session locator, MSAL auth, discovery
+src/DaxDiff.Export        Excel workbook writer
+src/DaxDiff.Application   Run orchestration (parallel queries, retries, timeouts, audit), project persistence
+src/DaxDiff.Desktop       WPF shell and view models
+tests/DaxDiff.Tests.Unit  Unit tests (engine, DAX builder, normalization, export, persistence, orchestration via fake connectors)
+```
+
+## Status (26 Oct 2026)
+
+Stages 1–5 are implemented. 96 unit tests pass, covering AT-01 and AT-03 to AT-14 at engine, export and persistence level, using fake connectors.
+The WPF shell builds, launches, and renders every page.
+**Not yet verified against live models:** Desktop session attach, XMLA, REST and DMV/INFO.VIEW metadata need Stage 0 runs against real test models.
+
+## Stages
+
+### Stage 0 – Technical spike *(needs real models – manual)*
+- [ ] Attach to a running Power BI Desktop model (`msmdsrv` port discovery) and run sample DAX
+- [ ] Authenticate to a Service workspace over XMLA with an MSAL token
+- [ ] Run the same DAX through `executeQueries` REST
+- [ ] Record capability results (DMV access for non-admin users, INFO.VIEW availability)
+
+### Stage 1 – Foundation
+- [x] Solution skeleton, project references, packages
+- [x] Typed domain contracts (§7.1)
+- [x] DI host, Serilog logging, settings file
+- [x] Unit test project
+
+### Stage 2 – Connections (FR-001..FR-005, FR-015)
+- [x] `IModelConnector` abstraction plus capabilities model (FR-003, §5.3)
+- [x] Desktop session locator (msmdsrv processes, workspace port files, PBIDesktop window titles) (FR-004)
+- [x] External Tools launch support (`--server` / `--database` args, `.pbitool.json`) (FR-004)
+- [x] Service XMLA connector with MSAL token (FR-002, FR-003)
+- [x] Service REST connector with documented limits and 429/5xx backoff (FR-003, §8)
+- [x] Workspace / dataset discovery through REST (FR-002)
+- [x] Metadata via TMSCHEMA DMVs, MDSCHEMA fallback for non-admins, INFO.VIEW for REST (FR-005)
+- [x] Error classification with side, remedial action and diagnostic code (FR-015, AT-08)
+
+### Stage 3 – Mapping and query (FR-006..FR-009)
+- [x] Manual dimension and measure pairing with aliases (FR-006)
+- [x] Auto-match suggestions, unconfirmed until accepted, ambiguity surfaced (FR-007)
+- [x] Mapping validation: missing fields, duplicates, type compatibility (FR-006, AT-14)
+- [x] Safe DAX builder: SUMMARIZECOLUMNS, escaped identifiers, typed literal filters, no raw DAX (FR-009)
+- [x] Row estimate query (preview cardinality)
+
+### Stage 4 – Engine (FR-008, FR-010, §4)
+- [x] Key normalization policies (trim, case, Unicode form, blank/null) with display values preserved (§4.4)
+- [x] Duplicate-key detection, fail-safe by default (AT-06)
+- [x] Full outer join, Only A / Only B / Both (AT-03)
+- [x] Tolerance predicate, null policy, text comparison, percentage rules (§4.3, AT-04, AT-05)
+- [x] Completeness: truncation, cancellation, failure → Partial / Cancelled / Failed (NFR-05, AT-07, AT-10)
+- [x] Orchestrator: parallel execution, timeouts, transient retries, query hashes and audit (FR-010, FR-012)
+
+### Stage 5 – Results and export (FR-011..FR-014)
+- [x] Results grid with status filters, search, sorting, copy (FR-011)
+- [x] Summary KPIs and diagnostics header (FR-012, FR-016)
+- [x] Excel workbook contract, 6 sheets (§10), sheet splitting (AT-11), text-safety for `=`,`+`,`-`,`@` (AT-12)
+- [x] `.pbicomp` project save/load, schema-versioned, without tokens or results (FR-014, AT-13)
+
+### Stage 6 – Hardening *(manual or environment-dependent)*
+- [ ] Run against real fixture models for AT-01 through AT-14
+- [ ] Large-model performance profiling (NFR-03, NFR-04)
+- [ ] Installer (MSIX), code signing, dependency/licence scan
+- [ ] Accessibility pass with a screen reader (NFR-02)
+
+## Known MVP limitations
+- SUMMARIZECOLUMNS drops rows where every measure is BLANK. A key that is missing on one side can therefore mean "member absent" or "all measures blank". The reason text says so.
+- Partitioned retrieval for result sets larger than the row cap is not implemented. Runs over the cap are labelled **Partial**, never Complete.
+- Hierarchies are not enumerated. Only columns and measures are listed.

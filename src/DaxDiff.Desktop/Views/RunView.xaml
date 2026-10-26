@@ -1,0 +1,61 @@
+<UserControl x:Class="DaxDiff.Desktop.Views.RunView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top">
+            <TextBlock Text="Run" Style="{StaticResource PageTitle}" />
+            <TextBlock Style="{StaticResource PageHint}" Text="Both models are queried in parallel. You can cancel at any time; a cancelled or truncated run is never reported as complete." />
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Comparison scope" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding ScopeA, StringFormat='A: {0}'}" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding ScopeB, StringFormat='B: {0}'}" TextWrapping="Wrap" Margin="0,0,0,6" />
+                    <CheckBox IsChecked="{Binding AcknowledgedScope}" Margin="0,4,0,4">
+                        <TextBlock TextWrapping="Wrap"
+                                   Text="I understand results are as observed by the current caller on each side. Row-level/object-level security and Desktop admin access can make rows differ, so missing keys are not necessarily model differences." />
+                    </CheckBox>
+                    <ItemsControl ItemsSource="{Binding PreflightWarnings}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="DarkGoldenrod" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <WrapPanel>
+                <Button Content="_Run comparison (F5)" Command="{Binding RunCommand}" FontWeight="SemiBold" />
+                <Button Content="_Cancel" Command="{Binding RunCancelCommand}" />
+                <TextBlock VerticalAlignment="Center" Margin="12,0,0,6" AutomationProperties.LiveSetting="Polite">
+                    <Run Text="Elapsed " /><Run Text="{Binding Elapsed, Mode=OneWay}" FontFamily="Consolas" />
+                </TextBlock>
+            </WrapPanel>
+            <ProgressBar IsIndeterminate="{Binding IsRunning}" Height="6" Margin="0,4,0,12"
+                         Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" />
+
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Model A" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding StatusA}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Model B" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding StatusB}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <TextBlock Text="Execution log" Style="{StaticResource SectionTitle}" />
+        </StackPanel>
+        <ListBox ItemsSource="{Binding Log}" FontFamily="Consolas" AutomationProperties.Name="Execution log" />
+    </DockPanel>
+</UserControl>

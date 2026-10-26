@@ -1,0 +1,7 @@
+{
+  "version": "1.0",
+  "name": "DAXDiff",
+  "description": "Compare this model's measures with another Power BI semantic model",
+  "path": "C:\\Program Files\\DAXDiff\\DAXDiff.exe",
+  "arguments": "--server \"%server%\" --database \"%database%\""
+}

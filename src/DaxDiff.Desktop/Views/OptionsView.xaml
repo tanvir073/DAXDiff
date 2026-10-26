@@ -1,0 +1,122 @@
+<UserControl x:Class="DaxDiff.Desktop.Views.OptionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DaxDiff.Desktop.ViewModels">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <TextBlock Text="Options" Style="{StaticResource PageTitle}" />
+            <TextBlock Style="{StaticResource PageHint}"
+                       Text="Every rule is explicit: nothing is normalized, rounded or treated as equal unless you choose it here. Numbers use '.' as decimal separator." />
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Measure comparison" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                        <Label Content="_Mode" Target="{Binding ElementName=ToleranceMode}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="ToleranceMode" ItemsSource="{x:Static vm:OptionsViewModel.ToleranceModes}" SelectedItem="{Binding ToleranceMode}" />
+                        <Label Content="_Absolute tolerance" Target="{Binding ElementName=AbsTol}" Padding="0,0,0,2" />
+                        <TextBox x:Name="AbsTol" Text="{Binding AbsoluteTolerance, UpdateSourceTrigger=PropertyChanged}" />
+                        <Label Content="_Relative tolerance (0.001 = 0.1%)" Target="{Binding ElementName=RelTol}" Padding="0,0,0,2" />
+                        <TextBox x:Name="RelTol" Text="{Binding RelativeTolerance, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="Match when |A − B| ≤ max(absolute, relative × max(|A|, |B|))." Foreground="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <Label Content="_Null policy" Target="{Binding ElementName=NullPolicy}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="NullPolicy" ItemsSource="{x:Static vm:OptionsViewModel.NullPolicies}" SelectedItem="{Binding NullPolicy}" />
+                        <Label Content="Te_xt measure comparison" Target="{Binding ElementName=TextCmp}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="TextCmp" ItemsSource="{x:Static vm:OptionsViewModel.TextComparisons}" SelectedItem="{Binding TextComparison}" />
+                        <Label Content="_Percentage difference baseline" Target="{Binding ElementName=Baseline}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="Baseline" ItemsSource="{x:Static vm:OptionsViewModel.PercentBaselines}" SelectedItem="{Binding PercentBaseline}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Key normalization" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                        <CheckBox Content="Trim _whitespace" IsChecked="{Binding TrimWhitespace}" />
+                        <CheckBox Content="Case-_insensitive keys" IsChecked="{Binding CaseInsensitiveKeys}" />
+                        <CheckBox Content="Treat BLANK and empty text as the same key" IsChecked="{Binding BlankEqualsEmpty}" />
+                        <CheckBox Content="Compare date keys on _date only" IsChecked="{Binding DateOnly}" />
+                        <Label Content="_Unicode normalization" Target="{Binding ElementName=Unicode}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="Unicode" ItemsSource="{x:Static vm:OptionsViewModel.UnicodeForms}" SelectedItem="{Binding Unicode}" />
+                        <Label Content="Duplicate _key policy" Target="{Binding ElementName=Dupes}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="Dupes" ItemsSource="{x:Static vm:OptionsViewModel.DuplicatePolicies}" SelectedItem="{Binding DuplicateKeyPolicy}" />
+
+                        <TextBlock Text="Limits" Style="{StaticResource SectionTitle}" />
+                        <Label Content="Max rows per _side" Target="{Binding ElementName=MaxRows}" Padding="0,0,0,2" />
+                        <TextBox x:Name="MaxRows" Text="{Binding MaxRows, UpdateSourceTrigger=PropertyChanged}" />
+                        <Label Content="_Timeout (seconds)" Target="{Binding ElementName=Timeout}" Padding="0,0,0,2" />
+                        <TextBox x:Name="Timeout" Text="{Binding TimeoutSeconds, UpdateSourceTrigger=PropertyChanged}" />
+                        <Label Content="Retries on transient _errors" Target="{Binding ElementName=Retries}" Padding="0,0,0,2" />
+                        <TextBox x:Name="Retries" Text="{Binding RetryCount, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="Filters (applied symmetrically)" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                    <TextBlock Text="Each filter restricts a mapped column on both sides to the same typed values. Separate values with ';'." Foreground="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,0,0,6" />
+                    <ItemsControl ItemsSource="{Binding Filters}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox Grid.Column="0" Margin="0,0,6,0" SelectedItem="{Binding LeftColumn}"
+                                              ItemsSource="{Binding DataContext.ColumnsA, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              AutomationProperties.Name="Model A filter column" ToolTip="Model A column" />
+                                    <ComboBox Grid.Column="1" Margin="0,0,6,0" SelectedItem="{Binding Operator}" ItemsSource="{x:Static vm:FilterRowViewModel.Operators}"
+                                              AutomationProperties.Name="Filter operator" />
+                                    <ComboBox Grid.Column="2" Margin="0,0,6,0" SelectedItem="{Binding RightColumn}"
+                                              ItemsSource="{Binding DataContext.ColumnsB, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              AutomationProperties.Name="Model B filter column" ToolTip="Model B column" />
+                                    <TextBox Grid.Column="3" Margin="0,0,6,0" Text="{Binding ValuesText, UpdateSourceTrigger=PropertyChanged}"
+                                             AutomationProperties.Name="Filter values" ToolTip="Values separated by ';'" />
+                                    <TextBox Grid.Column="4" Margin="0,0,6,0" Text="{Binding Meaning, UpdateSourceTrigger=PropertyChanged}"
+                                             AutomationProperties.Name="Filter meaning" ToolTip="What this filter means (documented in the export)" />
+                                    <Button Grid.Column="5" Content="Remove" Margin="0"
+                                            Command="{Binding DataContext.RemoveFilterCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="Add _filter" Command="{Binding AddFilterCommand}" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="Query preview and estimate" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                    <WrapPanel>
+                        <Button Content="_Preview DAX" Command="{Binding PreviewQueriesCommand}" />
+                        <Button Content="Estimate _rows" Command="{Binding EstimateRowsCommand}" />
+                        <TextBlock Text="{Binding EstimateText}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,6" />
+                    </WrapPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding QueryPreviewA, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" MinHeight="140"
+                                 TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" AutomationProperties.Name="Model A query" />
+                        <TextBox Grid.Column="2" Text="{Binding QueryPreviewB, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" MinHeight="140"
+                                 TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" AutomationProperties.Name="Model B query" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

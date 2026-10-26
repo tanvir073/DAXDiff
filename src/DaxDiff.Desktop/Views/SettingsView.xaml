@@ -1,0 +1,48 @@
+<UserControl x:Class="DaxDiff.Desktop.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="820" HorizontalAlignment="Left">
+            <TextBlock Text="Settings" Style="{StaticResource PageTitle}" />
+
+            <Border Style="{StaticResource Card}" Margin="0,8,0,12">
+                <StackPanel>
+                    <TextBlock Text="Microsoft Entra sign-in" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding SignInStatus}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <Label Content="_Client (application) ID" Target="{Binding ElementName=ClientId}" Padding="0,0,0,2" />
+                    <TextBox x:Name="ClientId" Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}" />
+                    <Label Content="_Tenant ID or domain" Target="{Binding ElementName=Tenant}" Padding="0,0,0,2" />
+                    <TextBox x:Name="Tenant" Text="{Binding TenantId, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Text="Register a public-client app in Entra ID with redirect URI http://localhost and the delegated Power BI Service permissions Dataset.Read.All and Workspace.Read.All. See docs/setup.md."
+                               TextWrapping="Wrap" Foreground="{StaticResource MutedText}" Margin="0,0,0,8" />
+                    <WrapPanel>
+                        <Button Content="_Save" Command="{Binding SaveCommand}" />
+                        <Button Content="Sign _out" Command="{Binding SignOutCommand}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Privacy" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding PrivacyText}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Diagnostics and version" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                    <TextBlock>
+                        <Run Text="Version: " /><Run Text="{Binding Version, Mode=OneWay}" />
+                        <LineBreak /><Run Text="Runtime: " /><Run Text="{Binding Runtime, Mode=OneWay}" />
+                        <LineBreak /><Run Text="Logs: " /><Run Text="{Binding LogFolder, Mode=OneWay}" />
+                    </TextBlock>
+                    <WrapPanel Margin="0,8,0,0">
+                        <Button Content="Open _log folder" Command="{Binding OpenLogsCommand}" />
+                        <Button Content="_Reset session" Command="{Binding ResetCommand}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
