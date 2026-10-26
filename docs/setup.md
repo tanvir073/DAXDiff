@@ -38,6 +38,15 @@ model A already attached to the current file (`--server`/`--database` arguments)
 
 ## Power BI Service
 
+### Signing in per source
+
+Each Service source on the Sources page signs in separately. Set the **Tenant** field:
+
+- Leave it as `organizations` for a model in your own tenant.
+- For a model in another tenant, enter that tenant's domain (`contoso.com`) or tenant ID.
+
+Then click **Sign in…**, which lets you pick the account. Model A and model B can be in the same tenant or in different tenants, signed in as the same user or as different users. The tenant and the last account name are saved in the project as hints; tokens are not.
+
 ### XMLA (preferred)
 
 - The workspace must be on Premium, Premium Per User or Fabric capacity, with **XMLA endpoint = Read** (or Read Write) in capacity settings.

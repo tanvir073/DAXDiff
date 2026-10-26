@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-DAXDiff is a Windows WPF desktop app that compares the evaluated output of two Power BI semantic models. A project holds two sources and any number of comparisons. Each comparison picks columns (or measures) on both sides, marks key columns, aggregates the rest, and pairs fields by synonym. DAXDiff evaluates both sides at the key grain, full-outer-joins the results and exports an Excel audit workbook. The spec is `DAXDiff_Requirements.docx` (SRS v1.1). Code comments, tests and `docs/implementation-plan.md` cite its IDs (FR-xxx, NFR-xx, AT-xx, §n), so keep citing them.
+DAXDiff is a Windows WPF desktop app that compares the evaluated output of two Power BI semantic models. A project holds two sources and any number of comparisons. Each comparison picks columns (or measures) on both sides, marks key columns, aggregates the rest, and pairs fields by synonym. DAXDiff evaluates both sides at the key grain, full-outer-joins the results and exports an Excel audit workbook. The spec is `DAXDiff_Requirements.docx` (SRS v1.2). Code comments, tests and `docs/implementation-plan.md` cite its IDs (FR-xxx, NFR-xx, AT-xx, §n), so keep citing them.
 
 ## Commands
 
@@ -31,7 +31,7 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
 - **Comparison.** A `ComparisonDefinition` has `FieldsA` and `FieldsB` (each a `ComparisonField`: field ref, `IsKey`, `Aggregation`, `Synonym`) and its own `ComparisonOptions` (filters, tolerance, normalization, limits).
 - **Pairing is by synonym, not explicit pairs.** `ComparisonCompiler.Compile` matches A and B fields whose `SynonymKey` (trimmed, upper-cased) is equal. It emits a `ComparisonConfig`: `FieldPairs` (keys first, then values, in model A order) plus `Options`. Each `FieldPair` carries `LeftAggregation` and `RightAggregation`.
 - **One validation entry point.** `ComparisonCompiler.CompileAndValidate` returns the compiler's issues (unpaired keys, duplicate synonyms, disallowed aggregations, missing fields) plus `MappingValidator`'s (roles, type compatibility after aggregation, filters, settings). The UI and `RunRequest.For` both use it.
-- **Aggregation rules.** `AggregationRules` (Domain) decides which aggregations a field may use, from `FieldKind`, `DataKind` and `IsKey`. It also gives the default on insert and the aggregated result type. Keys and measures only allow `None`; non-key columns must have an aggregation.
+- **Aggregation rules.** `AggregationRules` (Domain) decides which aggregations a field may use, from `FieldKind`, `DataKind` and `IsKey`. It also gives the aggregated result type. Every inserted field starts at `None` (FR-017). Keys and measures only allow `None`. Non-key columns list `None` too, but a compared column left at `None` fails validation (`MAP-AGG`) until the user picks one.
 
 ### End-to-end flow of one run (`Application/ComparisonRunner.RunAsync`)
 
@@ -61,6 +61,10 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
   - Any breaking JSON change needs a `CurrentSchemaVersion` bump and a migration step.
   - `Serialize` and `Fingerprint` strip `DesktopServer` and `DesktopDatabase`, because those are session-specific ports and IDs. `Fingerprint` leaves out the save time and drives the unsaved-changes check.
   - Computed properties on domain records need `[JsonIgnore]`, as on `ComparisonConfig.Keys` and `FieldRef.QualifiedName`.
+- **Filters (FR-020).** A `FilterPair` is either Basic (`Values`, `IncludeBlank`, `In`/`NotIn`) or Advanced (one or two `FilterCondition`s joined by `And`/`Or`).
+  - `DaxQueryBuilder.FilterExpression` emits `TREATAS` or `FILTER(ALL(col), …)`. Equality uses strict `==`, so BLANK is never 0. Text conditions use `CONTAINSSTRING`/`LEFT`, with `FORMAT` on non-text columns.
+  - `BuildDistinctValuesQuery` feeds the pop-up's value list.
+  - `MappingValidator.ValidateFilter` is public so the pop-up can show problems as the user edits.
 - **Saved aggregations are never changed silently.** `ComparisonFieldViewModel` keeps a loaded aggregation even when the type (possibly not known yet) disallows it. Validation reports `CMP-AGGREGATION` instead.
 - **Excel export (`Export/ExcelReportWriter`).**
   - `SetValue` writes native types.
@@ -72,7 +76,12 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
 
 - **Shared ADOMD base.** `AdomdConnectorBase` is used by `DesktopSessionConnector` (`localhost:<port>`) and `ServiceXmlaConnector` (`powerbi://…/<workspace>`). It serializes commands with a semaphore and wraps synchronous ADOMD calls in `Task.Run`. Cancellation goes through `command.Cancel()`.
 - **Metadata fallback chain.** Discovery tries `TMSCHEMA_*` DMVs first (admin), then `INFO.VIEW.*()` DAX, then `MDSCHEMA`/`DBSCHEMA` rowsets (partial). Parsers are in `MetadataReaders.cs`; these classes are `internal`, with `InternalsVisibleTo` set for the test project.
-- **XMLA auth.** XMLA takes an MSAL token through `AdomdConnection.AccessToken` when `AuthOptions.ClientId` is set. Otherwise ADOMD's built-in interactive sign-in is used. REST and workspace discovery (`PowerBiRestClient`, `PowerBiDiscoveryService`) require a client ID.
+- **Sign-in is per source (FR-002).** `SourceSessionFactory.Create()` gives each source panel its own `SourceSession`: a `MsalAuthService` with its own `Tenant` and account, plus its own REST client and discovery. Model A and model B can therefore be in different tenants or use different users.
+  - All `MsalAuthService` instances share one DPAPI-encrypted cache file through a static `MsalCacheHelper`. Each instance only ever uses its own account (by home account ID, else the remembered `AccountHint`).
+  - `IConnectorFactory.Create(reference, session)` needs the source's session.
+  - XMLA takes the MSAL token through `AdomdConnection.AccessToken` when `AuthOptions.ClientId` is set; otherwise ADOMD's built-in interactive sign-in is used. `ServiceXmlaConnector.DataSource` replaces `myorg` with the source's tenant for external tenants.
+  - REST and workspace discovery require a client ID.
+  - `ModelReference.TenantId` and `AccountHint` are saved in projects; tokens never are.
 - **Session discovery.** `DesktopSessionLocator` finds Power BI Desktop sessions through WMI: `msmdsrv.exe` processes, their `-s <dataDir>` argument, the UTF-16 `msmdsrv.port.txt` file, and the parent `PBIDesktop.exe` process. If WMI fails it falls back to scanning the workspace folders.
 - **Errors.** All errors become `DaxDiffException` (category, diagnostic code, remedy, side, transient flag) through `ErrorClassifier`. Its message heuristics are covered by tests in `ConnectorParsingTests`.
 
@@ -80,10 +89,17 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
 
 - **Startup.** `App.OnStartup` builds a Generic Host with Serilog file logging to `%LOCALAPPDATA%\DAXDiff\logs`. It reads `appsettings.json` plus the optional user override `%LOCALAPPDATA%\DAXDiff\settings.json`, then shows `MainWindow` and applies the External Tools arguments (`--server` and `--database`, or positional `localhost:port`). The attach waits until a project is created or opened.
 - **Project lifecycle.** `MainViewModel` owns it: New project creates the file first, then Open, Save, Close, and an unsaved-changes prompt (also on window close). The project steps in the nav are disabled until a project is open.
+- **Comparisons are drafts until saved (FR-021).**
+  - `ComparisonEditorViewModel` keeps `SavedDefinition`, the version that runs and is written to the project. The editor's live state is a draft.
+  - `IsModified` compares JSON fingerprints of the two. `Save` commits the draft and raises `SaveRequested`, which makes the shell write the project file. `Commit()` commits without writing.
+  - `ProjectFile.Comparisons` and the Run page use only `SavedDefinition`s. A never-saved comparison cannot run.
+  - Project Save and close offer to commit drafts. Deleting a saved comparison also writes the file.
 - **View models.** `MainViewModel` owns two `SourcePanelViewModel`s (A and B) and the page view models.
   - `ComparisonsViewModel` holds one `ComparisonEditorViewModel` per comparison.
   - Each editor owns its `FieldsA`/`FieldsB` (`ComparisonFieldViewModel`) and its own `OptionsViewModel`, and recompiles on every change. `Recompile()` annotates each field with its counterpart and its issues.
-  - The Options page (`OptionsPageViewModel`) shows the selected comparison's options. Run executes the ticked comparisons one after another. Results keeps the latest result per comparison.
+  - The Options page (`OptionsPageViewModel`) shows the selected comparison's options. Run executes the ticked comparisons one after another, in their saved versions. Results keeps the latest result per comparison.
+  - Filters are edited in `FilterEditorWindow` (`FilterEditorViewModel` / `FilterItemViewModel`), opened by `IFilterEditorService` through `OptionsViewModel.EditFiltersRequested`. The value list is loaded from both connected models (first 1,000 values each, searchable).
+  - "Add same to B/A" (`ComparisonsViewModel.CopyToB/CopyToA`) copies the selected grid rows to the other model by exact table and column name (measures by name).
 - **Pages.** Each page is mapped to a view by `DataTemplate`s in `MainWindow.xaml`. The results grid builds its columns in code (`ResultsView.xaml.cs`) and binds to `ResultRowView.Cells[i]`. Sorting uses a custom comparer (`ResultsViewModel.Sort`).
 - **Typed command parameters.** A `CommandParameter` set in XAML arrives as a string, so a `RelayCommand<bool?>` throws. Use separate commands or a `string` parameter.
 - **Rendering.** Views reference styles and converters defined in `App.xaml` with `StaticResource`, so rendering a view outside the running app requires `new App().InitializeComponent()` first.

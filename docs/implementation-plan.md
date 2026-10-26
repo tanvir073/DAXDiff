@@ -1,6 +1,6 @@
 # DAXDiff – Implementation Plan
 
-Source of truth: `DAXDiff_Requirements.docx` (SRS v1.1, 26 Oct 2026; see its revision history). Requirement IDs (FR-xxx, NFR-xx, AT-xx) refer to that document.
+Source of truth: `DAXDiff_Requirements.docx` (SRS v1.2, 26 Oct 2026; see its revision history). Requirement IDs (FR-xxx, NFR-xx, AT-xx) refer to that document.
 
 ## Technology decisions
 
@@ -29,8 +29,8 @@ tests/DaxDiff.Tests.Unit  Unit tests (engine, DAX builder, normalization, export
 
 ## Status (26 Oct 2026)
 
-Stages 1–5 and Stage 5b (SRS v1.1 change: projects, comparisons, aggregation, synonyms) are implemented.
-132 unit tests pass, covering AT-01 and AT-03 to AT-14 plus FR-017 and FR-018 at compiler, engine, export and persistence level, using fake connectors.
+Stages 1–5, 5b (SRS v1.1: projects, comparisons, aggregation, synonyms) and 5c (SRS v1.2: per-source sign-in, filters pop-up, saving comparisons) are implemented.
+153 unit tests pass, covering AT-01 and AT-03 to AT-14 plus FR-002, FR-017, FR-018 and FR-020 at compiler, engine, export and persistence level, using fake connectors.
 The WPF shell builds and every page renders with sample data.
 **Not yet verified against live models:** Desktop session attach, XMLA, REST and DMV/INFO.VIEW metadata need Stage 0 runs against real test models.
 
@@ -86,6 +86,13 @@ The WPF shell builds and every page renders with sample data.
 - [x] Synonym suggestions and "add matching model B fields" (FR-007)
 - [x] Project file schema v2 with v1 → v2 migration; unsaved-changes tracking (FR-014)
 - [x] UI: Home with New/Open project, Comparisons page (insert field or table, key, aggregation, synonym), per-comparison Options, multi-comparison Run, result picker (FR-019)
+
+### Stage 5c – SRS v1.2: sign-in per source, filters pop-up, saving comparisons (FR-002, FR-006, FR-017, FR-020, FR-021)
+- [x] Inserted fields start with no aggregation; a compared column left at None blocks the run (FR-017)
+- [x] "Add same to B / A": copy selected fields to the other model by table and column name (FR-006)
+- [x] Filter pop-up: basic (value list from both models, search, (Blank), is / is not) and advanced (two conditions, And/Or) filtering; typed DAX (FR-020)
+- [x] Save comparison / Discard changes; runs and the project file use saved versions; drafts offered for saving on project save/close (FR-021)
+- [x] Separate Power BI sign-in per source with its own tenant and account; tenant-aware XMLA address (FR-002)
 
 ### Stage 6 – Hardening *(manual or environment-dependent)*
 - [ ] Run against real fixture models for AT-01 through AT-14

@@ -7,11 +7,15 @@ Work is organised in **projects** (`.pbicomp` files). A project holds the two mo
 - insert any columns (or a whole table's columns) and measures from each model;
 - mark the key columns;
 - choose an aggregation for the other columns (Sum, Average, Min, Max, Count, Distinct count, Concatenate);
-- give fields that should be compared the same **synonym** on both sides.
+- give fields that should be compared the same **synonym** on both sides;
+- add filters (basic value lists or advanced conditions, as in the Power BI filter pane);
+- **save** the comparison: runs always use its saved version.
+
+Each Service model signs in separately, so the two models can be in different tenants.
 
 Any pairing works: local PBIX (open in Power BI Desktop) ↔ PBIX, PBIX ↔ Service, or Service ↔ Service. Service models are reached over XMLA, with the REST API as a bounded fallback.
 
-- Requirements: `DAXDiff_Requirements.docx` (SRS v1.1)
+- Requirements: `DAXDiff_Requirements.docx` (SRS v1.2)
 - Implementation plan and status: [docs/implementation-plan.md](docs/implementation-plan.md)
 - Setup, sign-in and External Tools registration: [docs/setup.md](docs/setup.md)
 
