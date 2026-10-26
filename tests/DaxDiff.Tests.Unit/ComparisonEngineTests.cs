@@ -67,7 +67,7 @@ public class ComparisonEngineTests
     [InlineData(100.6, false)]
     public void AT04_AbsoluteTolerance(double bValue, bool expectMatch)
     {
-        var config = Config with { Tolerance = new ToleranceSettings { Mode = ToleranceMode.Tolerance, Absolute = 0.5m } };
+        var config = Config.With(o => o with { Tolerance = new ToleranceSettings { Mode = ToleranceMode.Tolerance, Absolute = 0.5m } });
         var a = Result(3, Row(2025L, "North", 100m));
         var b = Result(3, Row(2025L, "North", bValue));
 
@@ -79,7 +79,7 @@ public class ComparisonEngineTests
     [Fact]
     public void AT04_RelativeTolerance_UsesLargerMagnitude()
     {
-        var config = Config with { Tolerance = new ToleranceSettings { Mode = ToleranceMode.Tolerance, Relative = 0.01m } };
+        var config = Config.With(o => o with { Tolerance = new ToleranceSettings { Mode = ToleranceMode.Tolerance, Relative = 0.01m } });
         var a = Result(3, Row(2025L, "North", 1000m), Row(2025L, "South", 1000m));
         var b = Result(3, Row(2025L, "North", 1010m), Row(2025L, "South", 1011m));
 
@@ -94,7 +94,7 @@ public class ComparisonEngineTests
     [InlineData(NullPolicy.BlankEqualsZero, RowStatus.Match)]
     public void AT05_BlankVersusZero_FollowsNullPolicy(NullPolicy policy, RowStatus expected)
     {
-        var config = Config with { NullPolicy = policy };
+        var config = Config.With(o => o with { NullPolicy = policy });
         var a = Result(3, Row(2025L, "North", null));
         var b = Result(3, Row(2025L, "North", 0m));
 
@@ -113,7 +113,7 @@ public class ComparisonEngineTests
     [Fact]
     public void AT06_DuplicateKeysAfterNormalization_AreReportedNotDeduplicated()
     {
-        var config = Config with { KeyNormalization = new KeyNormalization { CaseInsensitive = true } };
+        var config = Config.With(o => o with { KeyNormalization = new KeyNormalization { CaseInsensitive = true } });
         var a = Result(3, Row(2025L, "North", 1m), Row(2025L, "NORTH", 2m), Row(2025L, "South", 3m));
         var b = Result(3, Row(2025L, "north", 1m), Row(2025L, "South", 3m));
 
@@ -132,7 +132,7 @@ public class ComparisonEngineTests
     {
         var config = new ComparisonConfig
         {
-            FieldPairs = [Dim("Code", Col("Product", "Code")), Value("Qty", Measure("S", "Qty"), Measure("S", "Qty"))],
+            FieldPairs = [Key("Code", Col("Product", "Code")), Value("Qty", Measure("S", "Qty"), Measure("S", "Qty"))],
         };
         var a = Result(2, Row("0012", 1L));
         var b = Result(2, Row("12", 1L));
@@ -162,7 +162,7 @@ public class ComparisonEngineTests
 
         Assert.Equal(0, ComparisonEngine.Compare(a, b, Config).Summary.Matches);
 
-        var normalized = Config with { KeyNormalization = new KeyNormalization { TrimWhitespace = true, CaseInsensitive = true } };
+        var normalized = Config.With(o => o with { KeyNormalization = new KeyNormalization { TrimWhitespace = true, CaseInsensitive = true } });
         var row = ComparisonEngine.Compare(a, b, normalized).Rows.Single();
         Assert.Equal(RowStatus.Match, row.Status);
         Assert.Equal(" North ", row.KeyA![1]);
@@ -174,7 +174,7 @@ public class ComparisonEngineTests
     {
         var composed = "Malmö";
         var decomposed = "Malmö";
-        var config = Config with { KeyNormalization = new KeyNormalization { Unicode = UnicodeNormalization.FormC } };
+        var config = Config.With(o => o with { KeyNormalization = new KeyNormalization { Unicode = UnicodeNormalization.FormC } });
 
         Assert.Equal(0, ComparisonEngine.Compare(Result(3, Row(1L, composed, 1m)), Result(3, Row(1L, decomposed, 1m)), Config).Summary.Matches);
         Assert.Equal(1, ComparisonEngine.Compare(Result(3, Row(1L, composed, 1m)), Result(3, Row(1L, decomposed, 1m)), config).Summary.Matches);
@@ -187,7 +187,7 @@ public class ComparisonEngineTests
         var b = Result(3, Row(1L, "", 1m));
 
         Assert.Equal(0, ComparisonEngine.Compare(a, b, Config).Summary.Matches);
-        var config = Config with { KeyNormalization = new KeyNormalization { BlankEqualsEmpty = true } };
+        var config = Config.With(o => o with { KeyNormalization = new KeyNormalization { BlankEqualsEmpty = true } });
         Assert.Equal(1, ComparisonEngine.Compare(a, b, config).Summary.Matches);
     }
 
@@ -196,13 +196,13 @@ public class ComparisonEngineTests
     {
         var config = new ComparisonConfig
         {
-            FieldPairs = [Dim("Date", Col("Date", "Date")), Value("V", Measure("S", "V"), Measure("S", "V"))],
+            FieldPairs = [Key("Date", Col("Date", "Date")), Value("V", Measure("S", "V"), Measure("S", "V"))],
         };
         var a = Result(2, Row(new DateTime(2025, 1, 1), 1L));
         var b = Result(2, Row(new DateTime(2025, 1, 1, 12, 0, 0), 1L));
 
         Assert.Equal(0, ComparisonEngine.Compare(a, b, config).Summary.Matches);
-        var dateOnly = config with { KeyNormalization = new KeyNormalization { DateOnly = true } };
+        var dateOnly = config.With(o => o with { KeyNormalization = new KeyNormalization { DateOnly = true } });
         Assert.Equal(1, ComparisonEngine.Compare(a, b, dateOnly).Summary.Matches);
     }
 
@@ -240,5 +240,16 @@ public class ComparisonEngineTests
         var empty = new QueryResult { ColumnNames = [], Rows = [] };
         var output = ComparisonEngine.Compare(empty, Result(3, Row(1L, "N", 1m)), Config);
         Assert.Equal(1, output.Summary.OnlyInB);
+    }
+
+    [Fact]
+    public void KeysOnly_ComparesMemberExistence()
+    {
+        var config = new ComparisonConfig { FieldPairs = [Key("Customer", Col("Customer", "Id"))] };
+
+        var output = ComparisonEngine.Compare(Result(1, Row("C1"), Row("C2")), Result(1, Row("C2"), Row("C3")), config);
+
+        Assert.Equal((1, 1, 1), (output.Summary.Matches, output.Summary.OnlyInA, output.Summary.OnlyInB));
+        Assert.All(output.Rows, r => Assert.Empty(r.Measures));
     }
 }

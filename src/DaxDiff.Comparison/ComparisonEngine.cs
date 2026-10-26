@@ -20,15 +20,15 @@ public static class ComparisonEngine
 {
     public static EngineOutput Compare(QueryResult a, QueryResult b, ComparisonConfig config)
     {
-        var dimCount = config.Dimensions.Count;
-        var measurePairs = config.Measures;
-        var expectedColumns = dimCount + measurePairs.Count;
+        var keyCount = config.Keys.Count;
+        var valuePairs = config.Values;
+        var expectedColumns = keyCount + valuePairs.Count;
         EnsureShape(a, expectedColumns, Side.A);
         EnsureShape(b, expectedColumns, Side.B);
 
         var warnings = new List<string>();
-        var indexA = Index(a, dimCount, config.KeyNormalization);
-        var indexB = Index(b, dimCount, config.KeyNormalization);
+        var indexA = Index(a, keyCount, config.Options.KeyNormalization);
+        var indexB = Index(b, keyCount, config.Options.KeyNormalization);
 
         var rows = new List<ComparisonRow>(Math.Max(a.Rows.Count, b.Rows.Count));
         var duplicateKeys = new HashSet<string>(StringComparer.Ordinal);
@@ -45,8 +45,8 @@ public static class ComparisonEngine
             {
                 NormalizedKey = key,
                 Status = RowStatus.InvalidKey,
-                KeyA = rowA is null ? null : Keys(rowA, dimCount),
-                KeyB = rowB is null ? null : Keys(rowB, dimCount),
+                KeyA = rowA is null ? null : Keys(rowA, keyCount),
+                KeyB = rowB is null ? null : Keys(rowB, keyCount),
                 Measures = [],
                 Reason = $"Duplicate key after normalization (A: {Occurrences(countA, rowA is not null)}, " +
                          $"B: {Occurrences(countB, rowB is not null)} rows)",
@@ -63,24 +63,24 @@ public static class ComparisonEngine
             var rowA = indexA.Rows[key];
             if (indexB.Rows.TryGetValue(key, out var rowB))
             {
-                var cells = new List<MeasureCell>(measurePairs.Count);
-                for (var i = 0; i < measurePairs.Count; i++)
-                    cells.Add(MeasureComparer.Compare(measurePairs[i].Alias, rowA[dimCount + i], rowB[dimCount + i], config));
+                var cells = new List<MeasureCell>(valuePairs.Count);
+                for (var i = 0; i < valuePairs.Count; i++)
+                    cells.Add(MeasureComparer.Compare(valuePairs[i].Alias, rowA[keyCount + i], rowB[keyCount + i], config.Options));
 
                 var mismatched = cells.Where(c => !c.IsMatch).Select(c => c.Alias).ToList();
                 rows.Add(new ComparisonRow
                 {
                     NormalizedKey = key,
                     Status = mismatched.Count == 0 ? RowStatus.Match : RowStatus.Mismatch,
-                    KeyA = Keys(rowA, dimCount),
-                    KeyB = Keys(rowB, dimCount),
+                    KeyA = Keys(rowA, keyCount),
+                    KeyB = Keys(rowB, keyCount),
                     Measures = cells,
                     Reason = mismatched.Count == 0 ? null : "Mismatch: " + string.Join(", ", mismatched),
                 });
             }
             else
             {
-                rows.Add(OneSided(key, rowA, dimCount, measurePairs, Side.A));
+                rows.Add(OneSided(key, rowA, keyCount, valuePairs, Side.A));
             }
         }
 
@@ -88,13 +88,13 @@ public static class ComparisonEngine
         {
             if (duplicateKeys.Contains(key) || indexA.Rows.ContainsKey(key))
                 continue;
-            rows.Add(OneSided(key, indexB.Rows[key], dimCount, measurePairs, Side.B));
+            rows.Add(OneSided(key, indexB.Rows[key], keyCount, valuePairs, Side.B));
         }
 
         return new EngineOutput
         {
             Rows = rows,
-            Summary = Summarize(rows, a, b, measurePairs, dimCount),
+            Summary = Summarize(rows, a, b, valuePairs, keyCount),
             Warnings = warnings,
             HasDuplicateKeys = duplicateKeys.Count > 0,
         };
@@ -125,12 +125,12 @@ public static class ComparisonEngine
         public List<string> Order { get; } = [];
     }
 
-    private static SideIndex Index(QueryResult result, int dimCount, KeyNormalization policy)
+    private static SideIndex Index(QueryResult result, int keyCount, KeyNormalization policy)
     {
         var index = new SideIndex();
         foreach (var row in result.Rows)
         {
-            var key = ValueCanonicalizer.CompositeKey(row.Take(dimCount).ToArray(), policy);
+            var key = ValueCanonicalizer.CompositeKey(row.Take(keyCount).ToArray(), policy);
             if (index.Rows.TryAdd(key, row))
                 index.Order.Add(key);
             else
@@ -140,15 +140,15 @@ public static class ComparisonEngine
         return index;
     }
 
-    private static object?[] Keys(object?[] row, int dimCount) =>
-        row.Take(dimCount).Select(v => v is DBNull ? null : v).ToArray();
+    private static object?[] Keys(object?[] row, int keyCount) =>
+        row.Take(keyCount).Select(v => v is DBNull ? null : v).ToArray();
 
-    private static ComparisonRow OneSided(string key, object?[] row, int dimCount, IReadOnlyList<FieldPair> measures, Side side)
+    private static ComparisonRow OneSided(string key, object?[] row, int keyCount, IReadOnlyList<FieldPair> measures, Side side)
     {
         var cells = new List<MeasureCell>(measures.Count);
         for (var i = 0; i < measures.Count; i++)
         {
-            var value = row[dimCount + i] is DBNull ? null : row[dimCount + i];
+            var value = row[keyCount + i] is DBNull ? null : row[keyCount + i];
             cells.Add(new MeasureCell
             {
                 Alias = measures[i].Alias,
@@ -164,15 +164,15 @@ public static class ComparisonEngine
         {
             NormalizedKey = key,
             Status = side == Side.A ? RowStatus.OnlyInA : RowStatus.OnlyInB,
-            KeyA = side == Side.A ? Keys(row, dimCount) : null,
-            KeyB = side == Side.B ? Keys(row, dimCount) : null,
+            KeyA = side == Side.A ? Keys(row, keyCount) : null,
+            KeyB = side == Side.B ? Keys(row, keyCount) : null,
             Measures = cells,
             Reason = $"Key not returned by {other} (member absent, filtered out, or all measures BLANK)",
         };
     }
 
     private static ComparisonSummary Summarize(
-        List<ComparisonRow> rows, QueryResult a, QueryResult b, IReadOnlyList<FieldPair> measures, int dimCount)
+        List<ComparisonRow> rows, QueryResult a, QueryResult b, IReadOnlyList<FieldPair> measures, int keyCount)
     {
         var measureSummaries = new List<MeasureSummary>(measures.Count);
         for (var i = 0; i < measures.Count; i++)
@@ -197,8 +197,8 @@ public static class ComparisonEngine
                 Alias = measures[i].Alias,
                 Compared = compared,
                 Mismatches = mismatches,
-                TotalA = Total(a, dimCount + i),
-                TotalB = Total(b, dimCount + i),
+                TotalA = Total(a, keyCount + i),
+                TotalB = Total(b, keyCount + i),
                 MaxAbsDelta = maxDelta,
             });
         }

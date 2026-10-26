@@ -43,7 +43,7 @@ public class ComparisonRunnerTests
     [Fact]
     public async Task AT07_TruncatedResult_IsPartialNeverComplete()
     {
-        var config = YearRegionSales() with { Limits = new ExecutionLimits { MaxRows = 2 } };
+        var config = YearRegionSales().With(o => o with { Limits = new ExecutionLimits { MaxRows = 2 } });
         var data = Result(3, Row(2025L, "N", 1m), Row(2025L, "S", 1m), Row(2025L, "E", 1m));
 
         var result = await _runner.RunAsync(Request(FakeConnector.Returning("A", data), FakeConnector.Returning("B", data), config), null, CancellationToken.None);
@@ -113,7 +113,7 @@ public class ComparisonRunnerTests
         Assert.Equal(RunStatus.Failed, failed.Status);
         Assert.Contains(failed.Rows, r => r.Status == RowStatus.InvalidKey);
 
-        var config = YearRegionSales() with { DuplicateKeyPolicy = DuplicateKeyPolicy.Diagnose };
+        var config = YearRegionSales().With(o => o with { DuplicateKeyPolicy = DuplicateKeyPolicy.Diagnose });
         var diagnosed = await _runner.RunAsync(Request(FakeConnector.Returning("A", a), FakeConnector.Returning("B", b), config), null, CancellationToken.None);
         Assert.Equal(RunStatus.Partial, diagnosed.Status);
     }
@@ -122,7 +122,7 @@ public class ComparisonRunnerTests
     public async Task InvalidConfiguration_FailsBeforeQuerying()
     {
         var a = FakeConnector.Returning("A", Result(3));
-        var config = new ComparisonConfig { FieldPairs = [Dim("Year", Col("Date", "Year"))] };
+        var config = new ComparisonConfig();
 
         var result = await _runner.RunAsync(Request(a, FakeConnector.Returning("B", Result(3)), config), null, CancellationToken.None);
 
@@ -147,5 +147,42 @@ public class ComparisonRunnerTests
         var connector = FakeConnector.Returning("A", Result(1, Row(1234L)));
         var count = await _runner.EstimateRowsAsync(connector, YearRegionSales(), Side.A, ModelA(), CancellationToken.None);
         Assert.Equal(1234, count);
+    }
+
+    [Fact]
+    public async Task FR018_SavedComparison_RunsWithItsNameAndAggregations()
+    {
+        var definition = new ComparisonDefinition
+        {
+            Name = "Amount by year",
+            FieldsA = [Field(Col("Date", "Year"), isKey: true), Field(Col("Sales", "Amount"), "Amount", aggregation: Aggregation.Sum)],
+            FieldsB = [Field(Col("Date", "Year"), isKey: true), Field(Col("Fact", "Amount"), "Amount", aggregation: Aggregation.Sum)],
+        };
+        var a = FakeConnector.Returning("A", Result(2, Row(2025L, 10m)));
+        var b = FakeConnector.Returning("B", Result(2, Row(2025L, 10m)));
+
+        var result = await _runner.RunAsync(RunRequest.For(a, b, definition, ModelA(), ModelB()), null, CancellationToken.None);
+
+        Assert.Equal(RunStatus.Complete, result.Status);
+        Assert.Equal("Amount by year", result.ComparisonName);
+        Assert.Contains("SUM('Sales'[Amount])", a.ExecutedQueries.Single());
+        Assert.Contains("SUM('Fact'[Amount])", b.ExecutedQueries.Single());
+    }
+
+    [Fact]
+    public async Task UnpairedKey_BlocksTheRun()
+    {
+        var definition = new ComparisonDefinition
+        {
+            FieldsA = [Field(Col("Date", "Year"), isKey: true), Field(Measure("Sales", "Total Sales"), "Sales")],
+            FieldsB = [Field(Measure("Fact", "Sales Amount"), "Sales")],
+        };
+        var a = FakeConnector.Returning("A", Result(2));
+
+        var result = await _runner.RunAsync(RunRequest.For(a, FakeConnector.Returning("B", Result(1)), definition, ModelA(), ModelB()), null, CancellationToken.None);
+
+        Assert.Equal(RunStatus.Failed, result.Status);
+        Assert.Contains("Key 'Year'", result.FailureMessage);
+        Assert.Empty(a.ExecutedQueries);
     }
 }

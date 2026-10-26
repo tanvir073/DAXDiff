@@ -5,24 +5,26 @@ namespace DaxDiff.Domain;
 public enum FieldRole
 {
     /// <summary>Part of the composite key at the comparison grain.</summary>
-    Dimension,
+    Key,
 
     /// <summary>A value evaluated on both sides per key and compared.</summary>
-    Measure,
+    Value,
 }
 
-/// <summary>A pairing of a model A field with a model B field (FR-006).</summary>
+/// <summary>A compiled pairing of a model A field with a model B field that share a synonym (FR-006).</summary>
 public sealed record FieldPair
 {
     public required FieldRef Left { get; init; }
     public required FieldRef Right { get; init; }
     public required FieldRole Role { get; init; }
 
-    /// <summary>User-friendly label shown in the grid and in the workbook.</summary>
+    /// <summary>The shared synonym; used as the label in the grid and in the workbook.</summary>
     public required string Alias { get; init; }
 
-    /// <summary>Auto-match suggestions start unconfirmed and never run until accepted (FR-007).</summary>
-    public bool IsConfirmed { get; init; } = true;
+    /// <summary>How the A column is aggregated per key. <see cref="Aggregation.None"/> for keys and measures.</summary>
+    public Aggregation LeftAggregation { get; init; }
+
+    public Aggregation RightAggregation { get; init; }
 }
 
 public enum FilterOperator
@@ -118,10 +120,9 @@ public sealed record ExecutionLimits
     public int RetryCount { get; init; } = 2;
 }
 
-/// <summary>Everything that determines a comparison run, apart from source data and security context (FR-008).</summary>
-public sealed record ComparisonConfig
+/// <summary>Per-comparison rules: filters, tolerances, normalization and limits (FR-008).</summary>
+public sealed record ComparisonOptions
 {
-    public IReadOnlyList<FieldPair> FieldPairs { get; init; } = [];
     public IReadOnlyList<FilterPair> Filters { get; init; } = [];
     public ToleranceSettings Tolerance { get; init; } = new();
     public KeyNormalization KeyNormalization { get; init; } = new();
@@ -130,9 +131,20 @@ public sealed record ComparisonConfig
     public DuplicateKeyPolicy DuplicateKeyPolicy { get; init; } = DuplicateKeyPolicy.Fail;
     public PercentBaseline PercentBaseline { get; init; } = PercentBaseline.A;
     public ExecutionLimits Limits { get; init; } = new();
+}
+
+/// <summary>
+/// The compiled input of one run: field pairs resolved from a <see cref="ComparisonDefinition"/> by synonym,
+/// plus its options. Determines the run apart from source data and security context (FR-008).
+/// </summary>
+public sealed record ComparisonConfig
+{
+    public IReadOnlyList<FieldPair> FieldPairs { get; init; } = [];
+    public ComparisonOptions Options { get; init; } = new();
 
     [JsonIgnore]
-    public IReadOnlyList<FieldPair> Dimensions => FieldPairs.Where(p => p.Role == FieldRole.Dimension).ToList();
+    public IReadOnlyList<FieldPair> Keys => FieldPairs.Where(p => p.Role == FieldRole.Key).ToList();
+
     [JsonIgnore]
-    public IReadOnlyList<FieldPair> Measures => FieldPairs.Where(p => p.Role == FieldRole.Measure).ToList();
+    public IReadOnlyList<FieldPair> Values => FieldPairs.Where(p => p.Role == FieldRole.Value).ToList();
 }

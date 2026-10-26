@@ -9,19 +9,26 @@ internal static class Fixture
 
     public static FieldRef Measure(string table, string name) => new(table, name, FieldKind.Measure);
 
-    public static FieldPair Dim(string alias, FieldRef left, FieldRef? right = null) =>
-        new() { Left = left, Right = right ?? left, Role = FieldRole.Dimension, Alias = alias };
+    public static FieldPair Key(string alias, FieldRef left, FieldRef? right = null) =>
+        new() { Left = left, Right = right ?? left, Role = FieldRole.Key, Alias = alias };
 
-    public static FieldPair Value(string alias, FieldRef left, FieldRef right) =>
-        new() { Left = left, Right = right, Role = FieldRole.Measure, Alias = alias };
+    public static FieldPair Value(string alias, FieldRef left, FieldRef right, Aggregation leftAgg = Aggregation.None, Aggregation? rightAgg = null) =>
+        new() { Left = left, Right = right, Role = FieldRole.Value, Alias = alias, LeftAggregation = leftAgg, RightAggregation = rightAgg ?? leftAgg };
+
+    public static ComparisonField Field(FieldRef field, string? synonym = null, bool isKey = false, Aggregation aggregation = Aggregation.None) =>
+        new() { Field = field, Synonym = synonym ?? field.Name, IsKey = isKey, Aggregation = aggregation };
+
+    /// <summary>Changes a configuration's options, e.g. <c>config.With(o => o with { NullPolicy = ... })</c>.</summary>
+    public static ComparisonConfig With(this ComparisonConfig config, Func<ComparisonOptions, ComparisonOptions> change) =>
+        config with { Options = change(config.Options) };
 
     /// <summary>Year + Region grain, one measure named differently on each side (§4.5).</summary>
     public static ComparisonConfig YearRegionSales() => new()
     {
         FieldPairs =
         [
-            Dim("Year", Col("Date", "Year")),
-            Dim("Region", Col("Geography", "Region")),
+            Key("Year", Col("Date", "Year")),
+            Key("Region", Col("Geography", "Region")),
             Value("Sales", Measure("Sales", "Total Sales"), Measure("Fact", "Sales Amount")),
         ],
     };

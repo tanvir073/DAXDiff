@@ -13,51 +13,54 @@ public sealed record ValidationIssue(IssueSeverity Severity, string Code, string
     public override string ToString() => $"{Severity}: {Message}";
 }
 
-/// <summary>Validates mappings, filters and settings before any query runs (FR-006, FR-008, §4.2 step 1).</summary>
+/// <summary>
+/// Validates a compiled comparison against model metadata before any query runs: fields exist, roles and
+/// aggregations fit, paired types are comparable, filters and settings are valid (FR-006, FR-008, §4.2 step 1).
+/// </summary>
 public static class MappingValidator
 {
     public static IReadOnlyList<ValidationIssue> Validate(ComparisonConfig config, ModelMetadata? a, ModelMetadata? b)
     {
         var issues = new List<ValidationIssue>();
 
-        if (config.Measures.Count == 0)
-            issues.Add(Error("MAP-NO-MEASURE", "Map at least one measure pair."));
-        if (config.Dimensions.Count == 0)
-            issues.Add(Warning("MAP-NO-DIM", "No dimensions mapped: the comparison runs at grand-total grain only."));
+        if (config.FieldPairs.Count == 0)
+            issues.Add(Error("MAP-EMPTY", "Nothing to compare: give a model A field and a model B field the same synonym."));
+        else if (config.Keys.Count == 0)
+            issues.Add(Warning("MAP-NO-KEY", "No key fields: values are compared as grand totals only."));
 
         foreach (var pair in config.FieldPairs)
         {
-            if (!pair.IsConfirmed)
-                issues.Add(Error("MAP-UNCONFIRMED", $"Suggested pair '{pair.Alias}' has not been accepted.", pair.Alias));
             if (string.IsNullOrWhiteSpace(pair.Alias))
-                issues.Add(Error("MAP-ALIAS", $"Pair {pair.Left} → {pair.Right} needs a label.", pair.Alias));
+                issues.Add(Error("MAP-ALIAS", $"Pair {pair.Left} → {pair.Right} needs a synonym.", pair.Alias));
 
-            var expected = pair.Role == FieldRole.Dimension ? FieldKind.Column : FieldKind.Measure;
-            if (pair.Left.Kind != expected || pair.Right.Kind != expected)
-                issues.Add(Error("MAP-ROLE", $"'{pair.Alias}': a {pair.Role.ToString().ToLowerInvariant()} pair must map {expected.ToString().ToLowerInvariant()}s on both sides.", pair.Alias));
-
+            CheckRole(issues, pair, pair.Left, pair.LeftAggregation, Side.A);
+            CheckRole(issues, pair, pair.Right, pair.RightAggregation, Side.B);
             CheckExists(issues, pair.Left, a, Side.A, pair.Alias);
             CheckExists(issues, pair.Right, b, Side.B, pair.Alias);
             if (a is not null && b is not null && a.Contains(pair.Left) && b.Contains(pair.Right))
-                CheckTypes(issues, pair, a.KindOf(pair.Left), b.KindOf(pair.Right));
+            {
+                CheckTypes(issues, pair,
+                    AggregationRules.ResultKind(pair.LeftAggregation, a.KindOf(pair.Left)),
+                    AggregationRules.ResultKind(pair.RightAggregation, b.KindOf(pair.Right)));
+            }
         }
 
         CheckDuplicates(issues, config.FieldPairs, p => p.Alias.Trim().ToUpperInvariant(), p => p.Alias, "MAP-DUP-ALIAS", "Label '{0}' is used more than once.");
-        foreach (var role in new[] { FieldRole.Dimension, FieldRole.Measure })
+        foreach (var role in new[] { FieldRole.Key, FieldRole.Value })
         {
             var pairs = config.FieldPairs.Where(p => p.Role == role).ToList();
             CheckDuplicates(issues, pairs, p => Key(p.Left), p => p.Left.ToString(), "MAP-DUP-LEFT", "Model A field {0} is mapped more than once.");
             CheckDuplicates(issues, pairs, p => Key(p.Right), p => p.Right.ToString(), "MAP-DUP-RIGHT", "Model B field {0} is mapped more than once.");
         }
 
-        for (var i = 0; i < config.Filters.Count; i++)
-            ValidateFilter(issues, config.Filters[i], i + 1, a, b);
+        for (var i = 0; i < config.Options.Filters.Count; i++)
+            ValidateFilter(issues, config.Options.Filters[i], i + 1, a, b);
 
-        if (config.Tolerance.Absolute < 0 || config.Tolerance.Relative < 0)
+        if (config.Options.Tolerance.Absolute < 0 || config.Options.Tolerance.Relative < 0)
             issues.Add(Error("OPT-TOL", "Tolerances cannot be negative."));
-        if (config.Limits.MaxRows <= 0)
+        if (config.Options.Limits.MaxRows <= 0)
             issues.Add(Error("OPT-ROWS", "Maximum rows must be greater than zero."));
-        if (config.Limits.TimeoutSeconds <= 0)
+        if (config.Options.Limits.TimeoutSeconds <= 0)
             issues.Add(Error("OPT-TIMEOUT", "Timeout must be greater than zero."));
 
         foreach (var (meta, side) in new[] { (a, Side.A), (b, Side.B) })
@@ -75,10 +78,30 @@ public static class MappingValidator
 
     private static string Key(FieldRef f) => $"{f.Kind}|{f.Table.ToUpperInvariant()}|{f.Name.ToUpperInvariant()}";
 
+    /// <summary>Keys are unaggregated columns; values are measures, or columns with an aggregation.</summary>
+    private static void CheckRole(List<ValidationIssue> issues, FieldPair pair, FieldRef field, Aggregation aggregation, Side side)
+    {
+        if (pair.Role == FieldRole.Key)
+        {
+            if (field.Kind != FieldKind.Column)
+                issues.Add(Error("MAP-ROLE", $"'{pair.Alias}': model {side} key {field} must be a column, not a measure.", pair.Alias));
+            else if (aggregation != Aggregation.None)
+                issues.Add(Error("MAP-AGG", $"'{pair.Alias}': model {side} key {field} cannot be aggregated.", pair.Alias));
+        }
+        else if (field.Kind == FieldKind.Measure && aggregation != Aggregation.None)
+        {
+            issues.Add(Error("MAP-AGG", $"'{pair.Alias}': model {side} measure {field} is evaluated as defined and cannot be aggregated again.", pair.Alias));
+        }
+        else if (field.Kind == FieldKind.Column && aggregation == Aggregation.None)
+        {
+            issues.Add(Error("MAP-AGG", $"'{pair.Alias}': model {side} column {field} needs an aggregation to be compared as a value.", pair.Alias));
+        }
+    }
+
     private static void CheckExists(List<ValidationIssue> issues, FieldRef field, ModelMetadata? meta, Side side, string alias)
     {
         if (meta is not null && !meta.Contains(field))
-            issues.Add(Error("MAP-MISSING", $"'{alias}': {field} no longer exists in model {side} (renamed or deleted?). Remap it.", alias));
+            issues.Add(Error("MAP-MISSING", $"'{alias}': {field} no longer exists in model {side} (renamed or deleted?). Replace it in the comparison.", alias));
     }
 
     private static void CheckTypes(List<ValidationIssue> issues, FieldPair pair, DataKind left, DataKind right)
@@ -86,10 +109,10 @@ public static class MappingValidator
         if (AutoMatcher.TypesCompatible(left, right))
             return;
 
-        if (pair.Role == FieldRole.Dimension)
+        if (pair.Role == FieldRole.Key)
             issues.Add(Error("MAP-TYPE", $"'{pair.Alias}': key types differ ({left} vs {right}); keys would never match. Choose compatible columns.", pair.Alias));
         else
-            issues.Add(Warning("MAP-TYPE", $"'{pair.Alias}': measure types differ ({left} vs {right}); values will be reported as type mismatches.", pair.Alias));
+            issues.Add(Warning("MAP-TYPE", $"'{pair.Alias}': value types differ ({left} vs {right}); values will be reported as type mismatches. Check the aggregations.", pair.Alias));
     }
 
     private static void CheckDuplicates<T>(

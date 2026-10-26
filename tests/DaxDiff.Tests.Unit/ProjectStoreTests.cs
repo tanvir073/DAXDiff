@@ -6,6 +6,29 @@ namespace DaxDiff.Tests.Unit;
 
 public class ProjectStoreTests
 {
+    private static ComparisonDefinition SalesByRegion() => new()
+    {
+        Name = "Sales by region",
+        FieldsA =
+        [
+            Field(Col("Date", "Year"), isKey: true),
+            Field(Col("Geography", "Region"), isKey: true),
+            Field(Col("Sales", "Amount"), "Amount", aggregation: Aggregation.Sum),
+        ],
+        FieldsB =
+        [
+            Field(Col("Date", "Year"), isKey: true),
+            Field(Col("Geography", "Region"), isKey: true),
+            Field(Col("Fact", "Amount"), "Amount", aggregation: Aggregation.Sum),
+        ],
+        Options = new ComparisonOptions
+        {
+            Tolerance = new ToleranceSettings { Mode = ToleranceMode.Tolerance, Absolute = 0.01m, Relative = 0.001m },
+            NullPolicy = NullPolicy.BlankEqualsZero,
+            Filters = [new FilterPair { LeftColumn = Col("Date", "Year"), RightColumn = Col("Date", "Year"), Values = ["2025"] }],
+        },
+    };
+
     private static ProjectFile Sample() => new()
     {
         Name = "Prod vs Dev",
@@ -26,24 +49,30 @@ public class ProjectStoreTests
             DatasetId = "ds-id",
             DatasetName = "Sales",
         },
-        Config = YearRegionSales() with
-        {
-            Tolerance = new ToleranceSettings { Mode = ToleranceMode.Tolerance, Absolute = 0.01m, Relative = 0.001m },
-            NullPolicy = NullPolicy.BlankEqualsZero,
-            Filters = [new FilterPair { LeftColumn = Col("Date", "Year"), RightColumn = Col("Date", "Year"), Values = ["2025"] }],
-        },
+        Comparisons =
+        [
+            SalesByRegion(),
+            new ComparisonDefinition { Name = "Customers", FieldsA = [Field(Col("Customer", "Id"), isKey: true)], FieldsB = [Field(Col("Customer", "Id"), isKey: true)] },
+        ],
     };
 
     [Fact]
-    public void AT13_RoundTrip_PreservesMappingsAndOptions()
+    public void AT13_RoundTrip_PreservesComparisonsAndOptions()
     {
-        var loaded = ProjectStore.Deserialize(ProjectStore.Serialize(Sample()));
+        var saved = Sample();
+        var loaded = ProjectStore.Deserialize(ProjectStore.Serialize(saved));
 
         Assert.Equal("Prod vs Dev", loaded.Name);
-        Assert.Equal(Sample().Config.FieldPairs, loaded.Config.FieldPairs);
-        Assert.Equal(0.01m, loaded.Config.Tolerance.Absolute);
-        Assert.Equal(NullPolicy.BlankEqualsZero, loaded.Config.NullPolicy);
-        Assert.Equal(["2025"], loaded.Config.Filters.Single().Values);
+        Assert.Equal(["Sales by region", "Customers"], loaded.Comparisons.Select(c => c.Name));
+        var sales = loaded.Comparisons[0];
+        Assert.Equal(saved.Comparisons[0].Id, sales.Id);
+        Assert.Equal(saved.Comparisons[0].FieldsA, sales.FieldsA);
+        Assert.Equal(saved.Comparisons[0].FieldsB, sales.FieldsB);
+        Assert.Equal(Aggregation.Sum, sales.FieldsA[2].Aggregation);
+        Assert.True(sales.FieldsB[0].IsKey);
+        Assert.Equal(0.01m, sales.Options.Tolerance.Absolute);
+        Assert.Equal(NullPolicy.BlankEqualsZero, sales.Options.NullPolicy);
+        Assert.Equal(["2025"], sales.Options.Filters.Single().Values);
         Assert.Equal("Finance", loaded.SourceB!.WorkspaceName);
         Assert.Equal(@"C:\models\Sales.pbix", loaded.SourceA!.LocalPbixPath);
     }
@@ -58,12 +87,13 @@ public class ProjectStoreTests
         Assert.DoesNotContain("token", json, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("password", json, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("qualifiedName", json);
-        Assert.Contains("\"schemaVersion\": 1", json);
+        Assert.Contains("\"schemaVersion\": 2", json);
         Assert.Contains("\"BlankEqualsZero\"", json);
+        Assert.Contains("\"aggregation\": \"Sum\"", json);
     }
 
     [Fact]
-    public void NFR08_LegacySchema_IsMigrated()
+    public void NFR08_V0Schema_IsMigrated()
     {
         const string legacy = """
             { "name": "Old", "config": { "limits": { "maxRowCount": 500, "timeoutSeconds": 30 } } }
@@ -71,9 +101,42 @@ public class ProjectStoreTests
 
         var project = ProjectStore.Deserialize(legacy);
 
-        Assert.Equal(1, project.SchemaVersion);
-        Assert.Equal(500, project.Config.Limits.MaxRows);
-        Assert.Equal(30, project.Config.Limits.TimeoutSeconds);
+        Assert.Equal(ProjectFile.CurrentSchemaVersion, project.SchemaVersion);
+        var options = Assert.Single(project.Comparisons).Options;
+        Assert.Equal(500, options.Limits.MaxRows);
+        Assert.Equal(30, options.Limits.TimeoutSeconds);
+    }
+
+    [Fact]
+    public void NFR08_V1PairsBecomeOneComparisonPairedBySynonym()
+    {
+        const string v1 = """
+            {
+              "schemaVersion": 1,
+              "name": "Migrated",
+              "config": {
+                "fieldPairs": [
+                  { "left": { "table": "Date", "name": "Year", "kind": "Column" }, "right": { "table": "Calendar", "name": "Yr", "kind": "Column" }, "role": "Dimension", "alias": "Year" },
+                  { "left": { "table": "Sales", "name": "Total Sales", "kind": "Measure" }, "right": { "table": "Fact", "name": "Sales Amount", "kind": "Measure" }, "role": "Measure", "alias": "Sales", "isConfirmed": true }
+                ],
+                "nullPolicy": "BlankEqualsZero"
+              }
+            }
+            """;
+
+        var project = ProjectStore.Deserialize(v1);
+
+        var comparison = Assert.Single(project.Comparisons);
+        Assert.Equal("Comparison 1", comparison.Name);
+        Assert.Equal(NullPolicy.BlankEqualsZero, comparison.Options.NullPolicy);
+        Assert.Equal([true, false], comparison.FieldsA.Select(f => f.IsKey));
+        Assert.Equal(["Year", "Sales"], comparison.FieldsB.Select(f => f.Synonym));
+        Assert.Equal(Col("Calendar", "Yr"), comparison.FieldsB[0].Field);
+        Assert.All(comparison.FieldsA, f => Assert.Equal(Aggregation.None, f.Aggregation));
+
+        var compiled = Comparison.ComparisonCompiler.Compile(comparison);
+        Assert.False(compiled.HasErrors);
+        Assert.Equal(2, compiled.Config.FieldPairs.Count);
     }
 
     [Fact]
@@ -98,7 +161,7 @@ public class ProjectStoreTests
         {
             await ProjectStore.SaveAsync(Sample(), path);
             var loaded = await ProjectStore.LoadAsync(path);
-            Assert.Equal(Sample().Config.FieldPairs.Count, loaded.Config.FieldPairs.Count);
+            Assert.Equal(2, loaded.Comparisons.Count);
         }
         finally
         {

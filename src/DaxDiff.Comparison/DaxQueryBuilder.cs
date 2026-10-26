@@ -10,34 +10,30 @@ namespace DaxDiff.Comparison;
 /// </summary>
 public static class DaxQueryBuilder
 {
-    /// <summary>Result column name used for the measure at <paramref name="index"/> in comparison queries.</summary>
-    public static string MeasureColumnAlias(int index) => $"M{index}";
+    /// <summary>Result column name used for the compared value at <paramref name="index"/>.</summary>
+    public static string ValueColumnAlias(int index) => $"V{index}";
 
     /// <summary>
-    /// Builds the comparison query for one side. Result columns are ordinal: all dimension columns in mapping order,
-    /// then one column per measure pair in mapping order.
+    /// Builds the comparison query for one side. Result columns are ordinal: all key columns in order,
+    /// then one column per value pair in order. A comparison with keys only returns the key combinations.
     /// </summary>
     public static string BuildComparisonQuery(ComparisonConfig config, Side side, ModelMetadata? metadata = null)
     {
-        var dims = config.Dimensions.Select(p => Pick(p, side)).ToList();
-        var measures = config.Measures.Select(p => Pick(p, side)).ToList();
-        if (measures.Count == 0)
-            throw new ArgumentException("At least one measure pair is required.", nameof(config));
+        var keys = config.Keys.Select(p => Pick(p, side)).ToList();
+        if (config.FieldPairs.Count == 0)
+            throw new ArgumentException("At least one field pair is required.", nameof(config));
 
         var sb = new StringBuilder();
         var filterVars = AppendDefine(sb, config, side, metadata);
 
         sb.AppendLine("EVALUATE");
         sb.AppendLine("SUMMARIZECOLUMNS(");
-        var args = new List<string>();
-        args.AddRange(dims.Select(ColumnRef));
-        args.AddRange(filterVars);
-        args.AddRange(measures.Select((m, i) => $"{StringLiteral(MeasureColumnAlias(i))}, {MeasureRef(m)}"));
+        var args = SummarizeArguments(config, side, filterVars);
         sb.AppendLine(string.Join("," + Environment.NewLine, args.Select(a => "    " + a)));
         sb.AppendLine(")");
 
-        if (dims.Count > 0)
-            sb.AppendLine("ORDER BY " + string.Join(", ", dims.Select(ColumnRef)));
+        if (keys.Count > 0)
+            sb.AppendLine("ORDER BY " + string.Join(", ", keys.Select(ColumnRef)));
 
         return sb.ToString();
     }
@@ -45,32 +41,59 @@ public static class DaxQueryBuilder
     /// <summary>Builds a one-row query returning the number of key tuples the comparison query would return.</summary>
     public static string BuildRowEstimateQuery(ComparisonConfig config, Side side, ModelMetadata? metadata = null)
     {
-        var dims = config.Dimensions.Select(p => Pick(p, side)).ToList();
-        var measures = config.Measures.Select(p => Pick(p, side)).ToList();
-
         var sb = new StringBuilder();
         var filterVars = AppendDefine(sb, config, side, metadata);
-
-        var args = new List<string>();
-        args.AddRange(dims.Select(ColumnRef));
-        args.AddRange(filterVars);
-        args.AddRange(measures.Select((m, i) => $"{StringLiteral(MeasureColumnAlias(i))}, {MeasureRef(m)}"));
+        var args = SummarizeArguments(config, side, filterVars);
 
         sb.AppendLine("EVALUATE");
         sb.AppendLine($"ROW(\"Rows\", COUNTROWS(SUMMARIZECOLUMNS({string.Join(", ", args)})))");
         return sb.ToString();
     }
 
+    private static List<string> SummarizeArguments(ComparisonConfig config, Side side, List<string> filterVars)
+    {
+        var args = new List<string>();
+        args.AddRange(config.Keys.Select(p => ColumnRef(Pick(p, side))));
+        args.AddRange(filterVars);
+        args.AddRange(config.Values.Select((p, i) =>
+            $"{StringLiteral(ValueColumnAlias(i))}, {ValueExpression(Pick(p, side), side == Side.A ? p.LeftAggregation : p.RightAggregation)}"));
+        return args;
+    }
+
+    /// <summary>
+    /// The DAX expression for one compared value: a measure as defined in the model, or an aggregated column (FR-017).
+    /// Concatenate joins the distinct values in ascending order so both models produce comparable text.
+    /// </summary>
+    public static string ValueExpression(FieldRef field, Aggregation aggregation)
+    {
+        if (field.Kind == FieldKind.Measure)
+            return MeasureRef(field);
+
+        var col = ColumnRef(field);
+        return aggregation switch
+        {
+            Aggregation.Sum => $"SUM({col})",
+            Aggregation.Average => $"AVERAGE({col})",
+            Aggregation.Min => $"MIN({col})",
+            Aggregation.Max => $"MAX({col})",
+            Aggregation.Count => $"COUNTA({col})",
+            Aggregation.DistinctCount => $"DISTINCTCOUNT({col})",
+            Aggregation.Concatenate => $"CONCATENATEX(VALUES({col}), {col}, \", \", {col}, ASC)",
+            _ => throw new ArgumentException($"Column {field} needs an aggregation to be compared as a value.", nameof(aggregation)),
+        };
+    }
+
     private static List<string> AppendDefine(StringBuilder sb, ComparisonConfig config, Side side, ModelMetadata? metadata)
     {
         var vars = new List<string>();
-        if (config.Filters.Count == 0)
+        var filters = config.Options.Filters;
+        if (filters.Count == 0)
             return vars;
 
         sb.AppendLine("DEFINE");
-        for (var i = 0; i < config.Filters.Count; i++)
+        for (var i = 0; i < filters.Count; i++)
         {
-            var filter = config.Filters[i];
+            var filter = filters[i];
             var column = side == Side.A ? filter.LeftColumn : filter.RightColumn;
             var kind = metadata?.KindOf(column) ?? DataKind.Text;
             var col = ColumnRef(column);

@@ -5,7 +5,7 @@ namespace DaxDiff.Tests.Unit;
 
 public class MeasureComparerTests
 {
-    private static readonly ComparisonConfig Strict = new();
+    private static readonly ComparisonOptions Strict = new();
 
     [Theory]
     [InlineData(110, 100, PercentBaseline.B, 0.1)]

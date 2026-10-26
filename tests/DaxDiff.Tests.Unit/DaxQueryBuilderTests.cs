@@ -17,8 +17,8 @@ public class DaxQueryBuilderTests
         Assert.Contains("SUMMARIZECOLUMNS(", daxA);
         Assert.Contains("'Date'[Year]", daxA);
         Assert.Contains("'Geography'[Region]", daxA);
-        Assert.Contains("\"M0\", [Total Sales]", daxA);
-        Assert.Contains("\"M0\", [Sales Amount]", daxB);
+        Assert.Contains("\"V0\", [Total Sales]", daxA);
+        Assert.Contains("\"V0\", [Sales Amount]", daxB);
         Assert.Contains("ORDER BY 'Date'[Year], 'Geography'[Region]", daxA);
         Assert.DoesNotContain("DEFINE", daxA);
     }
@@ -30,7 +30,7 @@ public class DaxQueryBuilderTests
         {
             FieldPairs =
             [
-                Dim("K", Col("O'Brien Table", "Col]umn")),
+                Key("K", Col("O'Brien Table", "Col]umn")),
                 Value("V", Measure("T", "Sales [Net]"), Measure("T", "x")),
             ],
         };
@@ -44,7 +44,7 @@ public class DaxQueryBuilderTests
     [Fact]
     public void FilterValues_AreTypedLiterals_AndCannotInjectDax()
     {
-        var config = YearRegionSales() with
+        var config = YearRegionSales().With(o => o with
         {
             Filters =
             [
@@ -62,7 +62,7 @@ public class DaxQueryBuilderTests
                     Values = ["2020"],
                 },
             ],
-        };
+        });
 
         var dax = DaxQueryBuilder.BuildComparisonQuery(config, Side.A, ModelA());
 
@@ -92,13 +92,51 @@ public class DaxQueryBuilderTests
     public void RowEstimateQuery_CountsSummarizedRows()
     {
         var dax = DaxQueryBuilder.BuildRowEstimateQuery(YearRegionSales(), Side.B);
-        Assert.Contains("ROW(\"Rows\", COUNTROWS(SUMMARIZECOLUMNS('Date'[Year], 'Geography'[Region], \"M0\", [Sales Amount])))", dax);
+        Assert.Contains("ROW(\"Rows\", COUNTROWS(SUMMARIZECOLUMNS('Date'[Year], 'Geography'[Region], \"V0\", [Sales Amount])))", dax);
     }
 
     [Fact]
-    public void RequiresAMeasure()
+    public void RequiresAField() =>
+        Assert.Throws<ArgumentException>(() => DaxQueryBuilder.BuildComparisonQuery(new ComparisonConfig(), Side.A));
+
+    [Fact]
+    public void KeysOnly_ReturnsKeyCombinations()
     {
-        var config = new ComparisonConfig { FieldPairs = [Dim("Y", Col("Date", "Year"))] };
-        Assert.Throws<ArgumentException>(() => DaxQueryBuilder.BuildComparisonQuery(config, Side.A));
+        var config = new ComparisonConfig { FieldPairs = [Key("Y", Col("Date", "Year"))] };
+
+        var dax = DaxQueryBuilder.BuildComparisonQuery(config, Side.A);
+
+        Assert.Contains($"SUMMARIZECOLUMNS({Environment.NewLine}    'Date'[Year]{Environment.NewLine})", dax);
     }
+
+    [Theory]
+    [InlineData(Aggregation.Sum, "SUM('Fact'[Amount])")]
+    [InlineData(Aggregation.Average, "AVERAGE('Fact'[Amount])")]
+    [InlineData(Aggregation.Min, "MIN('Fact'[Amount])")]
+    [InlineData(Aggregation.Max, "MAX('Fact'[Amount])")]
+    [InlineData(Aggregation.Count, "COUNTA('Fact'[Amount])")]
+    [InlineData(Aggregation.DistinctCount, "DISTINCTCOUNT('Fact'[Amount])")]
+    [InlineData(Aggregation.Concatenate, "CONCATENATEX(VALUES('Fact'[Amount]), 'Fact'[Amount], \", \", 'Fact'[Amount], ASC)")]
+    public void FR017_ColumnAggregations(Aggregation aggregation, string expected) =>
+        Assert.Equal(expected, DaxQueryBuilder.ValueExpression(Col("Fact", "Amount"), aggregation));
+
+    [Fact]
+    public void AggregatedColumns_UseEachSidesOwnAggregation()
+    {
+        var config = new ComparisonConfig
+        {
+            FieldPairs =
+            [
+                Key("Year", Col("Date", "Year")),
+                Value("Amount", Col("Sales", "Amount"), Col("Fact", "Amt"), Aggregation.Sum, Aggregation.Average),
+            ],
+        };
+
+        Assert.Contains("\"V0\", SUM('Sales'[Amount])", DaxQueryBuilder.BuildComparisonQuery(config, Side.A));
+        Assert.Contains("\"V0\", AVERAGE('Fact'[Amt])", DaxQueryBuilder.BuildComparisonQuery(config, Side.B));
+    }
+
+    [Fact]
+    public void UnaggregatedValueColumn_IsRejected() =>
+        Assert.Throws<ArgumentException>(() => DaxQueryBuilder.ValueExpression(Col("Fact", "Amount"), Aggregation.None));
 }

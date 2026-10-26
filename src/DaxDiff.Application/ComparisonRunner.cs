@@ -15,7 +15,20 @@ public sealed record RunRequest(
     IModelConnector ConnectorB,
     ComparisonConfig Config,
     ModelMetadata? MetadataA,
-    ModelMetadata? MetadataB);
+    ModelMetadata? MetadataB,
+    string ComparisonName = "",
+    IReadOnlyList<ValidationIssue>? Issues = null)
+{
+    /// <summary>
+    /// Builds a request from a saved comparison: compiles it by synonym and validates it, so pairing errors
+    /// (unpaired keys, bad aggregations) block the run like any other validation error.
+    /// </summary>
+    public static RunRequest For(IModelConnector a, IModelConnector b, ComparisonDefinition definition, ModelMetadata? metadataA, ModelMetadata? metadataB)
+    {
+        var compiled = ComparisonCompiler.CompileAndValidate(definition, metadataA, metadataB);
+        return new RunRequest(a, b, compiled.Config, metadataA, metadataB, definition.Name, compiled.Issues);
+    }
+}
 
 public sealed record RunProgress(Side? Side, string Step, bool Done = false);
 
@@ -48,6 +61,7 @@ public sealed class ComparisonRunner
         {
             RunId = runId,
             Status = status,
+            ComparisonName = request.ComparisonName,
             SourceA = request.ConnectorA.Reference,
             SourceB = request.ConnectorB.Reference,
             Config = config,
@@ -65,7 +79,7 @@ public sealed class ComparisonRunner
             MetadataB = request.MetadataB,
         };
 
-        var issues = MappingValidator.Validate(config, request.MetadataA, request.MetadataB);
+        var issues = request.Issues ?? MappingValidator.Validate(config, request.MetadataA, request.MetadataB);
         if (MappingValidator.HasErrors(issues))
         {
             var message = string.Join(Environment.NewLine, issues.Where(i => i.Severity == IssueSeverity.Error).Select(i => i.Message));
@@ -85,8 +99,8 @@ public sealed class ComparisonRunner
         }
 
         progress?.Report(new RunProgress(null, "Querying both models"));
-        var taskA = ExecuteAsync(Side.A, request.ConnectorA, daxA, config.Limits, progress, cancellationToken);
-        var taskB = ExecuteAsync(Side.B, request.ConnectorB, daxB, config.Limits, progress, cancellationToken);
+        var taskA = ExecuteAsync(Side.A, request.ConnectorA, daxA, config.Options.Limits, progress, cancellationToken);
+        var taskB = ExecuteAsync(Side.B, request.ConnectorB, daxB, config.Options.Limits, progress, cancellationToken);
         var outcomes = await Task.WhenAll(taskA, taskB);
         var audits = outcomes.Select(o => o.Audit).ToList();
 
@@ -114,7 +128,7 @@ public sealed class ComparisonRunner
         var warnings = BuildWarnings(request, outcomes, output, issues);
         var status = RunStatus.Complete;
         string? failure = null;
-        if (output.HasDuplicateKeys && config.DuplicateKeyPolicy == DuplicateKeyPolicy.Fail)
+        if (output.HasDuplicateKeys && config.Options.DuplicateKeyPolicy == DuplicateKeyPolicy.Fail)
         {
             status = RunStatus.Failed;
             failure = $"{output.Summary.InvalidKeys} key(s) are duplicated after normalization. Review the Invalid key rows, " +
@@ -135,7 +149,7 @@ public sealed class ComparisonRunner
     public async Task<long?> EstimateRowsAsync(IModelConnector connector, ComparisonConfig config, Side side, ModelMetadata? metadata, CancellationToken cancellationToken)
     {
         var dax = DaxQueryBuilder.BuildRowEstimateQuery(config, side, metadata);
-        var result = await connector.ExecuteDaxAsync(dax, new QueryOptions(1, TimeSpan.FromSeconds(config.Limits.TimeoutSeconds)), cancellationToken);
+        var result = await connector.ExecuteDaxAsync(dax, new QueryOptions(1, TimeSpan.FromSeconds(config.Options.Limits.TimeoutSeconds)), cancellationToken);
         return result.Rows.Count == 1 && ValueCanonicalizer.TryToDecimal(result.Rows[0][0], out var count) ? (long)count : result.Rows.Count == 1 ? 0 : null;
     }
 

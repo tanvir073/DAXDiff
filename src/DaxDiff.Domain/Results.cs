@@ -111,6 +111,9 @@ public sealed record ComparisonResult
 {
     public required Guid RunId { get; init; }
     public required RunStatus Status { get; init; }
+
+    /// <summary>Name of the comparison this run executed.</summary>
+    public string ComparisonName { get; init; } = "";
     public required ModelReference SourceA { get; init; }
     public required ModelReference SourceB { get; init; }
     public required ComparisonConfig Config { get; init; }

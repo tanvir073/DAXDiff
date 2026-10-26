@@ -88,7 +88,7 @@ public class ExcelReportWriterTests
     {
         var config = new ComparisonConfig
         {
-            FieldPairs = [Dim("Name", Col("C", "Name")), Value("V", Measure("S", "V"), Measure("S", "V"))],
+            FieldPairs = [Key("Name", Col("C", "Name")), Value("V", Measure("S", "V"), Measure("S", "V"))],
         };
         var a = Result(2, Row("=HYPERLINK(\"http://evil\")", 1m), Row("+1+1", 1m), Row("@SUM(A1)", 1m), Row("-2", 1m));
         using var wb = RoundTrip(Run(a, Result(2), config: config));
@@ -110,7 +110,7 @@ public class ExcelReportWriterTests
     {
         var config = new ComparisonConfig
         {
-            FieldPairs = [Dim("Date", Col("D", "Date")), Value("V", Measure("S", "V"), Measure("S", "V"))],
+            FieldPairs = [Key("Date", Col("D", "Date")), Value("V", Measure("S", "V"), Measure("S", "V"))],
         };
         using var wb = RoundTrip(Run(Result(2, Row(new DateTime(2025, 5, 1), 1.5m)), Result(2), config: config));
 

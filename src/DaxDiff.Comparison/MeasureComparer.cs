@@ -5,7 +5,7 @@ namespace DaxDiff.Comparison;
 /// <summary>Compares one paired measure value under the configured null, numeric and text policies (§4.3).</summary>
 public static class MeasureComparer
 {
-    public static MeasureCell Compare(string alias, object? a, object? b, ComparisonConfig config)
+    public static MeasureCell Compare(string alias, object? a, object? b, ComparisonOptions options)
     {
         a = a is DBNull ? null : a;
         b = b is DBNull ? null : b;
@@ -14,18 +14,18 @@ public static class MeasureComparer
             return new MeasureCell { Alias = alias, IsMatch = true };
 
         if (a is null || b is null)
-            return CompareWithBlank(alias, a, b, config);
+            return CompareWithBlank(alias, a, b, options);
 
         if (ValueCanonicalizer.TryToDecimal(a, out var da) && ValueCanonicalizer.TryToDecimal(b, out var db))
-            return CompareNumbers(alias, a, b, da, db, config);
+            return CompareNumbers(alias, a, b, da, db, options);
 
         if (ValueCanonicalizer.IsNumeric(a) && ValueCanonicalizer.IsNumeric(b))
-            return CompareDoubles(alias, a, b, config);
+            return CompareDoubles(alias, a, b, options);
 
         return (a, b) switch
         {
             (string sa, string sb) => Cell(alias, a, b,
-                string.Equals(sa, sb, config.TextComparison == TextComparison.OrdinalIgnoreCase
+                string.Equals(sa, sb, options.TextComparison == TextComparison.OrdinalIgnoreCase
                     ? StringComparison.OrdinalIgnoreCase
                     : StringComparison.Ordinal),
                 "Text differs"),
@@ -60,12 +60,12 @@ public static class MeasureComparer
         return (a - b) / denominator;
     }
 
-    private static MeasureCell CompareNumbers(string alias, object a, object b, decimal da, decimal db, ComparisonConfig config)
+    private static MeasureCell CompareNumbers(string alias, object a, object b, decimal da, decimal db, ComparisonOptions options)
     {
-        var match = WithinTolerance(da, db, config.Tolerance);
+        var match = WithinTolerance(da, db, options.Tolerance);
         string? reason = null;
         if (!match)
-            reason = config.Tolerance.Mode == ToleranceMode.Exact ? "Values differ" : "Difference exceeds tolerance";
+            reason = options.Tolerance.Mode == ToleranceMode.Exact ? "Values differ" : "Difference exceeds tolerance";
 
         return new MeasureCell
         {
@@ -73,38 +73,38 @@ public static class MeasureComparer
             A = a,
             B = b,
             Delta = da - db,
-            DeltaPercent = PercentDifference(da, db, config.PercentBaseline),
+            DeltaPercent = PercentDifference(da, db, options.PercentBaseline),
             IsMatch = match,
             Reason = reason,
         };
     }
 
-    private static MeasureCell CompareDoubles(string alias, object a, object b, ComparisonConfig config)
+    private static MeasureCell CompareDoubles(string alias, object a, object b, ComparisonOptions options)
     {
         var xa = Convert.ToDouble(a, System.Globalization.CultureInfo.InvariantCulture);
         var xb = Convert.ToDouble(b, System.Globalization.CultureInfo.InvariantCulture);
         bool match;
         if (double.IsNaN(xa) || double.IsNaN(xb))
             match = double.IsNaN(xa) && double.IsNaN(xb);
-        else if (config.Tolerance.Mode == ToleranceMode.Exact || double.IsInfinity(xa) || double.IsInfinity(xb))
+        else if (options.Tolerance.Mode == ToleranceMode.Exact || double.IsInfinity(xa) || double.IsInfinity(xb))
             match = xa.Equals(xb);
         else
         {
-            var allowed = Math.Max((double)config.Tolerance.Absolute,
-                (double)config.Tolerance.Relative * Math.Max(Math.Abs(xa), Math.Abs(xb)));
+            var allowed = Math.Max((double)options.Tolerance.Absolute,
+                (double)options.Tolerance.Relative * Math.Max(Math.Abs(xa), Math.Abs(xb)));
             match = Math.Abs(xa - xb) <= allowed;
         }
 
         return Cell(alias, a, b, match, "Values differ (outside decimal range)");
     }
 
-    private static MeasureCell CompareWithBlank(string alias, object? a, object? b, ComparisonConfig config)
+    private static MeasureCell CompareWithBlank(string alias, object? a, object? b, ComparisonOptions options)
     {
         var other = a ?? b;
         var blankSide = a is null ? "A" : "B";
         var otherIsNumber = ValueCanonicalizer.TryToDecimal(other, out var value);
 
-        var match = config.NullPolicy == NullPolicy.BlankEqualsZero && otherIsNumber && value == 0;
+        var match = options.NullPolicy == NullPolicy.BlankEqualsZero && otherIsNumber && value == 0;
         decimal? delta = null;
         decimal? pct = null;
         if (otherIsNumber)
@@ -112,7 +112,7 @@ public static class MeasureComparer
             var da = a is null ? 0 : value;
             var db = b is null ? 0 : value;
             delta = da - db;
-            pct = PercentDifference(da, db, config.PercentBaseline);
+            pct = PercentDifference(da, db, options.PercentBaseline);
         }
 
         return new MeasureCell

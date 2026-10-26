@@ -14,11 +14,15 @@ public class MappingTests
     }
 
     [Fact]
-    public void FR006_DuplicateMappings_AreBlocked()
+    public void EmptyConfiguration_IsBlocked() =>
+        Assert.Contains(MappingValidator.Validate(new ComparisonConfig(), null, null), i => i.Code == "MAP-EMPTY");
+
+    [Fact]
+    public void FR006_DuplicateFields_AreBlocked()
     {
         var config = YearRegionSales() with
         {
-            FieldPairs = [.. YearRegionSales().FieldPairs, Dim("Year again", Col("Date", "Year"))],
+            FieldPairs = [.. YearRegionSales().FieldPairs, Key("Year again", Col("Date", "Year"))],
         };
 
         var issues = MappingValidator.Validate(config, ModelA(), ModelB());
@@ -28,35 +32,13 @@ public class MappingTests
     }
 
     [Fact]
-    public void FR006_DuplicateAliases_AreBlocked()
+    public void AT14_RenamedOrDeletedFields_InvalidateComparison()
     {
         var config = new ComparisonConfig
         {
             FieldPairs =
             [
-                Value("Sales", Measure("Sales", "Total Sales"), Measure("Fact", "Sales Amount")),
-                Value("sales", Measure("Sales", "Revenue"), Measure("Fact", "Turnover")),
-            ],
-        };
-        Assert.Contains(MappingValidator.Validate(config, ModelA(), ModelB()), i => i.Code == "MAP-DUP-ALIAS");
-    }
-
-    [Fact]
-    public void FR007_UnconfirmedSuggestions_DoNotRun()
-    {
-        var pair = Value("Sales", Measure("Sales", "Total Sales"), Measure("Fact", "Sales Amount")) with { IsConfirmed = false };
-        var issues = MappingValidator.Validate(new ComparisonConfig { FieldPairs = [pair] }, ModelA(), ModelB());
-        Assert.Contains(issues, i => i.Code == "MAP-UNCONFIRMED");
-    }
-
-    [Fact]
-    public void AT14_RenamedOrDeletedFields_InvalidateMapping()
-    {
-        var config = new ComparisonConfig
-        {
-            FieldPairs =
-            [
-                Dim("Year", Col("Date", "Year")),
+                Key("Year", Col("Date", "Year")),
                 Value("Margin", Measure("Sales", "Gross Margin"), Measure("Fact", "Sales Amount")),
             ],
         };
@@ -75,7 +57,7 @@ public class MappingTests
         {
             FieldPairs =
             [
-                Dim("Country", Col("Geography", "Country Code"), Col("Geography", "CountryCode")),
+                Key("Country", Col("Geography", "Country Code"), Col("Geography", "CountryCode")),
                 Value("Sales", Measure("Sales", "Total Sales"), Measure("Fact", "Sales Amount")),
             ],
         };
@@ -83,19 +65,46 @@ public class MappingTests
     }
 
     [Fact]
-    public void RoleMismatch_IsError()
+    public void FR017_AggregationChangesTheComparedType()
     {
-        var pair = new FieldPair { Left = Col("Date", "Year"), Right = Col("Date", "Year"), Role = FieldRole.Measure, Alias = "Y" };
+        // Text column vs integer column: incompatible as-is, comparable once both are counted.
+        var raw = new ComparisonConfig
+        {
+            FieldPairs = [Value("Countries", Col("Geography", "Country Code"), Col("Geography", "CountryCode"), Aggregation.Max)],
+        };
+        var counted = new ComparisonConfig
+        {
+            FieldPairs = [Value("Countries", Col("Geography", "Country Code"), Col("Geography", "CountryCode"), Aggregation.DistinctCount)],
+        };
+
+        Assert.Contains(MappingValidator.Validate(raw, ModelA(), ModelB()), i => i.Code == "MAP-TYPE");
+        Assert.DoesNotContain(MappingValidator.Validate(counted, ModelA(), ModelB()), i => i.Code == "MAP-TYPE");
+    }
+
+    [Fact]
+    public void MeasureKey_IsError()
+    {
+        var pair = Key("Sales", Measure("Sales", "Total Sales"), Measure("Fact", "Sales Amount"));
         Assert.Contains(MappingValidator.Validate(new ComparisonConfig { FieldPairs = [pair] }, null, null), i => i.Code == "MAP-ROLE");
+    }
+
+    [Theory]
+    [InlineData(FieldKind.Column, Aggregation.None)]
+    [InlineData(FieldKind.Measure, Aggregation.Sum)]
+    public void ValueAggregation_MustFitTheFieldKind(FieldKind kind, Aggregation aggregation)
+    {
+        var field = new FieldRef("Sales", kind == FieldKind.Column ? "Amount" : "Total Sales", kind);
+        var config = new ComparisonConfig { FieldPairs = [Value("V", field, field, aggregation)] };
+        Assert.Contains(MappingValidator.Validate(config, null, null), i => i.Code == "MAP-AGG");
     }
 
     [Fact]
     public void InvalidFilterValues_AreReported()
     {
-        var config = YearRegionSales() with
+        var config = YearRegionSales().With(o => o with
         {
             Filters = [new FilterPair { LeftColumn = Col("Date", "Year"), RightColumn = Col("Date", "Year"), Values = ["twenty"] }],
-        };
+        });
         Assert.Contains(MappingValidator.Validate(config, ModelA(), ModelB()), i => i.Code == "FLT-VALUE");
     }
 
@@ -103,10 +112,7 @@ public class MappingTests
     public void AutoMatch_NormalizedMeasureName()
     {
         var suggestion = new AutoMatcher().SuggestMeasure(Measure("Sales", "Order Count"), ModelB());
-
         Assert.Equal("order_count", suggestion.Right!.Name);
-        var pair = suggestion.ToUnconfirmedPair()!;
-        Assert.False(pair.IsConfirmed);
     }
 
     [Fact]
@@ -143,7 +149,44 @@ public class MappingTests
         var suggestion = new AutoMatcher().SuggestColumn(Col("Fiscal", "Year"), a, b);
 
         Assert.True(suggestion.IsAmbiguous);
-        Assert.Null(suggestion.ToUnconfirmedPair());
+        Assert.Null(suggestion.Right);
         Assert.Equal(2, suggestion.Candidates.Count);
+    }
+
+    [Fact]
+    public void FR018_SynonymSuggestions_AlignModelBWithModelA()
+    {
+        var matcher = new AutoMatcher([["Revenue", "Turnover"]]);
+        IReadOnlyList<ComparisonField> a =
+        [
+            Field(Col("Date", "Year"), "Year", isKey: true),
+            Field(Measure("Sales", "Revenue"), "Revenue"),
+            Field(Measure("Sales", "Order Count"), "Orders"),
+        ];
+        IReadOnlyList<ComparisonField> b =
+        [
+            Field(Col("Calendar", "Year"), "Year", isKey: true),
+            Field(Measure("Fact", "Turnover")),
+            Field(Measure("Fact", "order_count")),
+        ];
+
+        var result = matcher.SuggestSynonyms(a, b);
+
+        Assert.Empty(result.Ambiguous);
+        Assert.Collection(result.Matches,
+            m => Assert.Equal((1, "Revenue"), (m.IndexB, m.Synonym)),
+            m => Assert.Equal((2, "Orders"), (m.IndexB, m.Synonym)));
+    }
+
+    [Fact]
+    public void FR018_SynonymSuggestions_ReportAmbiguity()
+    {
+        IReadOnlyList<ComparisonField> a = [Field(Col("Sales", "Amount"), "Gross"), Field(Col("Returns", "Amount"), "Returned")];
+        IReadOnlyList<ComparisonField> b = [Field(Col("Fact", "Amount"))];
+
+        var result = new AutoMatcher().SuggestSynonyms(a, b);
+
+        Assert.Empty(result.Matches);
+        Assert.Single(result.Ambiguous);
     }
 }

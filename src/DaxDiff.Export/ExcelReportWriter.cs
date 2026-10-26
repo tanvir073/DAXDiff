@@ -108,6 +108,7 @@ public static class ExcelReportWriter
         }
 
         row++;
+        Pair("Comparison", result.ComparisonName);
         Pair("Run ID", result.RunId.ToString());
         Pair("Status", result.Status.ToString());
         Pair("Started (UTC)", result.StartedUtc.UtcDateTime);
@@ -136,7 +137,7 @@ public static class ExcelReportWriter
         ws.Cell(row - 1, 2).Style.NumberFormat.Format = PercentFormat;
         row++;
 
-        var header = new[] { "Measure", "Compared keys", "Mismatches", "Total A", "Total B", "Total A − B", "Max |Δ|" };
+        var header = new[] { "Value", "Compared keys", "Mismatches", "Total A", "Total B", "Total A − B", "Max |Δ|" };
         for (var c = 0; c < header.Length; c++)
             ws.Cell(row, c + 1).Value = header[c];
         StyleHeader(ws.Range(row, 1, row, header.Length));
@@ -174,8 +175,8 @@ public static class ExcelReportWriter
     /// <summary>Writes rows across as many sheets as needed, each with headers, filters and frozen panes (AT-11).</summary>
     private static void WriteRows(XLWorkbook workbook, string baseName, IReadOnlyList<ComparisonRow> rows, ComparisonConfig config, int maxRowsPerSheet)
     {
-        var dims = config.Dimensions;
-        var measures = config.Measures;
+        var dims = config.Keys;
+        var measures = config.Values;
         var headers = new List<string> { "Status" };
         foreach (var d in dims)
         {
@@ -252,7 +253,7 @@ public static class ExcelReportWriter
 
     private static void WriteMapping(IXLWorksheet ws, ComparisonResult result)
     {
-        var headers = new[] { "Role", "Alias", "A table", "A field", "A type", "B table", "B field", "B type", "Confirmed" };
+        var headers = new[] { "Role", "Synonym", "A table", "A field", "A aggregation", "A type", "B table", "B field", "B aggregation", "B type" };
         for (var c = 0; c < headers.Length; c++)
             ws.Cell(1, c + 1).Value = headers[c];
         StyleHeader(ws.Range(1, 1, 1, headers.Length));
@@ -264,12 +265,13 @@ public static class ExcelReportWriter
             ws.Cell(r, 1).Value = pair.Role.ToString();
             SetValue(ws.Cell(r, 2), pair.Alias);
             SetValue(ws.Cell(r, 3), pair.Left.Table);
-            SetValue(ws.Cell(r, 4), pair.Left.Name);
-            ws.Cell(r, 5).Value = (result.MetadataA?.KindOf(pair.Left) ?? DataKind.Unknown).ToString();
-            SetValue(ws.Cell(r, 6), pair.Right.Table);
-            SetValue(ws.Cell(r, 7), pair.Right.Name);
-            ws.Cell(r, 8).Value = (result.MetadataB?.KindOf(pair.Right) ?? DataKind.Unknown).ToString();
-            ws.Cell(r, 9).Value = pair.IsConfirmed;
+            SetValue(ws.Cell(r, 4), Describe(pair.Left));
+            ws.Cell(r, 5).Value = pair.LeftAggregation.ToString();
+            ws.Cell(r, 6).Value = (result.MetadataA?.KindOf(pair.Left) ?? DataKind.Unknown).ToString();
+            SetValue(ws.Cell(r, 7), pair.Right.Table);
+            SetValue(ws.Cell(r, 8), Describe(pair.Right));
+            ws.Cell(r, 9).Value = pair.RightAggregation.ToString();
+            ws.Cell(r, 10).Value = (result.MetadataB?.KindOf(pair.Right) ?? DataKind.Unknown).ToString();
         }
 
         ws.Range(1, 1, r, headers.Length).SetAutoFilter();
@@ -278,9 +280,9 @@ public static class ExcelReportWriter
         r += 2;
         ws.Cell(r, 1).Value = "Active filters";
         ws.Cell(r, 1).Style.Font.SetBold();
-        if (result.Config.Filters.Count == 0)
+        if (result.Config.Options.Filters.Count == 0)
             ws.Cell(++r, 1).Value = "None";
-        foreach (var filter in result.Config.Filters)
+        foreach (var filter in result.Config.Options.Filters)
         {
             r++;
             SetValue(ws.Cell(r, 1), filter.LeftColumn.QualifiedName);
@@ -290,11 +292,14 @@ public static class ExcelReportWriter
             SetValue(ws.Cell(r, 5), filter.SemanticMeaning);
         }
 
-        ws.Columns(1, headers.Length).Width = 22;
+        ws.Columns(1, headers.Length).Width = 20;
     }
 
-    private static void WriteSettings(IXLWorksheet ws, ComparisonConfig config)
+    private static string Describe(FieldRef field) => field.Kind == FieldKind.Measure ? $"[{field.Name}] (measure)" : field.Name;
+
+    private static void WriteSettings(IXLWorksheet ws, ComparisonConfig compiled)
     {
+        var config = compiled.Options;
         var settings = new (string, object?)[]
         {
             ("Tolerance mode", config.Tolerance.Mode.ToString()),
@@ -313,7 +318,7 @@ public static class ExcelReportWriter
             ("Max rows per side", config.Limits.MaxRows),
             ("Timeout (seconds)", config.Limits.TimeoutSeconds),
             ("Retries", config.Limits.RetryCount),
-            ("Query scope", $"{config.Dimensions.Count} dimension(s), {config.Measures.Count} measure(s), {config.Filters.Count} filter(s)"),
+            ("Query scope", $"{compiled.Keys.Count} key(s), {compiled.Values.Count} value(s), {config.Filters.Count} filter(s)"),
         };
 
         ws.Cell(1, 1).Value = "Setting";
