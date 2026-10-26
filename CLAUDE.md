@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-DAXDiff is a Windows WPF desktop app that compares the evaluated output of two Power BI semantic models. It runs paired measures at a chosen dimension grain against both models, full-outer-joins the results, and exports an Excel audit workbook. The spec is `DAXDiff_Requirements.docx` (SRS v1.0). Code comments, tests and `docs/implementation-plan.md` cite its IDs (FR-xxx, NFR-xx, AT-xx, §n), so keep citing them.
+DAXDiff is a Windows WPF desktop app that compares the evaluated output of two Power BI semantic models. A project holds two sources and any number of comparisons. Each comparison picks columns (or measures) on both sides, marks key columns, aggregates the rest, and pairs fields by synonym. DAXDiff evaluates both sides at the key grain, full-outer-joins the results and exports an Excel audit workbook. The spec is `DAXDiff_Requirements.docx` (SRS v1.1). Code comments, tests and `docs/implementation-plan.md` cite its IDs (FR-xxx, NFR-xx, AT-xx, §n), so keep citing them.
 
 ## Commands
 
@@ -25,13 +25,25 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
 - **Shared build settings:** `Directory.Build.props` sets Nullable, ImplicitUsings and the version for every project.
 - **Implicit usings in Desktop:** WPF projects don't get `System.IO` implicitly, so the Desktop csproj adds `<Using Include="System.IO" />`.
 
+### Data model: project → comparisons → compiled pairs
+
+- **Project.** `ProjectFile` (`.pbicomp`) holds `SourceA`, `SourceB` and a list of `ComparisonDefinition`s. Everything the user sets up lives in a project (FR-019); results never do.
+- **Comparison.** A `ComparisonDefinition` has `FieldsA` and `FieldsB` (each a `ComparisonField`: field ref, `IsKey`, `Aggregation`, `Synonym`) and its own `ComparisonOptions` (filters, tolerance, normalization, limits).
+- **Pairing is by synonym, not explicit pairs.** `ComparisonCompiler.Compile` matches A and B fields whose `SynonymKey` (trimmed, upper-cased) is equal. It emits a `ComparisonConfig`: `FieldPairs` (keys first, then values, in model A order) plus `Options`. Each `FieldPair` carries `LeftAggregation` and `RightAggregation`.
+- **One validation entry point.** `ComparisonCompiler.CompileAndValidate` returns the compiler's issues (unpaired keys, duplicate synonyms, disallowed aggregations, missing fields) plus `MappingValidator`'s (roles, type compatibility after aggregation, filters, settings). The UI and `RunRequest.For` both use it.
+- **Aggregation rules.** `AggregationRules` (Domain) decides which aggregations a field may use, from `FieldKind`, `DataKind` and `IsKey`. It also gives the default on insert and the aggregated result type. Keys and measures only allow `None`; non-key columns must have an aggregation.
+
 ### End-to-end flow of one run (`Application/ComparisonRunner.RunAsync`)
 
-1. `MappingValidator.Validate(config, metaA, metaB)`. Any error returns a `Failed` result before querying.
-2. `DaxQueryBuilder.BuildComparisonQuery(config, Side, metadata)` builds a separate DAX query per side, using that side's field names. It is a `SUMMARIZECOLUMNS` over dimension columns plus measures aliased `"M0"`, `"M1"` and so on, with filters as `DEFINE VAR` TREATAS/FILTER expressions.
+1. `RunRequest.For(connA, connB, definition, metaA, metaB)` compiles and validates. Any error returns a `Failed` result before querying.
+2. `DaxQueryBuilder.BuildComparisonQuery(config, Side, metadata)` builds a separate DAX query per side, using that side's field names.
+   - It is a `SUMMARIZECOLUMNS` over key columns plus values aliased `"V0"`, `"V1"` and so on.
+   - A value is either a measure reference or `ValueExpression(column, aggregation)`, which emits `SUM`, `AVERAGE`, `MIN`, `MAX`, `COUNTA`, `DISTINCTCOUNT` or `CONCATENATEX(VALUES(...))`.
+   - Filters become `DEFINE VAR` TREATAS/FILTER expressions.
+   - A keys-only comparison (no values) is allowed.
 3. Both sides run in parallel through `IModelConnector.ExecuteDaxAsync`, with a per-attempt timeout and retry on `DaxDiffException.IsTransient`.
-4. `ComparisonEngine.Compare(resultA, resultB, config)` reads result columns **by ordinal**: dimensions first in mapping order, then measures in mapping order. Column names are ignored, because REST and ADOMD name them differently.
-5. Status is decided as Complete, Partial (truncated, or duplicates under the Diagnose policy), Failed (errors, or duplicates under the default Fail policy) or Cancelled. Expected failures come back as a `ComparisonResult`, never as an exception.
+4. `ComparisonEngine.Compare(resultA, resultB, config)` reads result columns **by ordinal**: keys first, then values. Column names are ignored, because REST and ADOMD name them differently.
+5. Status is decided as Complete, Partial (truncated, or duplicates under the Diagnose policy), Failed (errors, or duplicates under the default Fail policy) or Cancelled. Expected failures come back as a `ComparisonResult` carrying the `ComparisonName`, never as an exception.
 
 ### Invariants the code relies on (don't break them)
 
@@ -45,9 +57,11 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
 - **REST must match ADOMD types.** `ServiceRestConnector.ToClr` turns JSON numbers into `long` or `decimal` and ISO timestamp strings into `DateTime`, so keys compare equal across transports.
 - **Safe DAX (FR-009).** All identifiers go through `TableRef`/`ColumnRef`/`MeasureRef`, which escape `'` and `]`. Filter values go through `TypedLiteral`, which parses them by column `DataKind` and throws `FormatException` otherwise. Never splice user text into DAX.
 - **Projects (`.pbicomp`, `Application/ProjectStore`).**
-  - JSON is camelCase with string enums and a `schemaVersion` field; `Migrate()` upgrades older versions.
-  - `Serialize` strips `DesktopServer` and `DesktopDatabase`, because those are session-specific ports and IDs.
-  - Computed properties on domain records need `[JsonIgnore]`, as on `ComparisonConfig.Dimensions` and `FieldRef.QualifiedName`.
+  - JSON is camelCase with string enums and a `schemaVersion` field (currently 2). `Migrate()` upgrades older versions: v1's single `config.fieldPairs` becomes one comparison whose fields share each pair's alias as their synonym.
+  - Any breaking JSON change needs a `CurrentSchemaVersion` bump and a migration step.
+  - `Serialize` and `Fingerprint` strip `DesktopServer` and `DesktopDatabase`, because those are session-specific ports and IDs. `Fingerprint` leaves out the save time and drives the unsaved-changes check.
+  - Computed properties on domain records need `[JsonIgnore]`, as on `ComparisonConfig.Keys` and `FieldRef.QualifiedName`.
+- **Saved aggregations are never changed silently.** `ComparisonFieldViewModel` keeps a loaded aggregation even when the type (possibly not known yet) disallows it. Validation reports `CMP-AGGREGATION` instead.
 - **Excel export (`Export/ExcelReportWriter`).**
   - `SetValue` writes native types.
   - Strings starting with `= + - @` get `IncludeQuotePrefix` (formula-injection guard, AT-12).
@@ -64,13 +78,18 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
 
 ### Desktop (`DaxDiff.Desktop`, MVVM with CommunityToolkit.Mvvm)
 
-- **Startup.** `App.OnStartup` builds a Generic Host with Serilog file logging to `%LOCALAPPDATA%\DAXDiff\logs`. It reads `appsettings.json` plus the optional user override `%LOCALAPPDATA%\DAXDiff\settings.json`, then shows `MainWindow` and applies the External Tools arguments (`--server` and `--database`, or positional `localhost:port`).
-- **View models.** `MainViewModel` owns two `SourcePanelViewModel`s (A and B) and the page view models. `BuildConfig()` combines the mapping pairs with `OptionsViewModel.ApplyTo(...)`. Any change triggers `Revalidate()`.
+- **Startup.** `App.OnStartup` builds a Generic Host with Serilog file logging to `%LOCALAPPDATA%\DAXDiff\logs`. It reads `appsettings.json` plus the optional user override `%LOCALAPPDATA%\DAXDiff\settings.json`, then shows `MainWindow` and applies the External Tools arguments (`--server` and `--database`, or positional `localhost:port`). The attach waits until a project is created or opened.
+- **Project lifecycle.** `MainViewModel` owns it: New project creates the file first, then Open, Save, Close, and an unsaved-changes prompt (also on window close). The project steps in the nav are disabled until a project is open.
+- **View models.** `MainViewModel` owns two `SourcePanelViewModel`s (A and B) and the page view models.
+  - `ComparisonsViewModel` holds one `ComparisonEditorViewModel` per comparison.
+  - Each editor owns its `FieldsA`/`FieldsB` (`ComparisonFieldViewModel`) and its own `OptionsViewModel`, and recompiles on every change. `Recompile()` annotates each field with its counterpart and its issues.
+  - The Options page (`OptionsPageViewModel`) shows the selected comparison's options. Run executes the ticked comparisons one after another. Results keeps the latest result per comparison.
 - **Pages.** Each page is mapped to a view by `DataTemplate`s in `MainWindow.xaml`. The results grid builds its columns in code (`ResultsView.xaml.cs`) and binds to `ResultRowView.Cells[i]`. Sorting uses a custom comparer (`ResultsViewModel.Sort`).
+- **Typed command parameters.** A `CommandParameter` set in XAML arrives as a string, so a `RelayCommand<bool?>` throws. Use separate commands or a `string` parameter.
 - **Rendering.** Views reference styles and converters defined in `App.xaml` with `StaticResource`, so rendering a view outside the running app requires `new App().InitializeComponent()` first.
 
 ## Testing
 
-xUnit tests are in `tests/DaxDiff.Tests.Unit`. `Fixtures/Fixture.cs` builds synthetic metadata, configs and `QueryResult`s. `Fixtures/FakeConnector.cs` is an in-memory `IModelConnector`; use it for orchestration tests instead of real models. Test names are prefixed with the acceptance-test ID they cover, such as `AT07_…`.
+xUnit tests are in `tests/DaxDiff.Tests.Unit`. `Fixtures/Fixture.cs` builds synthetic metadata, configs and `QueryResult`s. Its helpers are `Key(...)`, `Value(...)`, `Field(...)`, and `config.With(o => o with { ... })` for changing options. `Fixtures/FakeConnector.cs` is an in-memory `IModelConnector`; use it for orchestration tests instead of real models. Test names are prefixed with the requirement or acceptance-test ID they cover, such as `AT07_…` or `FR018_…`. The Desktop project (a WinExe) has no tests; to exercise its view models, use an offscreen harness.
 
 Nothing has been verified against live Power BI models yet; this is Stage 0 in `docs/implementation-plan.md`. That covers Desktop attach, XMLA, REST and the DMV/INFO.VIEW queries, so treat connector behaviour against real services as unconfirmed.

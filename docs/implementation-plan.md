@@ -1,6 +1,6 @@
 # DAXDiff – Implementation Plan
 
-Source of truth: `DAXDiff_Requirements.docx` (SRS v1.0, 25 Oct 2026). Requirement IDs (FR-xxx, NFR-xx, AT-xx) refer to that document.
+Source of truth: `DAXDiff_Requirements.docx` (SRS v1.1, 26 Oct 2026; see its revision history). Requirement IDs (FR-xxx, NFR-xx, AT-xx) refer to that document.
 
 ## Technology decisions
 
@@ -29,8 +29,9 @@ tests/DaxDiff.Tests.Unit  Unit tests (engine, DAX builder, normalization, export
 
 ## Status (26 Oct 2026)
 
-Stages 1–5 are implemented. 96 unit tests pass, covering AT-01 and AT-03 to AT-14 at engine, export and persistence level, using fake connectors.
-The WPF shell builds, launches, and renders every page.
+Stages 1–5 and Stage 5b (SRS v1.1 change: projects, comparisons, aggregation, synonyms) are implemented.
+132 unit tests pass, covering AT-01 and AT-03 to AT-14 plus FR-017 and FR-018 at compiler, engine, export and persistence level, using fake connectors.
+The WPF shell builds and every page renders with sample data.
 **Not yet verified against live models:** Desktop session attach, XMLA, REST and DMV/INFO.VIEW metadata need Stage 0 runs against real test models.
 
 ## Stages
@@ -57,10 +58,10 @@ The WPF shell builds, launches, and renders every page.
 - [x] Metadata via TMSCHEMA DMVs, MDSCHEMA fallback for non-admins, INFO.VIEW for REST (FR-005)
 - [x] Error classification with side, remedial action and diagnostic code (FR-015, AT-08)
 
-### Stage 3 – Mapping and query (FR-006..FR-009)
-- [x] Manual dimension and measure pairing with aliases (FR-006)
-- [x] Auto-match suggestions, unconfirmed until accepted, ambiguity surfaced (FR-007)
-- [x] Mapping validation: missing fields, duplicates, type compatibility (FR-006, AT-14)
+### Stage 3 – Comparisons and query (FR-006..FR-009)
+- [x] Field selection per comparison, key columns (FR-006); superseded explicit pairing in v1.1
+- [x] Suggestions surfaced, never guessed when ambiguous (FR-007)
+- [x] Validation: missing fields, duplicates, type compatibility (FR-006, AT-14)
 - [x] Safe DAX builder: SUMMARIZECOLUMNS, escaped identifiers, typed literal filters, no raw DAX (FR-009)
 - [x] Row estimate query (preview cardinality)
 
@@ -78,6 +79,14 @@ The WPF shell builds, launches, and renders every page.
 - [x] Excel workbook contract, 6 sheets (§10), sheet splitting (AT-11), text-safety for `=`,`+`,`-`,`@` (AT-12)
 - [x] `.pbicomp` project save/load, schema-versioned, without tokens or results (FR-014, AT-13)
 
+### Stage 5b – SRS v1.1: projects, comparisons, aggregation, synonyms (FR-006, FR-007, FR-014, FR-017..FR-019)
+- [x] Domain: `ComparisonDefinition` / `ComparisonField`, per-comparison `ComparisonOptions`, `AggregationRules`
+- [x] `ComparisonCompiler`: pairing by synonym, key/aggregation/synonym checks, combined validation
+- [x] DAX: aggregated column values (`SUM`, `AVERAGE`, `MIN`, `MAX`, `COUNTA`, `DISTINCTCOUNT`, `CONCATENATEX`), keys-only comparisons
+- [x] Synonym suggestions and "add matching model B fields" (FR-007)
+- [x] Project file schema v2 with v1 → v2 migration; unsaved-changes tracking (FR-014)
+- [x] UI: Home with New/Open project, Comparisons page (insert field or table, key, aggregation, synonym), per-comparison Options, multi-comparison Run, result picker (FR-019)
+
 ### Stage 6 – Hardening *(manual or environment-dependent)*
 - [ ] Run against real fixture models for AT-01 through AT-14
 - [ ] Large-model performance profiling (NFR-03, NFR-04)
@@ -85,6 +94,8 @@ The WPF shell builds, launches, and renders every page.
 - [ ] Accessibility pass with a screen reader (NFR-02)
 
 ## Known MVP limitations
-- SUMMARIZECOLUMNS drops rows where every measure is BLANK. A key that is missing on one side can therefore mean "member absent" or "all measures blank". The reason text says so.
+- SUMMARIZECOLUMNS drops rows where every compared value is BLANK. A key that is missing on one side can therefore mean "member absent" or "all measures blank". The reason text says so.
 - Partitioned retrieval for result sets larger than the row cap is not implemented. Runs over the cap are labelled **Partial**, never Complete.
 - Hierarchies are not enumerated. Only columns and measures are listed.
+- Keys-only comparisons whose keys come from several tables return every combination of key members (a warning says so).
+- Concatenate joins distinct values with ", " in ascending order; very large text results may hit transport limits.
