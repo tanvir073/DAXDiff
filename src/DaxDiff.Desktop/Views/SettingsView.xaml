@@ -11,13 +11,13 @@
                     <TextBlock Text="{Binding SignInStatus}" TextWrapping="Wrap" Margin="0,0,0,8" />
                     <Label Content="_Client (application) ID" Target="{Binding ElementName=ClientId}" Padding="0,0,0,2" />
                     <TextBox x:Name="ClientId" Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}" />
-                    <Label Content="_Tenant ID or domain" Target="{Binding ElementName=Tenant}" Padding="0,0,0,2" />
+                    <Label Content="Default _tenant for new sources (ID, domain or organizations)" Target="{Binding ElementName=Tenant}" Padding="0,0,0,2" />
                     <TextBox x:Name="Tenant" Text="{Binding TenantId, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock Text="Register a public-client app in Entra ID with redirect URI http://localhost and the delegated Power BI Service permissions Dataset.Read.All and Workspace.Read.All. See docs/setup.md."
                                TextWrapping="Wrap" Foreground="{StaticResource MutedText}" Margin="0,0,0,8" />
                     <WrapPanel>
                         <Button Content="_Save" Command="{Binding SaveCommand}" />
-                        <Button Content="Sign _out" Command="{Binding SignOutCommand}" />
+                        <Button Content="Sign _out of all accounts" Command="{Binding SignOutCommand}" />
                     </WrapPanel>
                 </StackPanel>
             </Border>

@@ -9,47 +9,6 @@ using DaxDiff.Domain;
 
 namespace DaxDiff.Desktop.ViewModels;
 
-public sealed partial class FilterRowViewModel : ObservableObject
-{
-    [ObservableProperty]
-    private FieldRef? _leftColumn;
-
-    [ObservableProperty]
-    private FieldRef? _rightColumn;
-
-    [ObservableProperty]
-    private FilterOperator _operator = FilterOperator.In;
-
-    /// <summary>Values separated by semicolons or new lines; commas are allowed inside values.</summary>
-    [ObservableProperty]
-    private string _valuesText = "";
-
-    [ObservableProperty]
-    private string _meaning = "";
-
-    public static IReadOnlyList<FilterOperator> Operators { get; } = Enum.GetValues<FilterOperator>();
-
-    public FilterPair? ToFilter() => LeftColumn is null || RightColumn is null
-        ? null
-        : new FilterPair
-        {
-            LeftColumn = LeftColumn,
-            RightColumn = RightColumn,
-            Operator = Operator,
-            Values = ValuesText.Split([';', '\n'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries),
-            SemanticMeaning = Meaning,
-        };
-
-    public static FilterRowViewModel From(FilterPair filter) => new()
-    {
-        LeftColumn = filter.LeftColumn,
-        RightColumn = filter.RightColumn,
-        Operator = filter.Operator,
-        ValuesText = string.Join("; ", filter.Values),
-        Meaning = filter.SemanticMeaning,
-    };
-}
-
 /// <summary>One comparison's filters, tolerances, normalization, limits and query preview (FR-008, FR-009).</summary>
 public sealed partial class OptionsViewModel : ObservableObject
 {
@@ -64,17 +23,19 @@ public sealed partial class OptionsViewModel : ObservableObject
         _sourceB = sourceB;
         _runner = runner;
         _dialogs = dialogs;
-        _sourceA.MetadataChanged += (_, _) => OnPropertyChanged(nameof(ColumnsA));
-        _sourceB.MetadataChanged += (_, _) => OnPropertyChanged(nameof(ColumnsB));
+        Filters.CollectionChanged += (_, _) => OnPropertyChanged(nameof(FiltersSummary));
     }
 
     /// <summary>Provides the comparison's compiled configuration for previews; set by its editor.</summary>
     public Func<CompiledComparison>? CompiledProvider { get; set; }
 
-    public IReadOnlyList<FieldRef> ColumnsA => _sourceA.Metadata?.AllColumns.Select(c => c.Ref).ToList() ?? [];
-    public IReadOnlyList<FieldRef> ColumnsB => _sourceB.Metadata?.AllColumns.Select(c => c.Ref).ToList() ?? [];
+    /// <summary>Opens the filter editor for this comparison; set by its editor.</summary>
+    public Action? EditFiltersRequested { get; set; }
 
-    public ObservableCollection<FilterRowViewModel> Filters { get; } = [];
+    /// <summary>This comparison's filters, edited in the filter pop-up (FR-020).</summary>
+    public ObservableCollection<FilterPair> Filters { get; } = [];
+
+    public string FiltersSummary => Filters.Count == 0 ? "No filters." : $"{Filters.Count} filter(s): " + string.Join("; ", Filters.Select(f => f.Describe()));
 
     public static IReadOnlyList<ToleranceMode> ToleranceModes { get; } = Enum.GetValues<ToleranceMode>();
     public static IReadOnlyList<NullPolicy> NullPolicies { get; } = Enum.GetValues<NullPolicy>();
@@ -138,18 +99,19 @@ public sealed partial class OptionsViewModel : ObservableObject
     private string _estimateText = "";
 
     [RelayCommand]
-    private void AddFilter() => Filters.Add(new FilterRowViewModel());
+    private void EditFilters() => EditFiltersRequested?.Invoke();
 
-    [RelayCommand]
-    private void RemoveFilter(FilterRowViewModel? row)
+    /// <summary>Replaces the filters, e.g. when the filter pop-up is confirmed.</summary>
+    public void SetFilters(IEnumerable<FilterPair> filters)
     {
-        if (row is not null)
-            Filters.Remove(row);
+        Filters.Clear();
+        foreach (var filter in filters)
+            Filters.Add(filter);
     }
 
     public ComparisonOptions ToOptions() => new()
     {
-        Filters = Filters.Select(f => f.ToFilter()).OfType<FilterPair>().ToList(),
+        Filters = Filters.ToList(),
         Tolerance = new ToleranceSettings
         {
             Mode = ToleranceMode,
@@ -173,9 +135,7 @@ public sealed partial class OptionsViewModel : ObservableObject
 
     public void Load(ComparisonOptions config)
     {
-        Filters.Clear();
-        foreach (var filter in config.Filters)
-            Filters.Add(FilterRowViewModel.From(filter));
+        SetFilters(config.Filters);
         ToleranceMode = config.Tolerance.Mode;
         AbsoluteTolerance = config.Tolerance.Absolute.ToString(CultureInfo.InvariantCulture);
         RelativeTolerance = config.Tolerance.Relative.ToString(CultureInfo.InvariantCulture);

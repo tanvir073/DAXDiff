@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,14 +18,14 @@ public sealed partial class ComparisonsViewModel : ObservableObject
     private readonly SourcePanelViewModel _sourceB;
     private readonly AutoMatcher _matcher;
     private readonly IDialogService _dialogs;
-    private readonly Func<ComparisonDefinition, ComparisonEditorViewModel> _createEditor;
+    private readonly Func<ComparisonDefinition, bool, ComparisonEditorViewModel> _createEditor;
 
     public ComparisonsViewModel(
         SourcePanelViewModel sourceA,
         SourcePanelViewModel sourceB,
         AutoMatcher matcher,
         IDialogService dialogs,
-        Func<ComparisonDefinition, ComparisonEditorViewModel> createEditor)
+        Func<ComparisonDefinition, bool, ComparisonEditorViewModel> createEditor)
     {
         _sourceA = sourceA;
         _sourceB = sourceB;
@@ -38,6 +39,9 @@ public sealed partial class ComparisonsViewModel : ObservableObject
 
     /// <summary>Raised when a comparison is added, removed or edited.</summary>
     public event EventHandler? Changed;
+
+    /// <summary>Raised when a comparison is saved or deleted: the project file must be written (FR-021).</summary>
+    public event EventHandler? PersistRequested;
 
     public ObservableCollection<ComparisonEditorViewModel> Comparisons { get; } = [];
 
@@ -100,12 +104,23 @@ public sealed partial class ComparisonsViewModel : ObservableObject
     {
         Comparisons.Clear();
         foreach (var definition in definitions)
-            Add(definition);
+            Add(definition, isSaved: true);
         Selected = Comparisons.FirstOrDefault();
         RebuildTrees();
     }
 
-    public IReadOnlyList<ComparisonDefinition> ToDefinitions() => Comparisons.Select(c => c.ToDefinition()).ToList();
+    /// <summary>The saved version of each comparison, as written to the project file. Never-saved drafts are left out.</summary>
+    public IReadOnlyList<ComparisonDefinition> SavedDefinitions() =>
+        Comparisons.Where(c => c.SavedDefinition is not null).Select(c => c.SavedDefinition!).ToList();
+
+    public IReadOnlyList<ComparisonEditorViewModel> UnsavedComparisons => Comparisons.Where(c => c.IsModified).ToList();
+
+    /// <summary>Saves every draft (without writing the file; the caller saves the project).</summary>
+    public void CommitAll()
+    {
+        foreach (var comparison in Comparisons.Where(c => c.IsModified))
+            comparison.Commit();
+    }
 
     public void SwapSides()
     {
@@ -113,10 +128,11 @@ public sealed partial class ComparisonsViewModel : ObservableObject
             comparison.SwapSides();
     }
 
-    private ComparisonEditorViewModel Add(ComparisonDefinition definition)
+    private ComparisonEditorViewModel Add(ComparisonDefinition definition, bool isSaved)
     {
-        var editor = _createEditor(definition);
+        var editor = _createEditor(definition, isSaved);
         editor.Changed += (_, _) => Changed?.Invoke(this, EventArgs.Empty);
+        editor.SaveRequested += (_, _) => PersistRequested?.Invoke(this, EventArgs.Empty);
         Comparisons.Add(editor);
         return editor;
     }
@@ -129,7 +145,7 @@ public sealed partial class ComparisonsViewModel : ObservableObject
         var number = Comparisons.Count + 1;
         while (Exists($"Comparison {number}"))
             number++;
-        Selected = Add(new ComparisonDefinition { Name = $"Comparison {number}" });
+        Selected = Add(new ComparisonDefinition { Name = $"Comparison {number}" }, isSaved: false);
     }
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
@@ -138,7 +154,7 @@ public sealed partial class ComparisonsViewModel : ObservableObject
         if (Selected is null)
             return;
         var copy = Selected.ToDefinition() with { Id = Guid.NewGuid(), Name = UniqueName(Selected.Name + " copy") };
-        Selected = Add(copy);
+        Selected = Add(copy, isSaved: false);
     }
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
@@ -147,8 +163,11 @@ public sealed partial class ComparisonsViewModel : ObservableObject
         if (Selected is null || !_dialogs.Confirm($"Delete the comparison '{Selected.Name}'?"))
             return;
         var index = Comparisons.IndexOf(Selected);
+        var wasSaved = Selected.IsSaved;
         Comparisons.Remove(Selected);
         Selected = Comparisons.Count == 0 ? null : Comparisons[Math.Min(index, Comparisons.Count - 1)];
+        if (wasSaved)
+            PersistRequested?.Invoke(this, EventArgs.Empty);
     }
 
     private bool Exists(string name) => Comparisons.Any(c => string.Equals(c.Name.Trim(), name, StringComparison.OrdinalIgnoreCase));
@@ -207,11 +226,82 @@ public sealed partial class ComparisonsViewModel : ObservableObject
 
     // ---- Editing inserted fields ----------------------------------------------------------------
 
+    /// <summary>Removes the selected fields (several can be selected in a grid).</summary>
     [RelayCommand]
-    private void RemoveField(ComparisonFieldViewModel? field)
+    private void RemoveFields(IList? fields)
     {
-        if (field is not null && Selected is not null && !Selected.FieldsA.Remove(field))
-            Selected.FieldsB.Remove(field);
+        if (Selected is null || fields is null)
+            return;
+        foreach (var field in fields.OfType<ComparisonFieldViewModel>().ToList())
+        {
+            if (!Selected.FieldsA.Remove(field))
+                Selected.FieldsB.Remove(field);
+        }
+    }
+
+    [RelayCommand]
+    private void CopyToB(IList? fields) => CopySameFields(fields, Side.B);
+
+    [RelayCommand]
+    private void CopyToA(IList? fields) => CopySameFields(fields, Side.A);
+
+    /// <summary>
+    /// Adds the same fields to the other model: same table and column name (measures by name), keeping key, aggregation
+    /// and synonym so each pairs with its original. Fields the other model does not have are listed, not guessed.
+    /// </summary>
+    private void CopySameFields(IList? fields, Side target)
+    {
+        if (Selected is null)
+            return;
+        var source = target == Side.B ? Side.A : Side.B;
+        var chosen = fields?.OfType<ComparisonFieldViewModel>().ToList() ?? [];
+        if (chosen.Count == 0)
+        {
+            _dialogs.ShowInfo($"Select one or more fields in the model {source} grid first (Ctrl+click or Shift+click to select several).");
+            return;
+        }
+
+        if (Selected.MetadataOf(target) is not { } meta)
+        {
+            _dialogs.ShowInfo($"Connect model {target} first (Sources page) so its tables and columns are known.");
+            return;
+        }
+
+        var destination = Selected.FieldsOf(target);
+        var added = 0;
+        var already = 0;
+        var missing = new List<string>();
+        foreach (var field in chosen)
+        {
+            FieldRef? match = field.IsMeasure
+                ? meta.FindMeasure(field.Field.Name)?.Ref
+                : meta.FindColumn(field.Field.Table, field.Field.Name)?.Ref;
+            if (match is null)
+            {
+                missing.Add(field.FieldText);
+                continue;
+            }
+
+            if (destination.Any(f => f.Field == match))
+            {
+                already++;
+                continue;
+            }
+
+            var kind = meta.KindOf(match);
+            var aggregation = AggregationRules.IsAllowed(field.Aggregation, match.Kind, kind, field.IsKey) ? field.Aggregation : Aggregation.None;
+            destination.Add(new ComparisonFieldViewModel(match, kind, field.IsKey, aggregation, field.Synonym));
+            added++;
+        }
+
+        if (missing.Count > 0 || added == 0)
+        {
+            var message = $"{added} field(s) added to model {target}." + (already > 0 ? $" {already} were already there." : "");
+            if (missing.Count > 0)
+                message += $"{Environment.NewLine}{Environment.NewLine}Not found in model {target} (no table and column with the same name):{Environment.NewLine}  " +
+                           string.Join(Environment.NewLine + "  ", missing);
+            _dialogs.ShowInfo(message, "Add same columns");
+        }
     }
 
     [RelayCommand]

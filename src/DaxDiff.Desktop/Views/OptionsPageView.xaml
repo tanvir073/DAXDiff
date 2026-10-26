@@ -9,7 +9,10 @@
             <WrapPanel Margin="0,0,0,8">
                 <Label Content="Options for _comparison" Target="{Binding ElementName=Picker}" VerticalAlignment="Center" Padding="0,0,8,6" />
                 <ComboBox x:Name="Picker" Width="260" ItemsSource="{Binding Comparisons.Comparisons}" SelectedItem="{Binding Comparisons.Selected}"
-                          DisplayMemberPath="Name" />
+                          DisplayMemberPath="DisplayName" Margin="0,0,12,6" />
+                <Button Content="_Save comparison" Command="{Binding Comparisons.Selected.SaveCommand}" FontWeight="SemiBold" />
+                <Button Content="Discard changes" Command="{Binding Comparisons.Selected.DiscardChangesCommand}" />
+                <TextBlock Text="{Binding Comparisons.Selected.SaveStateText}" VerticalAlignment="Center" Margin="4,0,0,6" Foreground="{StaticResource MutedText}" />
             </WrapPanel>
         </StackPanel>
         <TextBlock Text="Create a comparison on the Comparisons page first." Style="{StaticResource PageHint}"

@@ -92,10 +92,11 @@ public sealed partial class RunViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanRun), IncludeCancelCommand = true)]
     private async Task RunAsync(CancellationToken cancellationToken)
     {
-        var selected = Comparisons.Where(c => c.IncludeInRun).ToList();
+        // Only saved versions run; drafts stay on the Comparisons page until saved (FR-021).
+        var selected = Comparisons.Where(c => c.IncludeInRun && c.SavedDefinition is not null).ToList();
         if (selected.Count == 0)
         {
-            _dialogs.ShowInfo("Tick at least one comparison to run.");
+            _dialogs.ShowInfo("Tick at least one saved comparison to run. Comparisons are saved with 'Save comparison' on the Comparisons page.");
             return;
         }
 
@@ -113,10 +114,10 @@ public sealed partial class RunViewModel : ObservableObject
         {
             for (var i = 0; i < selected.Count && !cancellationToken.IsCancellationRequested; i++)
             {
-                var comparison = selected[i];
-                Current = $"{comparison.Name} ({i + 1} of {selected.Count})";
+                var definition = selected[i].SavedDefinition!;
+                Current = $"{definition.Name} ({i + 1} of {selected.Count})";
                 StatusA = StatusB = "Queued";
-                var name = comparison.Name;
+                var name = definition.Name;
                 var progress = new Progress<RunProgress>(p =>
                 {
                     Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] {name}: {(p.Side is { } s ? $"Model {s}: " : "")}{p.Step}");
@@ -126,7 +127,7 @@ public sealed partial class RunViewModel : ObservableObject
                         StatusB = p.Step;
                 });
 
-                var request = RunRequest.For(_sourceA.Connector, _sourceB.Connector, comparison.ToDefinition(), _sourceA.Metadata, _sourceB.Metadata);
+                var request = RunRequest.For(_sourceA.Connector, _sourceB.Connector, definition, _sourceA.Metadata, _sourceB.Metadata);
                 var result = await _runner.RunAsync(request, progress, cancellationToken);
                 Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] {name}: {result.Status}" + (result.FailureMessage is null ? "" : " – " + result.FailureMessage));
                 Completed?.Invoke(this, result);

@@ -35,7 +35,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     public string Runtime => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
     public string LogFolder => AppPaths.Logs;
     public string SignInStatus => _auth.IsConfigured
-        ? $"Configured. Signed in as: {_auth.SignedInAccount ?? "(not signed in)"}"
+        ? "Configured. Each source signs in separately on the Sources page (own tenant and account)."
         : "No client ID: XMLA uses the built-in sign-in; workspace browsing and REST are unavailable.";
 
     public string PrivacyText =>
@@ -71,9 +71,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task SignOutAsync()
     {
-        await _auth.SignOutAsync();
+        await _auth.SignOutEverywhereAsync();
         OnPropertyChanged(nameof(SignInStatus));
-        _dialogs.ShowInfo("Signed out and cleared the token cache.");
+        _dialogs.ShowInfo("Signed out of every account and cleared the token cache. Sign in again on the Sources page.");
     }
 
     [RelayCommand]

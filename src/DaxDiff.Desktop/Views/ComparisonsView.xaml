@@ -21,7 +21,7 @@
             <Setter Property="CanUserDeleteRows" Value="False" />
             <Setter Property="CanUserSortColumns" Value="False" />
             <Setter Property="HeadersVisibility" Value="Column" />
-            <Setter Property="SelectionMode" Value="Single" />
+            <Setter Property="SelectionMode" Value="Extended" />
             <Setter Property="SelectionUnit" Value="FullRow" />
             <Setter Property="RowHeight" Value="28" />
         </Style>
@@ -53,21 +53,47 @@
 
         <!-- Comparison list -->
         <Border Grid.Row="1" Style="{StaticResource Card}" Padding="10,8" Margin="0,0,0,10">
-            <DockPanel>
-                <TextBlock DockPanel.Dock="Right" Text="{Binding Selected.StatusText}" VerticalAlignment="Center" Margin="12,0,0,6"
-                           AutomationProperties.LiveSetting="Polite" FontWeight="SemiBold" />
+            <StackPanel>
                 <WrapPanel>
                     <Label Content="_Comparison" Target="{Binding ElementName=ComparisonPicker}" VerticalAlignment="Center" Padding="0,0,6,6" />
                     <ComboBox x:Name="ComparisonPicker" Width="220" ItemsSource="{Binding Comparisons}" SelectedItem="{Binding Selected}"
-                              DisplayMemberPath="Name" Margin="0,0,12,6" />
+                              DisplayMemberPath="DisplayName" Margin="0,0,12,6" ToolTip="* marks unsaved changes" />
                     <Label Content="N_ame" Target="{Binding ElementName=ComparisonName}" VerticalAlignment="Center" Padding="0,0,6,6" />
-                    <TextBox x:Name="ComparisonName" Width="200" Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox x:Name="ComparisonName" Width="190" Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}"
                              IsEnabled="{Binding HasSelection}" Margin="0,0,12,6" />
                     <Button Content="New comparison" Command="{Binding NewComparisonCommand}" />
                     <Button Content="Duplicate" Command="{Binding DuplicateComparisonCommand}" />
                     <Button Content="Delete" Command="{Binding DeleteComparisonCommand}" />
                 </WrapPanel>
-            </DockPanel>
+                <DockPanel Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding Selected.StatusText}" VerticalAlignment="Center" Margin="12,0,0,6"
+                               AutomationProperties.LiveSetting="Polite" FontWeight="SemiBold" />
+                    <WrapPanel>
+                        <Button Command="{Binding Selected.Options.EditFiltersCommand}" ToolTip="Filter both models to the same slice of data">
+                            <TextBlock>
+                                <Run Text="Filters (" /><Run Text="{Binding Selected.Options.Filters.Count, Mode=OneWay}" /><Run Text=")…" />
+                            </TextBlock>
+                        </Button>
+                        <Button Content="_Save comparison" Command="{Binding Selected.SaveCommand}" FontWeight="SemiBold"
+                                ToolTip="Save this comparison to the project; runs use the saved version" />
+                        <Button Content="Discard changes" Command="{Binding Selected.DiscardChangesCommand}"
+                                ToolTip="Go back to the last saved version" />
+                        <TextBlock Text="{Binding Selected.SaveStateText}" VerticalAlignment="Center" Margin="4,0,0,6" AutomationProperties.LiveSetting="Polite">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Selected.IsModified}" Value="True">
+                                            <Setter Property="Foreground" Value="DarkGoldenrod" />
+                                            <Setter Property="FontWeight" Value="SemiBold" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </WrapPanel>
+                </DockPanel>
+            </StackPanel>
         </Border>
 
         <TextBlock Grid.Row="2" Text="This project has no comparisons yet. Click 'New comparison' to create one."
@@ -119,7 +145,9 @@
             <!-- Model A: inserted fields -->
             <DockPanel Grid.Row="2" Grid.Column="0">
                 <WrapPanel DockPanel.Dock="Bottom" Margin="0,4,0,0">
-                    <Button Content="Remove" MinWidth="0" Command="{Binding RemoveFieldCommand}" CommandParameter="{Binding SelectedItem, ElementName=FieldsA}" />
+                    <Button Content="Add same to B ▸" MinWidth="0" Command="{Binding CopyToBCommand}" CommandParameter="{Binding SelectedItems, ElementName=FieldsA}"
+                            ToolTip="Add the selected fields to model B: same table and column name, same key, aggregation and synonym" />
+                    <Button Content="Remove" MinWidth="0" Command="{Binding RemoveFieldsCommand}" CommandParameter="{Binding SelectedItems, ElementName=FieldsA}" />
                     <Button Content="▲" MinWidth="32" Command="{Binding MoveFieldUpCommand}" CommandParameter="{Binding SelectedItem, ElementName=FieldsA}"
                             AutomationProperties.Name="Move model A field up" ToolTip="Move up (key order in results)" />
                     <Button Content="▼" MinWidth="32" Command="{Binding MoveFieldDownCommand}" CommandParameter="{Binding SelectedItem, ElementName=FieldsA}"
@@ -168,7 +196,9 @@
             <!-- Model B: inserted fields -->
             <DockPanel Grid.Row="2" Grid.Column="2">
                 <WrapPanel DockPanel.Dock="Bottom" Margin="0,4,0,0">
-                    <Button Content="Remove" MinWidth="0" Command="{Binding RemoveFieldCommand}" CommandParameter="{Binding SelectedItem, ElementName=FieldsB}" />
+                    <Button Content="◂ Add same to A" MinWidth="0" Command="{Binding CopyToACommand}" CommandParameter="{Binding SelectedItems, ElementName=FieldsB}"
+                            ToolTip="Add the selected fields to model A: same table and column name, same key, aggregation and synonym" />
+                    <Button Content="Remove" MinWidth="0" Command="{Binding RemoveFieldsCommand}" CommandParameter="{Binding SelectedItems, ElementName=FieldsB}" />
                     <Button Content="▲" MinWidth="32" Command="{Binding MoveFieldUpCommand}" CommandParameter="{Binding SelectedItem, ElementName=FieldsB}"
                             AutomationProperties.Name="Move model B field up" ToolTip="Move up" />
                     <Button Content="▼" MinWidth="32" Command="{Binding MoveFieldDownCommand}" CommandParameter="{Binding SelectedItem, ElementName=FieldsB}"
@@ -218,8 +248,8 @@
             <WrapPanel Grid.Row="3" Grid.ColumnSpan="3" Margin="0,8,0,4">
                 <Button Content="_Match synonyms" Command="{Binding MatchSynonymsCommand}"
                         ToolTip="Give model B fields the synonym of the equivalent model A field (by name and synonym dictionary)" />
-                <Button Content="Add matching _B fields" Command="{Binding AddMatchingFieldsCommand}"
-                        ToolTip="For model A fields without a counterpart, find the equivalent model B field and insert it with the same synonym" />
+                <Button Content="Find equivalent _B fields" Command="{Binding AddMatchingFieldsCommand}"
+                        ToolTip="For model A fields without a counterpart, find a model B field with an equivalent name (also via the synonym dictionary) and insert it with the same synonym" />
                 <TextBlock VerticalAlignment="Center" Margin="6,0,0,6" Foreground="{StaticResource MutedText}" TextWrapping="Wrap"
                            Text="Fields with the same synonym (not case-sensitive) are compared. Keys must be marked on both sides." />
             </WrapPanel>

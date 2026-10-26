@@ -51,12 +51,12 @@ public sealed partial class MainViewModel : ObservableObject
     public MainViewModel(
         IConnectorFactory factory,
         DesktopSessionLocator locator,
-        PowerBiDiscoveryService discovery,
-        IAuthService auth,
+        SourceSessionFactory sessions,
         AuthOptions authOptions,
         ComparisonRunner runner,
         AutoMatcher matcher,
         IDialogService dialogs,
+        IFilterEditorService filterEditor,
         RecentProjects recent,
         ILoggerFactory loggerFactory)
     {
@@ -64,18 +64,26 @@ public sealed partial class MainViewModel : ObservableObject
         _recent = recent;
         _logger = loggerFactory.CreateLogger<MainViewModel>();
 
-        SourceA = new SourcePanelViewModel(Side.A, factory, locator, discovery, auth, dialogs, _logger);
-        SourceB = new SourcePanelViewModel(Side.B, factory, locator, discovery, auth, dialogs, _logger);
+        // Each source signs in on its own, so the two models can be in different tenants (FR-002).
+        var sessionA = sessions.Create();
+        var sessionB = sessions.Create();
+        SourceA = new SourcePanelViewModel(Side.A, factory, locator, sessionA, dialogs, _logger);
+        SourceB = new SourcePanelViewModel(Side.B, factory, locator, sessionB, dialogs, _logger);
         Sources = new SourcesViewModel(this);
-        Comparisons = new ComparisonsViewModel(SourceA, SourceB, matcher, dialogs,
-            definition => new ComparisonEditorViewModel(definition, SourceA, SourceB, new OptionsViewModel(SourceA, SourceB, runner, dialogs)));
+        Comparisons = new ComparisonsViewModel(SourceA, SourceB, matcher, dialogs, (definition, isSaved) =>
+        {
+            var editor = new ComparisonEditorViewModel(definition, isSaved, SourceA, SourceB, new OptionsViewModel(SourceA, SourceB, runner, dialogs));
+            editor.Options.EditFiltersRequested = () => filterEditor.Edit(editor);
+            return editor;
+        });
         Options = new OptionsPageViewModel(Comparisons);
         Run = new RunViewModel(SourceA, SourceB, Comparisons, runner, dialogs);
         Results = new ResultsViewModel(dialogs, loggerFactory.CreateLogger<ResultsViewModel>());
-        Settings = new SettingsViewModel(authOptions, auth, dialogs) { ResetSession = () => CloseProject() };
+        Settings = new SettingsViewModel(authOptions, sessionA.Auth, dialogs) { ResetSession = () => CloseProject() };
         Home = new HomeViewModel(this, recent);
 
         Comparisons.Changed += (_, _) => OnProjectEdited();
+        Comparisons.PersistRequested += (_, _) => PersistComparisons();
         Comparisons.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(ComparisonsViewModel.Selected))
@@ -167,7 +175,7 @@ public sealed partial class MainViewModel : ObservableObject
         Name = ProjectName,
         SourceA = SourceA.BuildReference(),
         SourceB = SourceB.BuildReference(),
-        Comparisons = Comparisons.ToDefinitions(),
+        Comparisons = Comparisons.SavedDefinitions(),
         Ui = new ProjectUiPreferences { ExportAllData = Results.ExportAllData },
     };
 
@@ -253,15 +261,43 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanSave))]
     private void SaveProject()
     {
+        if (ProjectPath is null || !ResolveUnsavedComparisons())
+            return;
+        if (TrySave(ProjectPath))
+            StatusMessage = "Project saved (sources and saved comparisons; no credentials, tokens or results).";
+    }
+
+    /// <summary>
+    /// Comparison drafts are saved with the comparison's own Save button. When the whole project is saved, offer to
+    /// save the drafts too. False when the user cancels.
+    /// </summary>
+    private bool ResolveUnsavedComparisons()
+    {
+        var unsaved = Comparisons.UnsavedComparisons;
+        if (unsaved.Count == 0)
+            return true;
+        var answer = _dialogs.AskYesNoCancel(
+            $"These comparisons have unsaved changes:{Environment.NewLine}  {string.Join(Environment.NewLine + "  ", unsaved.Select(c => c.Name))}" +
+            $"{Environment.NewLine}{Environment.NewLine}Save them too? (No keeps their last saved versions in the project.)", "Unsaved comparisons");
+        if (answer is null)
+            return false;
+        if (answer == true)
+            Comparisons.CommitAll();
+        return true;
+    }
+
+    /// <summary>A comparison was saved or deleted: write the project file so the change is kept (FR-021).</summary>
+    private void PersistComparisons()
+    {
         if (ProjectPath is not null && TrySave(ProjectPath))
-            StatusMessage = "Project saved (sources, comparisons and settings; no credentials, tokens or results).";
+            StatusMessage = $"Saved to {Path.GetFileName(ProjectPath)}. Runs use the saved version of each comparison.";
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
     private void SaveProjectAs()
     {
         var path = _dialogs.SaveFile(ProjectFilter, ProjectName + ProjectFile.Extension, "Save project as");
-        if (path is null || !TrySave(path, Path.GetFileNameWithoutExtension(path)))
+        if (path is null || !ResolveUnsavedComparisons() || !TrySave(path, Path.GetFileNameWithoutExtension(path)))
             return;
         ProjectPath = path;
         ProjectName = Path.GetFileNameWithoutExtension(path);
@@ -289,7 +325,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             ProjectStore.Save(project, path);
             _savedFingerprint = ProjectStore.Fingerprint(project);
-            IsDirty = false;
+            IsDirty = Comparisons.UnsavedComparisons.Count > 0; // other comparisons may still have drafts
             return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -304,12 +340,18 @@ public sealed partial class MainViewModel : ObservableObject
     {
         if (!HasProject || !IsDirty)
             return true;
-        return _dialogs.AskYesNoCancel($"Save changes to the project '{ProjectName}'?", "Unsaved changes") switch
+        var drafts = Comparisons.UnsavedComparisons;
+        var detail = drafts.Count == 0 ? "" : $"{Environment.NewLine}{Environment.NewLine}Includes unsaved changes to: {string.Join(", ", drafts.Select(c => c.Name))}.";
+        switch (_dialogs.AskYesNoCancel($"Save changes to the project '{ProjectName}'?{detail}", "Unsaved changes"))
         {
-            true => TrySave(ProjectPath!),
-            false => true,
-            null => false,
-        };
+            case true:
+                Comparisons.CommitAll();
+                return TrySave(ProjectPath!);
+            case false:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private void ResetState()
@@ -335,7 +377,7 @@ public sealed partial class MainViewModel : ObservableObject
     private void UpdateDirty()
     {
         if (HasProject && _savedFingerprint is not null)
-            IsDirty = ProjectStore.Fingerprint(BuildProject()) != _savedFingerprint;
+            IsDirty = Comparisons.UnsavedComparisons.Count > 0 || ProjectStore.Fingerprint(BuildProject()) != _savedFingerprint;
     }
 
     [RelayCommand]

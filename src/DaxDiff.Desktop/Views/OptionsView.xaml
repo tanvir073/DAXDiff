@@ -55,40 +55,10 @@
 
             <Border Style="{StaticResource Card}" Margin="0,16,0,0">
                 <StackPanel>
-                    <TextBlock Text="Filters (applied symmetrically)" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
-                    <TextBlock Text="Each filter restricts a mapped column on both sides to the same typed values. Separate values with ';'." Foreground="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,0,0,6" />
-                    <ItemsControl ItemsSource="{Binding Filters}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,0,0,6">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <ComboBox Grid.Column="0" Margin="0,0,6,0" SelectedItem="{Binding LeftColumn}"
-                                              ItemsSource="{Binding DataContext.ColumnsA, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                              AutomationProperties.Name="Model A filter column" ToolTip="Model A column" />
-                                    <ComboBox Grid.Column="1" Margin="0,0,6,0" SelectedItem="{Binding Operator}" ItemsSource="{x:Static vm:FilterRowViewModel.Operators}"
-                                              AutomationProperties.Name="Filter operator" />
-                                    <ComboBox Grid.Column="2" Margin="0,0,6,0" SelectedItem="{Binding RightColumn}"
-                                              ItemsSource="{Binding DataContext.ColumnsB, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                              AutomationProperties.Name="Model B filter column" ToolTip="Model B column" />
-                                    <TextBox Grid.Column="3" Margin="0,0,6,0" Text="{Binding ValuesText, UpdateSourceTrigger=PropertyChanged}"
-                                             AutomationProperties.Name="Filter values" ToolTip="Values separated by ';'" />
-                                    <TextBox Grid.Column="4" Margin="0,0,6,0" Text="{Binding Meaning, UpdateSourceTrigger=PropertyChanged}"
-                                             AutomationProperties.Name="Filter meaning" ToolTip="What this filter means (documented in the export)" />
-                                    <Button Grid.Column="5" Content="Remove" Margin="0"
-                                            Command="{Binding DataContext.RemoveFilterCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <Button Content="Add _filter" Command="{Binding AddFilterCommand}" HorizontalAlignment="Left" />
+                    <TextBlock Text="Filters (applied to both models)" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding FiltersSummary}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <Button Content="Edit _filters…" Command="{Binding EditFiltersCommand}" HorizontalAlignment="Left"
+                            ToolTip="Basic (pick values) or advanced (conditions) filters, as in the Power BI filter pane" />
                 </StackPanel>
             </Border>
 

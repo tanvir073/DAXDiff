@@ -27,8 +27,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
 {
     private readonly IConnectorFactory _factory;
     private readonly DesktopSessionLocator _locator;
-    private readonly PowerBiDiscoveryService _discovery;
-    private readonly IAuthService _auth;
+    private readonly SourceSession _session;
     private readonly IDialogService _dialogs;
     private readonly ILogger _logger;
 
@@ -36,16 +35,15 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         Side side,
         IConnectorFactory factory,
         DesktopSessionLocator locator,
-        PowerBiDiscoveryService discovery,
-        IAuthService auth,
+        SourceSession session,
         IDialogService dialogs,
         ILogger logger)
     {
         Side = side;
         _factory = factory;
         _locator = locator;
-        _discovery = discovery;
-        _auth = auth;
+        _session = session;
+        _tenant = session.Auth.Tenant;
         _dialogs = dialogs;
         _logger = logger;
         WorkspacesView = CollectionViewSource.GetDefaultView(Workspaces);
@@ -171,14 +169,41 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     public ObservableCollection<DatasetInfo> Datasets { get; } = [];
     public ICollectionView DatasetsView { get; }
 
-    public bool CanBrowseService => _auth.IsConfigured;
+    private IAuthService Auth => _session.Auth;
 
-    public string ServiceHint => _auth.IsConfigured
-        ? "Sign in to browse the workspaces and semantic models you can access."
-        : "No Entra client ID is configured, so browsing and REST are unavailable. For XMLA, type the workspace and model names; you'll be asked to sign in when you test.";
+    public bool CanBrowseService => Auth.IsConfigured;
+
+    public string ServiceHint => Auth.IsConfigured
+        ? "Each model signs in separately, so A and B can be in the same tenant or in different tenants, as the same or different users."
+        : "No Entra client ID is configured (Settings), so DAXDiff cannot sign in to browse workspaces or use REST. " +
+          "For XMLA, enter the tenant (if not your own), workspace and model, then Test: Microsoft's sign-in appears then.";
+
+    /// <summary>
+    /// Tenant of this source: a domain (contoso.com) or tenant ID, or "organizations" for the signed-in user's own
+    /// tenant. Each source has its own (FR-002).
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Identity))]
+    private string _tenant;
+
+    partial void OnTenantChanged(string value)
+    {
+        Auth.Tenant = value;
+        SignedInAs = Auth.SignedInAccount;
+        Workspaces.Clear();
+        Datasets.Clear();
+    }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSignedIn), nameof(SignInStatusText))]
     private string? _signedInAs;
+
+    public bool IsSignedIn => SignedInAs is not null;
+
+    public string SignInStatusText => SignedInAs is null ? "Not signed in" : $"Signed in as {SignedInAs}";
+
+    private string SignedInText(AuthToken token) =>
+        $"{token.Account}{(AuthOptions.IsHomeTenant(Tenant) ? "" : $" (tenant {Tenant})")}";
 
     [ObservableProperty]
     private string _workspaceSearch = "";
@@ -209,19 +234,57 @@ public sealed partial class SourcePanelViewModel : ObservableObject
 
     partial void OnDatasetSearchChanged(string value) => DatasetsView.Refresh();
 
+    /// <summary>Signs this source in to the Power BI service with an account picker, then lists its workspaces.</summary>
     [RelayCommand]
     private async Task SignInAsync()
     {
+        if (!Auth.IsConfigured)
+        {
+            _dialogs.ShowInfo(ServiceHint + Environment.NewLine + Environment.NewLine + "See docs/setup.md for the app registration steps.", "Sign in to Power BI");
+            return;
+        }
+
         await GuardAsync("Signing in…", async () =>
         {
-            var token = await _auth.GetTokenAsync(CancellationToken.None);
-            SignedInAs = token.Account;
-            Workspaces.Clear();
-            foreach (var workspace in await _discovery.GetWorkspacesAsync(CancellationToken.None))
-                Workspaces.Add(workspace);
-            SelectedWorkspace = Workspaces.FirstOrDefault(w => w.Id == _workspaceId || w.Name == WorkspaceName);
-            StatusText = $"Signed in as {token.Account}. {Workspaces.Count} workspace(s) available.";
+            Disconnect();
+            var token = await Auth.SignInAsync(CancellationToken.None);
+            SignedInAs = SignedInText(token);
+            await LoadWorkspacesAsync();
+            StatusText = $"Signed in as {SignedInAs}. {Workspaces.Count} workspace(s) available.";
         }, setConnected: false);
+    }
+
+    [RelayCommand]
+    private async Task SignOutAsync()
+    {
+        Disconnect();
+        await Auth.SignOutAsync();
+        SignedInAs = null;
+        Workspaces.Clear();
+        Datasets.Clear();
+        StatusText = "Signed out.";
+    }
+
+    [RelayCommand]
+    private async Task RefreshWorkspacesAsync()
+    {
+        if (!Auth.IsConfigured)
+            return;
+        await GuardAsync("Loading workspaces…", async () =>
+        {
+            await LoadWorkspacesAsync();
+            StatusText = $"{Workspaces.Count} workspace(s) available.";
+        }, setConnected: false);
+    }
+
+    private async Task LoadWorkspacesAsync()
+    {
+        var token = await Auth.GetTokenAsync(CancellationToken.None);
+        SignedInAs = SignedInText(token);
+        Workspaces.Clear();
+        foreach (var workspace in await _session.Discovery.GetWorkspacesAsync(CancellationToken.None))
+            Workspaces.Add(workspace);
+        SelectedWorkspace = Workspaces.FirstOrDefault(w => w.Id == _workspaceId || w.Name == WorkspaceName);
     }
 
     async partial void OnSelectedWorkspaceChanged(WorkspaceInfo? value)
@@ -237,7 +300,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
 
         await GuardAsync("Loading semantic models…", async () =>
         {
-            foreach (var dataset in await _discovery.GetDatasetsAsync(value.Id, CancellationToken.None))
+            foreach (var dataset in await _session.Discovery.GetDatasetsAsync(value.Id, CancellationToken.None))
                 Datasets.Add(dataset);
             SelectedDataset = Datasets.FirstOrDefault(d => d.Id == _datasetId || d.Name == DatasetName);
             StatusText = $"{Datasets.Count} semantic model(s) in {value.Name}.";
@@ -306,6 +369,8 @@ public sealed partial class SourcePanelViewModel : ObservableObject
                     WorkspaceName = WorkspaceName,
                     DatasetId = _datasetId,
                     DatasetName = DatasetName,
+                    TenantId = AuthOptions.IsHomeTenant(Tenant) ? null : Tenant.Trim(),
+                    AccountHint = Auth.SignedInAccount ?? Auth.AccountHint,
                 };
             default:
                 return null;
@@ -317,13 +382,19 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     {
         Disconnect();
         if (reference is null)
+        {
+            Tenant = "organizations";
             return;
+        }
+
         Kind = reference.Kind;
         PbixPath = reference.LocalPbixPath;
         _workspaceId = reference.WorkspaceId;
         _datasetId = reference.DatasetId;
         WorkspaceName = reference.WorkspaceName;
         DatasetName = reference.DatasetName;
+        Tenant = string.IsNullOrWhiteSpace(reference.TenantId) ? "organizations" : reference.TenantId;
+        Auth.AccountHint = reference.AccountHint;
         if (Kind == SourceKind.DesktopSession)
             DetectSessions();
         else
@@ -353,13 +424,15 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         await GuardAsync("Connecting…", async () =>
         {
             await DisposeConnectorAsync();
-            var connector = _factory.Create(reference);
+            var connector = _factory.Create(reference, _session);
             Connector = connector;
             await connector.ConnectAsync(CancellationToken.None);
             StatusText = "Connected. Loading metadata…";
             var metadata = await connector.DiscoverMetadataAsync(CancellationToken.None);
-            if (Kind != SourceKind.DesktopSession && _workspaceId is not null && _datasetId is not null && _auth.IsConfigured)
-                metadata = metadata with { LastRefreshUtc = metadata.LastRefreshUtc ?? await _discovery.GetLastRefreshAsync(_workspaceId, _datasetId, CancellationToken.None) };
+            if (Kind != SourceKind.DesktopSession && _workspaceId is not null && _datasetId is not null && Auth.IsConfigured)
+                metadata = metadata with { LastRefreshUtc = metadata.LastRefreshUtc ?? await _session.Discovery.GetLastRefreshAsync(_workspaceId, _datasetId, CancellationToken.None) };
+            if (Auth.SignedInAccount is not null)
+                SignedInAs = Auth.SignedInAccount + (AuthOptions.IsHomeTenant(Tenant) ? "" : $" (tenant {Tenant})");
             Metadata = metadata;
             Capabilities = connector.Capabilities;
             SecurityContext = connector.SecurityContext;

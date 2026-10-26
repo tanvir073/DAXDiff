@@ -52,8 +52,7 @@ public partial class App : System.Windows.Application
 
         var main = _host.Services.GetRequiredService<MainViewModel>();
         var window = new MainWindow { DataContext = main };
-        if (_host.Services.GetRequiredService<IAuthService>() is MsalAuthService msal)
-            msal.ParentWindow = () => new System.Windows.Interop.WindowInteropHelper(window).Handle;
+        _host.Services.GetRequiredService<SourceSessionFactory>().ParentWindow = () => new System.Windows.Interop.WindowInteropHelper(window).Handle;
         MainWindow = window;
         window.Show();
         main.ApplyLaunchArguments(LaunchArguments.Parse(e.Args));
@@ -75,10 +74,9 @@ public partial class App : System.Windows.Application
             .ToList();
 
         services.AddSingleton(authOptions);
-        services.AddSingleton<IAuthService, MsalAuthService>();
         services.AddSingleton(new HttpClient { Timeout = TimeSpan.FromMinutes(10) });
-        services.AddSingleton<PowerBiRestClient>();
-        services.AddSingleton<PowerBiDiscoveryService>();
+        services.AddSingleton<SourceSessionFactory>();
+        services.AddSingleton<IFilterEditorService, FilterEditorService>();
         services.AddSingleton<DesktopSessionLocator>();
         services.AddSingleton<IConnectorFactory, ConnectorFactory>();
         services.AddSingleton<ComparisonRunner>();

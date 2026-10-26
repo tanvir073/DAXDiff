@@ -1,7 +1,10 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using DaxDiff.Application;
 using DaxDiff.Comparison;
 using DaxDiff.Domain;
 
@@ -13,6 +16,7 @@ public sealed record PairPreview(string Synonym, string Role, string A, string B
 /// <summary>
 /// One comparison being edited: the fields inserted on each side, their keys, aggregations and synonyms,
 /// and its own options. Recompiles on every change so pairing and validation stay current.
+/// Edits are a draft until saved: runs and the project file only ever use the last saved version (FR-021).
 /// </summary>
 public sealed partial class ComparisonEditorViewModel : ObservableObject
 {
@@ -23,7 +27,8 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
     private readonly SourcePanelViewModel _sourceB;
     private bool _suspended;
 
-    public ComparisonEditorViewModel(ComparisonDefinition definition, SourcePanelViewModel sourceA, SourcePanelViewModel sourceB, OptionsViewModel options)
+    /// <param name="isSaved">True when <paramref name="definition"/> is already saved (loaded from the project); false for a new draft.</param>
+    public ComparisonEditorViewModel(ComparisonDefinition definition, bool isSaved, SourcePanelViewModel sourceA, SourcePanelViewModel sourceB, OptionsViewModel options)
     {
         _sourceA = sourceA;
         _sourceB = sourceB;
@@ -31,6 +36,7 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
         _name = definition.Name;
         Options = options;
         Options.CompiledProvider = () => Compiled;
+        _savedDefinition = isSaved ? definition : null;
 
         FieldsA.CollectionChanged += OnFieldsChanged;
         FieldsB.CollectionChanged += OnFieldsChanged;
@@ -39,18 +45,88 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
             if (!OptionsOutputs.Contains(e.PropertyName))
                 Recompile();
         };
-        Options.Filters.CollectionChanged += (_, e) =>
-        {
-            foreach (var row in (e.NewItems ?? Array.Empty<FilterRowViewModel>()).OfType<FilterRowViewModel>())
-                row.PropertyChanged += (_, _) => Recompile();
-            Recompile();
-        };
+        Options.Filters.CollectionChanged += (_, _) => Recompile();
 
         Load(definition);
     }
 
     /// <summary>Raised after any edit, once the comparison has been recompiled.</summary>
     public event EventHandler? Changed;
+
+    /// <summary>Raised when the user saves this comparison; the shell then writes the project file.</summary>
+    public event EventHandler? SaveRequested;
+
+    /// <summary>The version that runs and is written to the project file; null until first saved.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSaved), nameof(RunStatusText), nameof(DisplayName))]
+    [NotifyCanExecuteChangedFor(nameof(DiscardChangesCommand))]
+    private ComparisonDefinition? _savedDefinition;
+
+    /// <summary>The draft differs from the saved version (or was never saved).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(RunStatusText), nameof(DisplayName), nameof(SaveStateText))]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(DiscardChangesCommand))]
+    private bool _isModified;
+
+    public bool IsSaved => SavedDefinition is not null;
+
+    /// <summary>Name for lists, with a marker while there are unsaved changes.</summary>
+    public string DisplayName => IsModified ? $"{Name} *" : Name;
+
+    public string SaveStateText => IsModified
+        ? IsSaved ? "Unsaved changes – runs use the last saved version" : "Not saved yet – save to run it"
+        : "Saved";
+
+    /// <summary>Status on the Run page, describing the saved version that will run.</summary>
+    public string RunStatusText
+    {
+        get
+        {
+            if (SavedDefinition is null)
+                return "Not saved yet – save it on the Comparisons page to run it";
+            var saved = ComparisonCompiler.CompileAndValidate(SavedDefinition, _sourceA.Metadata, _sourceB.Metadata);
+            var errors = saved.Issues.Count(i => i.Severity == IssueSeverity.Error);
+            var text = errors > 0
+                ? $"{errors} error(s) in the saved version"
+                : $"{saved.Config.Keys.Count} key(s), {saved.Config.Values.Count} value(s)";
+            return IsModified ? text + " · newer changes not saved" : text;
+        }
+    }
+
+    private bool CanSave() => IsModified;
+
+    /// <summary>Makes the draft the saved version and asks the shell to write the project file.</summary>
+    [RelayCommand(CanExecute = nameof(CanSave))]
+    private void Save()
+    {
+        Commit();
+        SaveRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Makes the draft the saved version without writing the file (the caller saves the project).</summary>
+    public void Commit()
+    {
+        SavedDefinition = ToDefinition();
+        UpdateModified();
+    }
+
+    private bool CanDiscard() => IsModified && IsSaved;
+
+    [RelayCommand(CanExecute = nameof(CanDiscard))]
+    private void DiscardChanges()
+    {
+        if (SavedDefinition is not null)
+            Load(SavedDefinition);
+    }
+
+    private static string Fingerprint(ComparisonDefinition definition) => JsonSerializer.Serialize(definition, ProjectStore.JsonOptions);
+
+    private void UpdateModified() =>
+        IsModified = SavedDefinition is null || Fingerprint(ToDefinition()) != Fingerprint(SavedDefinition);
+
+    /// <summary>What the filter pop-up needs: both models and this comparison's synonym pairs.</summary>
+    public FilterEditorContext FilterContext() =>
+        new(_sourceA.Metadata, _sourceB.Metadata, _sourceA.Connector, _sourceB.Connector, Compiled.Config.FieldPairs);
 
     public Guid Id { get; }
 
@@ -78,7 +154,11 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
         ? $"{ErrorCount} error(s) to fix"
         : $"{Compiled.Config.Keys.Count} key(s), {Compiled.Config.Values.Count} value(s) compared";
 
-    partial void OnNameChanged(string value) => Changed?.Invoke(this, EventArgs.Empty);
+    partial void OnNameChanged(string value)
+    {
+        OnPropertyChanged(nameof(DisplayName));
+        Recompile();
+    }
 
     public ObservableCollection<ComparisonFieldViewModel> FieldsOf(Side side) => side == Side.A ? FieldsA : FieldsB;
 
@@ -116,6 +196,7 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
         _suspended = true;
         try
         {
+            Name = definition.Name;
             FieldsA.Clear();
             FieldsB.Clear();
             foreach (var field in definition.FieldsA)
@@ -162,6 +243,8 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
             .ToList();
         Annotate(FieldsA, FieldsB, Side.A);
         Annotate(FieldsB, FieldsA, Side.B);
+        UpdateModified();
+        OnPropertyChanged(nameof(RunStatusText));
         Changed?.Invoke(this, EventArgs.Empty);
     }
 

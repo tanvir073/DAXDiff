@@ -48,13 +48,25 @@
 
                 <!-- Service -->
                 <StackPanel Visibility="{Binding IsService, Converter={StaticResource BoolToVisibility}}">
-                    <TextBlock Text="{Binding ServiceHint}" TextWrapping="Wrap" Foreground="{StaticResource MutedText}" Margin="0,6,0,6" />
+                    <TextBlock Text="Power BI service sign-in" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Text="{Binding ServiceHint}" TextWrapping="Wrap" Foreground="{StaticResource MutedText}" Margin="0,0,0,6" />
+                    <Label Content="_Tenant (domain or tenant ID; 'organizations' = your own tenant)" Target="{Binding ElementName=Tenant}" Padding="0,0,0,2" />
+                    <TextBox x:Name="Tenant" Text="{Binding Tenant, UpdateSourceTrigger=LostFocus}" AutomationProperties.Name="Tenant"
+                             ToolTip="For a model in another organisation's tenant, enter that tenant's domain (e.g. contoso.com) or tenant ID" />
+                    <WrapPanel>
+                        <Button Content="Sign _in…" Command="{Binding SignInCommand}" FontWeight="SemiBold"
+                                ToolTip="Sign in to this tenant; you can pick a different account for each model" />
+                        <Button Content="Sign out" Command="{Binding SignOutCommand}" />
+                        <TextBlock Text="{Binding SignInStatusText}" VerticalAlignment="Center" Margin="0,0,0,6" TextWrapping="Wrap"
+                                   AutomationProperties.LiveSetting="Polite" />
+                    </WrapPanel>
+
                     <StackPanel Visibility="{Binding CanBrowseService, Converter={StaticResource BoolToVisibility}}">
-                        <WrapPanel>
-                            <Button Content="Sign _in and browse" Command="{Binding SignInCommand}" />
-                            <TextBlock Text="{Binding SignedInAs}" VerticalAlignment="Center" Margin="0,0,0,6" />
-                        </WrapPanel>
-                        <TextBlock Text="Workspace" Style="{StaticResource SectionTitle}" />
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="↻" MinWidth="32" Command="{Binding RefreshWorkspacesCommand}" Margin="6,0,0,6"
+                                    AutomationProperties.Name="Refresh workspaces" ToolTip="Reload the workspace list" />
+                            <TextBlock Text="Workspace" Style="{StaticResource SectionTitle}" />
+                        </DockPanel>
                         <TextBox Text="{Binding WorkspaceSearch, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Search workspaces"
                                  ToolTip="Type to filter workspaces" />
                         <ComboBox ItemsSource="{Binding WorkspacesView}" SelectedItem="{Binding SelectedWorkspace}" DisplayMemberPath="Name"
