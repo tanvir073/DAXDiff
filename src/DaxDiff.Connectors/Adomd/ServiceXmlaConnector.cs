@@ -40,13 +40,25 @@ public sealed class ServiceXmlaConnector : AdomdConnectorBase
     };
 
     public override string SecurityContext =>
-        $"{_account ?? _auth.SignedInAccount ?? "Signed-in user"} via XMLA (as observed by current caller)";
+        $"{_account ?? _auth.SignedInAccount ?? "Signed-in user"}{(AuthOptions.IsHomeTenant(Reference.TenantId) ? "" : $" in tenant {Reference.TenantId}")} via XMLA (as observed by current caller)";
 
     protected override string TransportName => "Power BI XMLA";
 
+    /// <summary>
+    /// The XMLA data source for a workspace. For another tenant the "myorg" segment is replaced by that tenant's domain
+    /// or ID (powerbi://api.powerbi.com/v1.0/contoso.com/Sales), which is how the service addresses external tenants.
+    /// </summary>
+    public static string DataSource(string endpointBase, string? tenant, string workspace)
+    {
+        var baseUrl = endpointBase.TrimEnd('/');
+        if (!AuthOptions.IsHomeTenant(tenant) && baseUrl.EndsWith("/myorg", StringComparison.OrdinalIgnoreCase))
+            baseUrl = baseUrl[..^"myorg".Length] + tenant!.Trim();
+        return baseUrl + "/" + workspace;
+    }
+
     protected override async Task<AdomdConnection> CreateConnectionAsync(CancellationToken cancellationToken)
     {
-        var endpoint = (Reference.XmlaEndpointBase ?? _options.XmlaEndpointBase).TrimEnd('/') + "/" + Reference.WorkspaceName;
+        var endpoint = DataSource(Reference.XmlaEndpointBase ?? _options.XmlaEndpointBase, Reference.TenantId ?? _auth.Tenant, Reference.WorkspaceName!);
         var builder = new System.Data.Common.DbConnectionStringBuilder
         {
             ["Data Source"] = endpoint,

@@ -25,5 +25,5 @@ public interface IModelConnector : IAsyncDisposable
 
 public interface IConnectorFactory
 {
-    IModelConnector Create(ModelReference reference);
+    IModelConnector Create(ModelReference reference, Auth.SourceSession session);
 }

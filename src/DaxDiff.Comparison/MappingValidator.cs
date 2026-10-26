@@ -94,7 +94,7 @@ public static class MappingValidator
         }
         else if (field.Kind == FieldKind.Column && aggregation == Aggregation.None)
         {
-            issues.Add(Error("MAP-AGG", $"'{pair.Alias}': model {side} column {field} needs an aggregation to be compared as a value.", pair.Alias));
+            issues.Add(Error("MAP-AGG", $"'{pair.Alias}': model {side} column {field} has no aggregation. Choose one (for example Sum or Count), or mark it as a key on both sides.", pair.Alias));
         }
     }
 
@@ -122,10 +122,25 @@ public static class MappingValidator
             issues.Add(Error(code, string.Format(format, display(group.First()))));
     }
 
+    /// <summary>Checks one filter: columns exist on both sides and every value or condition is valid for the column type (FR-020).</summary>
+    public static IReadOnlyList<ValidationIssue> ValidateFilter(FilterPair filter, int number, ModelMetadata? a, ModelMetadata? b)
+    {
+        var issues = new List<ValidationIssue>();
+        ValidateFilter(issues, filter, number, a, b);
+        return issues;
+    }
+
     private static void ValidateFilter(List<ValidationIssue> issues, FilterPair filter, int number, ModelMetadata? a, ModelMetadata? b)
     {
-        if (filter.Values.Count == 0)
-            issues.Add(Error("FLT-EMPTY", $"Filter {number} has no values."));
+        if (filter.Kind == FilterKind.Basic && filter.Values.Count == 0 && !filter.IncludeBlank)
+            issues.Add(Error("FLT-EMPTY", $"Filter {number} has no values selected."));
+        if (filter.Kind == FilterKind.Advanced && filter.Conditions.Count is 0 or > 2)
+            issues.Add(Error("FLT-CONDITIONS", $"Filter {number} needs one or two conditions."));
+        if (filter.Kind == FilterKind.Advanced)
+        {
+            foreach (var condition in filter.Conditions.Where(c => FilterPair.NeedsValue(c.Operator) && c.Value.Length == 0))
+                issues.Add(Error("FLT-VALUE", $"Filter {number}: enter a value for \"{FilterPair.OperatorText(condition.Operator)}\"."));
+        }
 
         foreach (var (column, meta, side) in new[] { (filter.LeftColumn, a, Side.A), (filter.RightColumn, b, Side.B) })
         {
@@ -144,7 +159,12 @@ public static class MappingValidator
             }
 
             var kind = meta.KindOf(column);
-            foreach (var value in filter.Values)
+            var typedValues = filter.Kind == FilterKind.Basic
+                ? filter.Values
+                : filter.Conditions.Where(c => c.Operator is not (ConditionOperator.Contains or ConditionOperator.DoesNotContain
+                        or ConditionOperator.StartsWith or ConditionOperator.DoesNotStartWith) && FilterPair.NeedsValue(c.Operator) && c.Value.Length > 0)
+                    .Select(c => c.Value);
+            foreach (var value in typedValues)
             {
                 try
                 {
@@ -154,6 +174,13 @@ public static class MappingValidator
                 {
                     issues.Add(Error("FLT-VALUE", $"Filter {number}, model {side}: {ex.Message}"));
                 }
+            }
+
+            if (filter.Kind == FilterKind.Advanced)
+            {
+                var allowed = FilterPair.OperatorsFor(kind);
+                foreach (var condition in filter.Conditions.Where(c => !allowed.Contains(c.Operator)))
+                    issues.Add(Error("FLT-OPERATOR", $"Filter {number}, model {side}: \"{FilterPair.OperatorText(condition.Operator)}\" is not available for a {kind} column."));
             }
         }
     }

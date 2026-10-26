@@ -33,17 +33,110 @@ public enum FilterOperator
     NotIn,
 }
 
+/// <summary>The two filter styles of the Power BI filter pane (FR-020).</summary>
+public enum FilterKind
+{
+    /// <summary>Pick values from a list: the column is (or is not) one of them.</summary>
+    Basic,
+
+    /// <summary>One or two conditions joined by And/Or.</summary>
+    Advanced,
+}
+
+public enum ConditionOperator
+{
+    Is,
+    IsNot,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+    Contains,
+    DoesNotContain,
+    StartsWith,
+    DoesNotStartWith,
+    IsBlank,
+    IsNotBlank,
+}
+
+public enum ConditionJoin
+{
+    And,
+    Or,
+}
+
+/// <summary>One condition of an advanced filter. <see cref="Value"/> is a typed literal as text; unused for blank checks.</summary>
+public sealed record FilterCondition(ConditionOperator Operator, string Value = "");
+
 /// <summary>
-/// A governed filter applied symmetrically: the same literal values are applied to a mapped column on each side.
-/// Values are typed literals, never raw DAX (FR-009).
+/// A governed filter applied symmetrically: the same rule is applied to a mapped column on each side.
+/// Values are typed literals, never raw DAX (FR-009, FR-020).
 /// </summary>
 public sealed record FilterPair
 {
     public required FieldRef LeftColumn { get; init; }
     public required FieldRef RightColumn { get; init; }
+    public FilterKind Kind { get; init; } = FilterKind.Basic;
+
+    /// <summary>Basic: keep (<see cref="FilterOperator.In"/>) or remove (<see cref="FilterOperator.NotIn"/>) the listed values.</summary>
     public FilterOperator Operator { get; init; } = FilterOperator.In;
-    public required IReadOnlyList<string> Values { get; init; }
+
+    /// <summary>Basic: the selected values.</summary>
+    public IReadOnlyList<string> Values { get; init; } = [];
+
+    /// <summary>Basic: BLANK is one of the selected values.</summary>
+    public bool IncludeBlank { get; init; }
+
+    /// <summary>Advanced: one or two conditions.</summary>
+    public IReadOnlyList<FilterCondition> Conditions { get; init; } = [];
+
+    public ConditionJoin Join { get; init; } = ConditionJoin.And;
     public string SemanticMeaning { get; init; } = "";
+
+    /// <summary>Readable summary, e.g. "Region is North, South" or "Amount is greater than 100 and is less than 500".</summary>
+    public string Describe()
+    {
+        if (Kind == FilterKind.Advanced)
+        {
+            var parts = Conditions.Select(c => c.Operator is ConditionOperator.IsBlank or ConditionOperator.IsNotBlank
+                ? OperatorText(c.Operator)
+                : $"{OperatorText(c.Operator)} {c.Value}");
+            return $"{LeftColumn.Name} {string.Join(Join == ConditionJoin.And ? " and " : " or ", parts)}";
+        }
+
+        var values = Values.Concat(IncludeBlank ? ["(Blank)"] : []).ToList();
+        var shown = values.Count <= 5 ? string.Join(", ", values) : $"{string.Join(", ", values.Take(5))} and {values.Count - 5} more";
+        return $"{LeftColumn.Name} {(Operator == FilterOperator.In ? "is" : "is not")} {shown}";
+    }
+
+    public static string OperatorText(ConditionOperator op) => op switch
+    {
+        ConditionOperator.Is => "is",
+        ConditionOperator.IsNot => "is not",
+        ConditionOperator.LessThan => "is less than",
+        ConditionOperator.LessThanOrEqual => "is less than or equal to",
+        ConditionOperator.GreaterThan => "is greater than",
+        ConditionOperator.GreaterThanOrEqual => "is greater than or equal to",
+        ConditionOperator.Contains => "contains",
+        ConditionOperator.DoesNotContain => "does not contain",
+        ConditionOperator.StartsWith => "starts with",
+        ConditionOperator.DoesNotStartWith => "does not start with",
+        ConditionOperator.IsBlank => "is blank",
+        _ => "is not blank",
+    };
+
+    /// <summary>Operators offered for a column type, as in Power BI's advanced filtering.</summary>
+    public static IReadOnlyList<ConditionOperator> OperatorsFor(DataKind kind) => kind switch
+    {
+        DataKind.Text => [ConditionOperator.Contains, ConditionOperator.DoesNotContain, ConditionOperator.StartsWith, ConditionOperator.DoesNotStartWith,
+            ConditionOperator.Is, ConditionOperator.IsNot, ConditionOperator.IsBlank, ConditionOperator.IsNotBlank],
+        DataKind.Boolean => [ConditionOperator.Is, ConditionOperator.IsNot, ConditionOperator.IsBlank, ConditionOperator.IsNotBlank],
+        DataKind.Unknown => Enum.GetValues<ConditionOperator>(),
+        _ => [ConditionOperator.Is, ConditionOperator.IsNot, ConditionOperator.LessThan, ConditionOperator.LessThanOrEqual,
+            ConditionOperator.GreaterThan, ConditionOperator.GreaterThanOrEqual, ConditionOperator.IsBlank, ConditionOperator.IsNotBlank],
+    };
+
+    public static bool NeedsValue(ConditionOperator op) => op is not (ConditionOperator.IsBlank or ConditionOperator.IsNotBlank);
 }
 
 public enum ToleranceMode

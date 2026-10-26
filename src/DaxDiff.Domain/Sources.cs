@@ -31,6 +31,15 @@ public sealed record ModelReference
     public string? DatasetId { get; init; }
     public string? DatasetName { get; init; }
 
+    /// <summary>
+    /// Microsoft Entra tenant of a Service model: a domain (contoso.com) or tenant ID. Empty or "organizations" means the
+    /// signed-in user's home tenant. Each source has its own, so the two models can live in different tenants.
+    /// </summary>
+    public string? TenantId { get; init; }
+
+    /// <summary>User name last used to sign in to this source; a hint for the next sign-in, never a credential.</summary>
+    public string? AccountHint { get; init; }
+
     /// <summary>XMLA endpoint base, e.g. <c>powerbi://api.powerbi.com/v1.0/myorg</c>.</summary>
     public string? XmlaEndpointBase { get; init; }
 
@@ -42,11 +51,15 @@ public sealed record ModelReference
     /// <summary>Local database (catalog) ID. Session-specific; re-discovered on reload.</summary>
     public string? DesktopDatabase { get; init; }
 
+    /// <summary>"contoso.com: " for a model in a specific tenant; empty for the user's own tenant.</summary>
+    private string TenantPrefix =>
+        string.IsNullOrWhiteSpace(TenantId) || TenantId.Trim().ToLowerInvariant() is "organizations" or "common" or "myorg" ? "" : $"{TenantId.Trim()}: ";
+
     public string Describe() => Kind switch
     {
         SourceKind.DesktopSession => $"Desktop: {DisplayName} ({DesktopServer ?? "not attached"})",
-        SourceKind.ServiceXmla => $"Service XMLA: {WorkspaceName}/{DatasetName}",
-        SourceKind.ServiceRest => $"Service REST: {WorkspaceName}/{DatasetName}",
+        SourceKind.ServiceXmla => $"Service XMLA: {TenantPrefix}{WorkspaceName}/{DatasetName}",
+        SourceKind.ServiceRest => $"Service REST: {TenantPrefix}{WorkspaceName}/{DatasetName}",
         _ => DisplayName,
     };
 }

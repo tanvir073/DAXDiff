@@ -122,14 +122,29 @@ public class ComparisonCompilerTests
     }
 
     [Theory]
-    [InlineData(DataKind.Decimal, Aggregation.Sum)]
-    [InlineData(DataKind.Text, Aggregation.Concatenate)]
-    [InlineData(DataKind.DateTime, Aggregation.Max)]
-    [InlineData(DataKind.Boolean, Aggregation.Count)]
-    public void DefaultAggregation_DependsOnType(DataKind kind, Aggregation expected)
+    [InlineData(DataKind.Decimal)]
+    [InlineData(DataKind.Text)]
+    [InlineData(DataKind.DateTime)]
+    [InlineData(DataKind.Boolean)]
+    public void FR017_InsertedFieldsStartWithoutAggregation(DataKind kind)
     {
-        Assert.Equal(expected, AggregationRules.Default(FieldKind.Column, kind, isKey: false));
+        Assert.Equal(Aggregation.None, AggregationRules.Default(FieldKind.Column, kind, isKey: false));
         Assert.Equal(Aggregation.None, AggregationRules.Default(FieldKind.Column, kind, isKey: true));
         Assert.Equal(Aggregation.None, AggregationRules.Default(FieldKind.Measure, kind, isKey: false));
+        Assert.Equal(Aggregation.None, AggregationRules.Allowed(FieldKind.Column, kind, isKey: false)[0]);
+    }
+
+    [Fact]
+    public void FR017_ComparedColumnWithoutAggregation_MustChooseOne()
+    {
+        var compiled = ComparisonCompiler.CompileAndValidate(Definition(
+            [Field(Col("Date", "Year"), isKey: true), Field(Col("Sales", "Amount"), "Amount")],
+            [Field(Col("Date", "Year"), isKey: true), Field(Col("Fact", "Amount"), "Amount", aggregation: Aggregation.Sum)]),
+            ModelA(), ModelB());
+
+        var issue = Assert.Single(compiled.Issues, i => i.Code == "MAP-AGG");
+        Assert.Equal("Amount", issue.Alias);
+        Assert.Contains("model A", issue.Message);
+        Assert.DoesNotContain(compiled.Issues, i => i.Code == "CMP-AGGREGATION");
     }
 }

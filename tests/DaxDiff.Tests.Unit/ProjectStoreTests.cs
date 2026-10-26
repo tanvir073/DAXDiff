@@ -25,7 +25,18 @@ public class ProjectStoreTests
         {
             Tolerance = new ToleranceSettings { Mode = ToleranceMode.Tolerance, Absolute = 0.01m, Relative = 0.001m },
             NullPolicy = NullPolicy.BlankEqualsZero,
-            Filters = [new FilterPair { LeftColumn = Col("Date", "Year"), RightColumn = Col("Date", "Year"), Values = ["2025"] }],
+            Filters =
+            [
+                new FilterPair { LeftColumn = Col("Date", "Year"), RightColumn = Col("Date", "Year"), Values = ["2025"] },
+                new FilterPair
+                {
+                    LeftColumn = Col("Geography", "Region"),
+                    RightColumn = Col("Geo", "Region Name"),
+                    Kind = FilterKind.Advanced,
+                    Join = ConditionJoin.Or,
+                    Conditions = [new FilterCondition(ConditionOperator.StartsWith, "N"), new FilterCondition(ConditionOperator.IsBlank)],
+                },
+            ],
         },
     };
 
@@ -48,6 +59,8 @@ public class ProjectStoreTests
             WorkspaceName = "Finance",
             DatasetId = "ds-id",
             DatasetName = "Sales",
+            TenantId = "fabrikam.com",
+            AccountHint = "analyst@fabrikam.com",
         },
         Comparisons =
         [
@@ -72,7 +85,10 @@ public class ProjectStoreTests
         Assert.True(sales.FieldsB[0].IsKey);
         Assert.Equal(0.01m, sales.Options.Tolerance.Absolute);
         Assert.Equal(NullPolicy.BlankEqualsZero, sales.Options.NullPolicy);
-        Assert.Equal(["2025"], sales.Options.Filters.Single().Values);
+        Assert.Equal(["2025"], sales.Options.Filters[0].Values);
+        Assert.Equal(saved.Comparisons[0].Options.Filters[1].Conditions, sales.Options.Filters[1].Conditions);
+        Assert.Equal(ConditionJoin.Or, sales.Options.Filters[1].Join);
+        Assert.Equal(("fabrikam.com", "analyst@fabrikam.com"), (loaded.SourceB!.TenantId, loaded.SourceB.AccountHint));
         Assert.Equal("Finance", loaded.SourceB!.WorkspaceName);
         Assert.Equal(@"C:\models\Sales.pbix", loaded.SourceA!.LocalPbixPath);
     }

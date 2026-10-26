@@ -96,20 +96,76 @@ public static class DaxQueryBuilder
             var filter = filters[i];
             var column = side == Side.A ? filter.LeftColumn : filter.RightColumn;
             var kind = metadata?.KindOf(column) ?? DataKind.Text;
-            var col = ColumnRef(column);
-            var list = "{ " + string.Join(", ", filter.Values.Select(v => TypedLiteral(v, kind))) + " }";
             var name = $"__DAXDiffFilter{i}";
-            var expression = filter.Operator switch
-            {
-                FilterOperator.In => $"TREATAS({list}, {col})",
-                FilterOperator.NotIn => $"FILTER(ALL({col}), NOT ({col} IN {list}))",
-                _ => throw new ArgumentOutOfRangeException(nameof(config)),
-            };
-            sb.AppendLine($"    VAR {name} = {expression}");
+            sb.AppendLine($"    VAR {name} = {FilterExpression(filter, column, kind)}");
             vars.Add(name);
         }
 
         return vars;
+    }
+
+    /// <summary>
+    /// The filter table for one side (FR-020). Basic filters keep or remove a list of typed values (BLANK included when
+    /// selected); advanced filters keep the rows of ALL(column) that satisfy one or two conditions.
+    /// </summary>
+    public static string FilterExpression(FilterPair filter, FieldRef column, DataKind kind)
+    {
+        var col = ColumnRef(column);
+        if (filter.Kind == FilterKind.Basic)
+        {
+            var items = filter.Values.Select(v => TypedLiteral(v, kind)).ToList();
+            if (filter.IncludeBlank)
+                items.Add("BLANK()");
+            var list = "{ " + string.Join(", ", items) + " }";
+            return filter.Operator == FilterOperator.In
+                ? $"TREATAS({list}, {col})"
+                : $"FILTER(ALL({col}), NOT ({col} IN {list}))";
+        }
+
+        if (filter.Conditions.Count == 0)
+            throw new ArgumentException("An advanced filter needs at least one condition.", nameof(filter));
+        var join = filter.Join == ConditionJoin.And ? " && " : " || ";
+        return $"FILTER(ALL({col}), {string.Join(join, filter.Conditions.Select(c => "(" + ConditionExpression(c, col, kind) + ")"))})";
+    }
+
+    /// <summary>
+    /// One advanced-filter condition. Equality uses strict == so BLANK never equals 0 or ""; text matching uses
+    /// CONTAINSSTRING / LEFT, which are case-insensitive like Power BI's filter pane.
+    /// </summary>
+    public static string ConditionExpression(FilterCondition condition, string col, DataKind kind)
+    {
+        string Typed() => TypedLiteral(condition.Value, kind);
+        string Text() => StringLiteral(condition.Value);
+        string AsText() => kind == DataKind.Text ? col : $"FORMAT({col}, \"\")";
+        return condition.Operator switch
+        {
+            ConditionOperator.Is => $"{col} == {Typed()}",
+            ConditionOperator.IsNot => $"NOT ({col} == {Typed()})",
+            ConditionOperator.LessThan => $"{col} < {Typed()}",
+            ConditionOperator.LessThanOrEqual => $"{col} <= {Typed()}",
+            ConditionOperator.GreaterThan => $"{col} > {Typed()}",
+            ConditionOperator.GreaterThanOrEqual => $"{col} >= {Typed()}",
+            ConditionOperator.Contains => $"CONTAINSSTRING({AsText()}, {Text()})",
+            ConditionOperator.DoesNotContain => $"NOT CONTAINSSTRING({AsText()}, {Text()})",
+            ConditionOperator.StartsWith => $"LEFT({AsText()}, {condition.Value.Length}) = {Text()}",
+            ConditionOperator.DoesNotStartWith => $"NOT (LEFT({AsText()}, {condition.Value.Length}) = {Text()})",
+            ConditionOperator.IsBlank => $"ISBLANK({col})",
+            ConditionOperator.IsNotBlank => $"NOT ISBLANK({col})",
+            _ => throw new ArgumentOutOfRangeException(nameof(condition)),
+        };
+    }
+
+    /// <summary>
+    /// The distinct values of a column, sorted, for picking basic-filter values. Optionally only values containing
+    /// <paramref name="search"/> (case-insensitive). Returns at most <paramref name="top"/> rows.
+    /// </summary>
+    public static string BuildDistinctValuesQuery(FieldRef column, DataKind kind, string? search, int top)
+    {
+        var col = ColumnRef(column);
+        var source = string.IsNullOrWhiteSpace(search)
+            ? $"VALUES({col})"
+            : $"FILTER(VALUES({col}), CONTAINSSTRING({(kind == DataKind.Text ? col : $"FORMAT({col}, \"\")")}, {StringLiteral(search.Trim())}))";
+        return $"EVALUATE{Environment.NewLine}TOPN({top}, {source}, {col}, ASC){Environment.NewLine}ORDER BY {col}";
     }
 
     private static FieldRef Pick(FieldPair pair, Side side) => side == Side.A ? pair.Left : pair.Right;
