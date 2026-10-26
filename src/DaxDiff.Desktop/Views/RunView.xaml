@@ -4,32 +4,72 @@
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
             <TextBlock Text="Run" Style="{StaticResource PageTitle}" />
-            <TextBlock Style="{StaticResource PageHint}" Text="Both models are queried in parallel. You can cancel at any time; a cancelled or truncated run is never reported as complete." />
+            <TextBlock Style="{StaticResource PageHint}"
+                       Text="Tick the comparisons to run. They run one after another; both models are queried in parallel for each. A cancelled or truncated run is never reported as complete." />
 
-            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
-                <StackPanel>
-                    <TextBlock Text="Comparison scope" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
-                    <TextBlock Text="{Binding ScopeA, StringFormat='A: {0}'}" TextWrapping="Wrap" />
-                    <TextBlock Text="{Binding ScopeB, StringFormat='B: {0}'}" TextWrapping="Wrap" Margin="0,0,0,6" />
-                    <CheckBox IsChecked="{Binding AcknowledgedScope}" Margin="0,4,0,4">
-                        <TextBlock TextWrapping="Wrap"
-                                   Text="I understand results are as observed by the current caller on each side. Row-level/object-level security and Desktop admin access can make rows differ, so missing keys are not necessarily model differences." />
-                    </CheckBox>
-                    <ItemsControl ItemsSource="{Binding PreflightWarnings}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="DarkGoldenrod" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource Card}">
+                    <DockPanel>
+                        <DockPanel DockPanel.Dock="Top">
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                <Button Content="All" MinWidth="0" Command="{Binding IncludeAllCommand}" Margin="0,0,6,4" />
+                                <Button Content="None" MinWidth="0" Command="{Binding IncludeNoneCommand}" Margin="0,0,0,4" />
+                            </StackPanel>
+                            <TextBlock Text="Comparisons to run" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                        </DockPanel>
+                        <ItemsControl ItemsSource="{Binding Comparisons}" MaxHeight="150" AutomationProperties.Name="Comparisons to run">
+                            <ItemsControl.Template>
+                                <ControlTemplate TargetType="ItemsControl">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsPresenter /></ScrollViewer>
+                                </ControlTemplate>
+                            </ItemsControl.Template>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,2">
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding StatusText}" Margin="12,0,0,0" FontSize="11.5">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Compiled.HasErrors}" Value="True">
+                                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IncludeInRun}" Margin="0" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DockPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Comparison scope" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                        <TextBlock Text="{Binding ScopeA, StringFormat='A: {0}'}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding ScopeB, StringFormat='B: {0}'}" TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <CheckBox IsChecked="{Binding AcknowledgedScope}" Margin="0,4,0,4">
+                            <TextBlock TextWrapping="Wrap"
+                                       Text="I understand results are as observed by the current caller on each side. Row-level/object-level security and Desktop admin access can make rows differ, so missing keys are not necessarily model differences." />
+                        </CheckBox>
+                    </StackPanel>
+                </Border>
+            </Grid>
 
             <WrapPanel>
-                <Button Content="_Run comparison (F5)" Command="{Binding RunCommand}" FontWeight="SemiBold" />
+                <Button Content="_Run (F5)" Command="{Binding RunCommand}" FontWeight="SemiBold" />
                 <Button Content="_Cancel" Command="{Binding RunCancelCommand}" />
                 <TextBlock VerticalAlignment="Center" Margin="12,0,0,6" AutomationProperties.LiveSetting="Polite">
-                    <Run Text="Elapsed " /><Run Text="{Binding Elapsed, Mode=OneWay}" FontFamily="Consolas" />
+                    <Run Text="{Binding Current, Mode=OneWay}" FontWeight="SemiBold" /><Run Text="   Elapsed " /><Run Text="{Binding Elapsed, Mode=OneWay}" FontFamily="Consolas" />
                 </TextBlock>
             </WrapPanel>
             <ProgressBar IsIndeterminate="{Binding IsRunning}" Height="6" Margin="0,4,0,12"

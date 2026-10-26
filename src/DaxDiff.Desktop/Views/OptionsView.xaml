@@ -4,10 +4,6 @@
              xmlns:vm="clr-namespace:DaxDiff.Desktop.ViewModels">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <TextBlock Text="Options" Style="{StaticResource PageTitle}" />
-            <TextBlock Style="{StaticResource PageHint}"
-                       Text="Every rule is explicit: nothing is normalized, rounded or treated as equal unless you choose it here. Numbers use '.' as decimal separator." />
-
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -17,7 +13,7 @@
 
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="Measure comparison" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                        <TextBlock Text="Value comparison" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
                         <Label Content="_Mode" Target="{Binding ElementName=ToleranceMode}" Padding="0,0,0,2" />
                         <ComboBox x:Name="ToleranceMode" ItemsSource="{x:Static vm:OptionsViewModel.ToleranceModes}" SelectedItem="{Binding ToleranceMode}" />
                         <Label Content="_Absolute tolerance" Target="{Binding ElementName=AbsTol}" Padding="0,0,0,2" />
@@ -27,7 +23,7 @@
                         <TextBlock Text="Match when |A − B| ≤ max(absolute, relative × max(|A|, |B|))." Foreground="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,0,0,6" />
                         <Label Content="_Null policy" Target="{Binding ElementName=NullPolicy}" Padding="0,0,0,2" />
                         <ComboBox x:Name="NullPolicy" ItemsSource="{x:Static vm:OptionsViewModel.NullPolicies}" SelectedItem="{Binding NullPolicy}" />
-                        <Label Content="Te_xt measure comparison" Target="{Binding ElementName=TextCmp}" Padding="0,0,0,2" />
+                        <Label Content="Te_xt value comparison" Target="{Binding ElementName=TextCmp}" Padding="0,0,0,2" />
                         <ComboBox x:Name="TextCmp" ItemsSource="{x:Static vm:OptionsViewModel.TextComparisons}" SelectedItem="{Binding TextComparison}" />
                         <Label Content="_Percentage difference baseline" Target="{Binding ElementName=Baseline}" Padding="0,0,0,2" />
                         <ComboBox x:Name="Baseline" ItemsSource="{x:Static vm:OptionsViewModel.PercentBaselines}" SelectedItem="{Binding PercentBaseline}" />

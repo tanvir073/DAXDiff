@@ -80,6 +80,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     private DesktopSession? _selectedSession;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Identity))]
     private string? _pbixPath;
 
     /// <summary>Database ID handed over by External Tools; used instead of auto-resolution.</summary>

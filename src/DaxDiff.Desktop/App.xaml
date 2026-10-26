@@ -7,6 +7,7 @@
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
             <local:InverseBoolConverter x:Key="InverseBool" />
+            <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
             <local:NullToVisibilityConverter x:Key="NullToVisibility" />
             <local:ConnectionStateBrushConverter x:Key="StateBrush" />
 

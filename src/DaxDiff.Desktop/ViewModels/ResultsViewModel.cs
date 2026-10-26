@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -70,6 +71,26 @@ public sealed partial class ResultsViewModel : ObservableObject
     /// <summary>Raised when columns change so the view can rebuild grid columns.</summary>
     public event EventHandler? ColumnsChanged;
 
+    /// <summary>The latest result of each comparison run in this session (results are never saved in the project).</summary>
+    public ObservableCollection<ComparisonResult> Results { get; } = [];
+
+    /// <summary>Adds a result, replacing the previous result of the same comparison, and shows it.</summary>
+    public void Show(ComparisonResult result)
+    {
+        var previous = Results.FirstOrDefault(r => r.ComparisonName == result.ComparisonName);
+        if (previous is null)
+            Results.Add(result);
+        else
+            Results[Results.IndexOf(previous)] = result;
+        Result = result;
+    }
+
+    public void Clear()
+    {
+        Result = null;
+        Results.Clear();
+    }
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasResult), nameof(StatusBanner), nameof(IsIncomplete), nameof(Kpis), nameof(SourceText), nameof(MeasureStats))]
     [NotifyCanExecuteChangedFor(nameof(ExportCommand))]
@@ -106,10 +127,10 @@ public sealed partial class ResultsViewModel : ObservableObject
     public string StatusBanner => Result?.Status switch
     {
         null => "",
-        RunStatus.Complete => "Complete — every query returned in full.",
-        RunStatus.Partial => "PARTIAL — results are incomplete. Missing differences do not prove equality.",
-        RunStatus.Cancelled => "CANCELLED — the run did not finish.",
-        _ => "FAILED — " + Result.FailureMessage,
+        RunStatus.Complete => $"{Result.ComparisonName}: Complete — every query returned in full.",
+        RunStatus.Partial => $"{Result.ComparisonName}: PARTIAL — results are incomplete. Missing differences do not prove equality.",
+        RunStatus.Cancelled => $"{Result.ComparisonName}: CANCELLED — the run did not finish.",
+        _ => $"{Result.ComparisonName}: FAILED — " + Result.FailureMessage,
     };
 
     public string SourceText => Result is null
@@ -117,7 +138,7 @@ public sealed partial class ResultsViewModel : ObservableObject
         : $"A: {Result.SourceA.Describe()}  [{Result.SecurityContextA}]{Environment.NewLine}" +
           $"B: {Result.SourceB.Describe()}  [{Result.SecurityContextB}]{Environment.NewLine}" +
           $"Evaluated {Result.FinishedUtc:yyyy-MM-dd HH:mm:ss} UTC · run {Result.RunId} · " +
-          $"tolerance {Result.Config.Tolerance.Mode} (abs {Result.Config.Tolerance.Absolute}, rel {Result.Config.Tolerance.Relative}) · " +
+          $"tolerance {Result.Config.Options.Tolerance.Mode} (abs {Result.Config.Options.Tolerance.Absolute}, rel {Result.Config.Options.Tolerance.Relative}) · " +
           $"queries {string.Join(", ", Result.Queries.Select(q => $"{q.Side}:{q.QueryHash[..12]}"))}";
 
     public IReadOnlyList<KeyValuePair<string, string>> Kpis => Result is null
@@ -148,7 +169,7 @@ public sealed partial class ResultsViewModel : ObservableObject
             sb.AppendLine($"Status: {ExcelReportWriter.StatusText(row.Status)}");
             if (row.Reason is not null)
                 sb.AppendLine($"Reason: {row.Reason}");
-            var dims = Result.Config.Dimensions;
+            var dims = Result.Config.Keys;
             for (var i = 0; i < dims.Count; i++)
             {
                 var a = row.KeyA is null ? "—" : ValueCanonicalizer.Display(row.KeyA[i]);
@@ -187,8 +208,8 @@ public sealed partial class ResultsViewModel : ObservableObject
             return;
         }
 
-        var dims = value.Config.Dimensions;
-        var measures = value.Config.Measures;
+        var dims = value.Config.Keys;
+        var measures = value.Config.Values;
         var columns = new List<ResultColumn> { new("Status", 0, ResultColumnKind.Status) };
         foreach (var d in dims)
             columns.Add(new ResultColumn(d.Alias, columns.Count, ResultColumnKind.Key));
@@ -275,7 +296,7 @@ public sealed partial class ResultsViewModel : ObservableObject
         if (Result is not { } result)
             return;
 
-        var path = _dialogs.SaveFile("Excel workbook (*.xlsx)|*.xlsx", $"DAXDiff_{result.FinishedUtc:yyyyMMdd_HHmm}.xlsx", "Export comparison");
+        var path = _dialogs.SaveFile("Excel workbook (*.xlsx)|*.xlsx", $"DAXDiff_{SafeFileName(result.ComparisonName)}_{result.FinishedUtc:yyyyMMdd_HHmm}.xlsx", "Export comparison");
         if (path is null)
             return;
 
@@ -301,6 +322,13 @@ public sealed partial class ResultsViewModel : ObservableObject
             _dialogs.ShowError(new DaxDiffException(ErrorCategory.Export, "EXP-IO",
                 "The workbook could not be written.", "Close the file if it is open in Excel, or choose another folder.", inner: ex));
         }
+    }
+
+    private static string SafeFileName(string name)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var cleaned = new string(name.Select(c => invalid.Contains(c) || c == ' ' ? '_' : c).ToArray());
+        return cleaned.Length == 0 ? "Comparison" : cleaned;
     }
 
     private sealed class CellComparer(int index, ListSortDirection direction) : System.Collections.IComparer

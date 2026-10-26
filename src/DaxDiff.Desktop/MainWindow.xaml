@@ -7,9 +7,10 @@
         Width="1280" Height="800" MinWidth="1024" MinHeight="700"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource SubtleBrush}"
-        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display"
+        Closing="Window_Closing">
     <Window.InputBindings>
-        <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewComparisonCommand}" />
+        <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewProjectCommand}" />
         <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenProjectCommand}" />
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveProjectCommand}" />
         <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveProjectAsCommand}" />
@@ -18,7 +19,8 @@
     <Window.Resources>
         <DataTemplate DataType="{x:Type vm:HomeViewModel}"><views:HomeView /></DataTemplate>
         <DataTemplate DataType="{x:Type vm:SourcesViewModel}"><views:SourcesView /></DataTemplate>
-        <DataTemplate DataType="{x:Type vm:MappingViewModel}"><views:MappingView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ComparisonsViewModel}"><views:ComparisonsView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:OptionsPageViewModel}"><views:OptionsPageView /></DataTemplate>
         <DataTemplate DataType="{x:Type vm:OptionsViewModel}"><views:OptionsView /></DataTemplate>
         <DataTemplate DataType="{x:Type vm:RunViewModel}"><views:RunView /></DataTemplate>
         <DataTemplate DataType="{x:Type vm:ResultsViewModel}"><views:ResultsView /></DataTemplate>
@@ -30,12 +32,26 @@
             <DockPanel>
                 <TextBlock Text="DAXDiff" Foreground="White" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,24,0" />
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <Button Content="_New" Command="{Binding NewComparisonCommand}" ToolTip="New comparison (Ctrl+N)" Margin="0,0,6,0" />
-                    <Button Content="_Open…" Command="{Binding OpenProjectCommand}" ToolTip="Open project (Ctrl+O)" Margin="0,0,6,0" />
-                    <Button Content="Sa_ve" Command="{Binding SaveProjectCommand}" ToolTip="Save project (Ctrl+S)" Margin="0,0,6,0" />
-                    <Button Content="Save _as…" Command="{Binding SaveProjectAsCommand}" ToolTip="Save project as (Ctrl+Shift+S)" Margin="0" />
+                    <Button Content="_New project…" Command="{Binding NewProjectCommand}" ToolTip="Create a new project file (Ctrl+N)" Margin="0,0,6,0" />
+                    <Button Content="_Open project…" Command="{Binding OpenProjectCommand}" ToolTip="Open a project file (Ctrl+O)" Margin="0,0,6,0" />
+                    <Button Content="Sa_ve" Command="{Binding SaveProjectCommand}" ToolTip="Save the project (Ctrl+S)" Margin="0,0,6,0" />
+                    <Button Content="Save _as…" Command="{Binding SaveProjectAsCommand}" ToolTip="Save the project to a new file (Ctrl+Shift+S)" Margin="0,0,6,0" />
+                    <Button Content="Close" Command="{Binding CloseProjectCommand}" ToolTip="Close the project" Margin="0" />
                 </StackPanel>
-                <TextBlock Text="{Binding ProjectName}" Foreground="#DDE6F0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                <TextBlock Foreground="#DDE6F0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding ProjectPath}">
+                    <Run Text="{Binding ProjectName, Mode=OneWay}" /><Run FontStyle="Italic">
+                        <Run.Style>
+                            <Style TargetType="Run">
+                                <Setter Property="Text" Value="" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDirty}" Value="True">
+                                        <Setter Property="Text" Value=" (unsaved changes)" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Run.Style>
+                    </Run>
+                </TextBlock>
             </DockPanel>
         </Border>
 
@@ -45,7 +61,7 @@
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
                 <TextBlock>
-                    <Run Text="Mapping errors: " /><Run Text="{Binding ErrorCount, Mode=OneWay}" />
+                    <Run Text="Errors in selected comparison: " /><Run Text="{Binding ErrorCount, Mode=OneWay}" />
                     <Run Text="   A: " /><Run Text="{Binding SourceA.Identity, Mode=OneWay}" />
                     <Run Text="   B: " /><Run Text="{Binding SourceB.Identity, Mode=OneWay}" />
                 </TextBlock>
@@ -61,6 +77,8 @@
                     <Setter Property="Padding" Value="12,8" />
                     <Setter Property="AutomationProperties.Name" Value="{Binding Title}" />
                     <Setter Property="AutomationProperties.HelpText" Value="{Binding Hint}" />
+                    <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
+                    <Setter Property="ToolTip" Value="{Binding Hint}" />
                 </Style>
             </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>

@@ -1,0 +1,19 @@
+<UserControl x:Class="DaxDiff.Desktop.Views.OptionsPageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top">
+            <TextBlock Text="Options" Style="{StaticResource PageTitle}" />
+            <TextBlock Style="{StaticResource PageHint}"
+                       Text="Each comparison has its own options. Every rule is explicit: nothing is normalized, rounded or treated as equal unless you choose it here. Numbers use '.' as decimal separator." />
+            <WrapPanel Margin="0,0,0,8">
+                <Label Content="Options for _comparison" Target="{Binding ElementName=Picker}" VerticalAlignment="Center" Padding="0,0,8,6" />
+                <ComboBox x:Name="Picker" Width="260" ItemsSource="{Binding Comparisons.Comparisons}" SelectedItem="{Binding Comparisons.Selected}"
+                          DisplayMemberPath="Name" />
+            </WrapPanel>
+        </StackPanel>
+        <TextBlock Text="Create a comparison on the Comparisons page first." Style="{StaticResource PageHint}"
+                   Visibility="{Binding Comparisons.HasSelection, Converter={StaticResource InverseBoolToVisibility}}" DockPanel.Dock="Top" />
+        <ContentControl Content="{Binding Comparisons.Selected.Options}" Focusable="False" />
+    </DockPanel>
+</UserControl>

@@ -16,7 +16,23 @@
         </Grid.RowDefinitions>
 
         <StackPanel>
-            <TextBlock Text="Results" Style="{StaticResource PageTitle}" />
+            <DockPanel>
+                <WrapPanel DockPanel.Dock="Right" VerticalAlignment="Center"
+                           Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibility}}">
+                    <Label Content="Show result _of" Target="{Binding ElementName=ResultPicker}" Padding="0,0,8,0" VerticalAlignment="Center" />
+                    <ComboBox x:Name="ResultPicker" Width="300" Margin="0" ItemsSource="{Binding Results}" SelectedItem="{Binding Result}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <Run Text="{Binding ComparisonName, Mode=OneWay}" FontWeight="SemiBold" />
+                                    <Run Text=" — " /><Run Text="{Binding Status, Mode=OneWay}" />
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </WrapPanel>
+                <TextBlock Text="Results" Style="{StaticResource PageTitle}" />
+            </DockPanel>
             <TextBlock Text="No results yet. Run a comparison first.">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock" BasedOn="{StaticResource PageHint}">

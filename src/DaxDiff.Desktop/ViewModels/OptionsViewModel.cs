@@ -50,7 +50,7 @@ public sealed partial class FilterRowViewModel : ObservableObject
     };
 }
 
-/// <summary>Filters, tolerances, normalization, limits and query preview (FR-008, FR-009).</summary>
+/// <summary>One comparison's filters, tolerances, normalization, limits and query preview (FR-008, FR-009).</summary>
 public sealed partial class OptionsViewModel : ObservableObject
 {
     private readonly SourcePanelViewModel _sourceA;
@@ -68,8 +68,8 @@ public sealed partial class OptionsViewModel : ObservableObject
         _sourceB.MetadataChanged += (_, _) => OnPropertyChanged(nameof(ColumnsB));
     }
 
-    /// <summary>Provides the current configuration for previews; set by the shell.</summary>
-    public Func<ComparisonConfig>? ConfigProvider { get; set; }
+    /// <summary>Provides the comparison's compiled configuration for previews; set by its editor.</summary>
+    public Func<CompiledComparison>? CompiledProvider { get; set; }
 
     public IReadOnlyList<FieldRef> ColumnsA => _sourceA.Metadata?.AllColumns.Select(c => c.Ref).ToList() ?? [];
     public IReadOnlyList<FieldRef> ColumnsB => _sourceB.Metadata?.AllColumns.Select(c => c.Ref).ToList() ?? [];
@@ -147,8 +147,7 @@ public sealed partial class OptionsViewModel : ObservableObject
             Filters.Remove(row);
     }
 
-    /// <summary>Applies these options to a configuration that already holds the field pairs.</summary>
-    public ComparisonConfig ApplyTo(ComparisonConfig config) => config with
+    public ComparisonOptions ToOptions() => new()
     {
         Filters = Filters.Select(f => f.ToFilter()).OfType<FilterPair>().ToList(),
         Tolerance = new ToleranceSettings
@@ -172,7 +171,7 @@ public sealed partial class OptionsViewModel : ObservableObject
         Limits = new ExecutionLimits { MaxRows = MaxRows, TimeoutSeconds = TimeoutSeconds, RetryCount = RetryCount },
     };
 
-    public void Load(ComparisonConfig config)
+    public void Load(ComparisonOptions config)
     {
         Filters.Clear();
         foreach (var filter in config.Filters)
@@ -201,7 +200,7 @@ public sealed partial class OptionsViewModel : ObservableObject
     [RelayCommand]
     private void PreviewQueries()
     {
-        if (ConfigProvider?.Invoke() is not { } config)
+        if (CompiledProvider?.Invoke().Config is not { } config)
             return;
         try
         {
@@ -217,18 +216,18 @@ public sealed partial class OptionsViewModel : ObservableObject
     [RelayCommand]
     private async Task EstimateRowsAsync()
     {
-        if (ConfigProvider?.Invoke() is not { } config)
+        if (CompiledProvider?.Invoke() is not { } compiled)
             return;
+        var config = compiled.Config;
         if (_sourceA.Connector is null || _sourceB.Connector is null)
         {
             _dialogs.ShowInfo("Connect both models first.");
             return;
         }
 
-        var issues = MappingValidator.Validate(config, _sourceA.Metadata, _sourceB.Metadata);
-        if (MappingValidator.HasErrors(issues))
+        if (compiled.HasErrors)
         {
-            _dialogs.ShowInfo("Fix the mapping errors first:" + Environment.NewLine + string.Join(Environment.NewLine, issues.Where(i => i.Severity == IssueSeverity.Error)));
+            _dialogs.ShowInfo("Fix the comparison's errors first:" + Environment.NewLine + string.Join(Environment.NewLine, compiled.Issues.Where(i => i.Severity == IssueSeverity.Error)));
             return;
         }
 

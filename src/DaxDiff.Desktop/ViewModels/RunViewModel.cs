@@ -10,32 +10,43 @@ using DaxDiff.Domain;
 
 namespace DaxDiff.Desktop.ViewModels;
 
-/// <summary>Execution with per-model progress, cancel, elapsed time and warnings (FR-010, FR-016).</summary>
+/// <summary>
+/// Runs the comparisons ticked for the run, one after another, with per-model progress, cancel, elapsed time
+/// and warnings (FR-010, FR-016).
+/// </summary>
 public sealed partial class RunViewModel : ObservableObject
 {
     private readonly SourcePanelViewModel _sourceA;
     private readonly SourcePanelViewModel _sourceB;
+    private readonly ComparisonsViewModel _comparisons;
     private readonly ComparisonRunner _runner;
     private readonly IDialogService _dialogs;
     private readonly DispatcherTimer _timer;
     private readonly Stopwatch _stopwatch = new();
 
-    public RunViewModel(SourcePanelViewModel sourceA, SourcePanelViewModel sourceB, ComparisonRunner runner, IDialogService dialogs)
+    public RunViewModel(SourcePanelViewModel sourceA, SourcePanelViewModel sourceB, ComparisonsViewModel comparisons, ComparisonRunner runner, IDialogService dialogs)
     {
         _sourceA = sourceA;
         _sourceB = sourceB;
+        _comparisons = comparisons;
         _runner = runner;
         _dialogs = dialogs;
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         _timer.Tick += (_, _) => Elapsed = _stopwatch.Elapsed.ToString(@"mm\:ss\.f");
     }
 
-    public Func<ComparisonConfig>? ConfigProvider { get; set; }
-
-    /// <summary>Raised with the finished result; the shell navigates to Results.</summary>
+    /// <summary>Raised with each finished result as soon as it is available.</summary>
     public event EventHandler<ComparisonResult>? Completed;
 
+    /// <summary>Raised once the whole batch has finished; the shell then shows the results.</summary>
+    public event EventHandler? Finished;
+
+    public ObservableCollection<ComparisonEditorViewModel> Comparisons => _comparisons.Comparisons;
+
     public ObservableCollection<string> Log { get; } = [];
+
+    [ObservableProperty]
+    private string _current = "";
 
     [ObservableProperty]
     private string _statusA = "Waiting";
@@ -55,17 +66,25 @@ public sealed partial class RunViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(RunCommand))]
     private bool _acknowledgedScope;
 
-    [ObservableProperty]
-    private IReadOnlyList<string> _preflightWarnings = [];
-
     public string ScopeA => $"{_sourceA.Identity} — {_sourceA.SecurityContext ?? "not connected"}";
     public string ScopeB => $"{_sourceB.Identity} — {_sourceB.SecurityContext ?? "not connected"}";
 
-    public void Refresh(IReadOnlyList<ValidationIssue> issues)
+    public void Refresh()
     {
-        PreflightWarnings = issues.Select(i => i.ToString()).ToList();
         OnPropertyChanged(nameof(ScopeA));
         OnPropertyChanged(nameof(ScopeB));
+    }
+
+    [RelayCommand]
+    private void IncludeAll() => SetIncluded(true);
+
+    [RelayCommand]
+    private void IncludeNone() => SetIncluded(false);
+
+    private void SetIncluded(bool include)
+    {
+        foreach (var comparison in Comparisons)
+            comparison.IncludeInRun = include;
     }
 
     private bool CanRun() => !IsRunning && AcknowledgedScope;
@@ -73,8 +92,13 @@ public sealed partial class RunViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanRun), IncludeCancelCommand = true)]
     private async Task RunAsync(CancellationToken cancellationToken)
     {
-        if (ConfigProvider?.Invoke() is not { } config)
+        var selected = Comparisons.Where(c => c.IncludeInRun).ToList();
+        if (selected.Count == 0)
+        {
+            _dialogs.ShowInfo("Tick at least one comparison to run.");
             return;
+        }
+
         if (_sourceA.Connector is null || _sourceB.Connector is null)
         {
             _dialogs.ShowInfo("Connect and test both models in the Sources step first.");
@@ -83,25 +107,33 @@ public sealed partial class RunViewModel : ObservableObject
 
         IsRunning = true;
         Log.Clear();
-        StatusA = StatusB = "Queued";
         _stopwatch.Restart();
         _timer.Start();
         try
         {
-            var progress = new Progress<RunProgress>(p =>
+            for (var i = 0; i < selected.Count && !cancellationToken.IsCancellationRequested; i++)
             {
-                var line = $"[{_stopwatch.Elapsed:mm\\:ss}] {(p.Side is { } s ? $"Model {s}: " : "")}{p.Step}";
-                Log.Add(line);
-                if (p.Side == Side.A)
-                    StatusA = p.Step;
-                else if (p.Side == Side.B)
-                    StatusB = p.Step;
-            });
+                var comparison = selected[i];
+                Current = $"{comparison.Name} ({i + 1} of {selected.Count})";
+                StatusA = StatusB = "Queued";
+                var name = comparison.Name;
+                var progress = new Progress<RunProgress>(p =>
+                {
+                    Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] {name}: {(p.Side is { } s ? $"Model {s}: " : "")}{p.Step}");
+                    if (p.Side == Side.A)
+                        StatusA = p.Step;
+                    else if (p.Side == Side.B)
+                        StatusB = p.Step;
+                });
 
-            var request = new RunRequest(_sourceA.Connector, _sourceB.Connector, config, _sourceA.Metadata, _sourceB.Metadata);
-            var result = await _runner.RunAsync(request, progress, cancellationToken);
-            Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] Run {result.Status}" + (result.FailureMessage is null ? "" : ": " + result.FailureMessage));
-            Completed?.Invoke(this, result);
+                var request = RunRequest.For(_sourceA.Connector, _sourceB.Connector, comparison.ToDefinition(), _sourceA.Metadata, _sourceB.Metadata);
+                var result = await _runner.RunAsync(request, progress, cancellationToken);
+                Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] {name}: {result.Status}" + (result.FailureMessage is null ? "" : " – " + result.FailureMessage));
+                Completed?.Invoke(this, result);
+            }
+
+            Current = cancellationToken.IsCancellationRequested ? "Cancelled" : "Finished";
+            Finished?.Invoke(this, EventArgs.Empty);
         }
         finally
         {
