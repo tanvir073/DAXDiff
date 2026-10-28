@@ -17,6 +17,22 @@ dotnet run --project src/DaxDiff.Desktop
 ./scripts/build.ps1            # Release build + tests + publish to ./publish
 ```
 
+## Installer
+
+```powershell
+./scripts/package.ps1          # tests, self-contained publish to ./publish/app, MSI to ./dist
+```
+
+`dist/DAXDiff-<version>-x64.msi` installs DAXDiff for all users (administrator rights required):
+- The app goes to `C:\Program Files\DAXDiff`. It is self-contained, so the target laptop needs no .NET runtime.
+- The installer adds a Start menu shortcut and registers DAXDiff on Power BI Desktop's External Tools ribbon.
+- Installing a newer version replaces the old one. Uninstall from *Settings → Apps*.
+
+The installer is built with WiX Toolset 5 (a NuGet build SDK, so nothing needs installing). Raise `<Version>` in
+`Directory.Build.props` for each release, or Windows Installer treats it as the same version.
+Neither the MSI nor `DAXDiff.exe` is code-signed yet (§9): Windows SmartScreen warns about the download, and
+application-control policies may block the exe.
+
 > If your organisation's application-control policy blocks unsigned executables ("Access is denied" when starting
 > `DAXDiff.exe`), start it through the trusted .NET host instead: `dotnet DAXDiff.dll` from the output folder.
 > Release builds should be code-signed (§9).

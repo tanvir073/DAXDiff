@@ -1,0 +1,43 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <!-- Per-machine install to Program Files, which is also where tools/DAXDiff.pbitool.json points (§9). -->
+  <Package Name="DAXDiff" Manufacturer="DAXDiff" Version="$(ProductVersion)" Scope="perMachine"
+           UpgradeCode="7C3E2A91-5B64-4F0D-9A7E-2D1C8B6F4E53">
+    <MajorUpgrade DowngradeErrorMessage="A newer version of DAXDiff is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="DAXDiff" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder" />
+
+    <!-- The executable is declared on its own so the Start menu shortcut can hang off it. -->
+    <Component Id="MainExecutable" Directory="INSTALLFOLDER" Guid="4B8F0C2D-6E1A-4C7B-9F35-A2D8E6B1C904">
+      <File Id="DaxDiffExe" Source="$(AppDir)\DAXDiff.exe" KeyPath="yes">
+        <Shortcut Id="DaxDiffShortcut" Directory="ProgramMenuFolder" Name="DAXDiff" Advertise="yes"
+                  Description="Compare two Power BI semantic models" WorkingDirectory="INSTALLFOLDER" />
+      </File>
+    </Component>
+
+    <!-- Registers DAXDiff on Power BI Desktop's External Tools ribbon. -->
+    <StandardDirectory Id="CommonFilesFolder">
+      <Directory Id="MicrosoftShared" Name="Microsoft Shared">
+        <Directory Id="PbiDesktop" Name="Power BI Desktop">
+          <Directory Id="ExternalTools" Name="External Tools">
+            <Component Id="ExternalTool" Guid="9D2A6E47-3C18-4B5F-8E0A-71F4C9D3B2A6" Bitness="always32">
+              <File Source="$(ToolsDir)\DAXDiff.pbitool.json" KeyPath="yes" />
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="Main" Title="DAXDiff">
+      <Files Directory="INSTALLFOLDER" Include="$(AppDir)\**">
+        <Exclude Files="$(AppDir)\DAXDiff.exe" />
+      </Files>
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="ExternalTool" />
+    </Feature>
+  </Package>
+</Wix>
