@@ -5,58 +5,16 @@
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Colour theme: replaced at run time by Services/ThemeService. Must stay first. -->
+                <ResourceDictionary />
+                <ResourceDictionary Source="Themes/Numberskills.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
             <local:InverseBoolConverter x:Key="InverseBool" />
             <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
             <local:NullToVisibilityConverter x:Key="NullToVisibility" />
-            <local:ConnectionStateBrushConverter x:Key="StateBrush" />
-
-            <SolidColorBrush x:Key="AccentBrush" Color="#1F4E79" />
-            <SolidColorBrush x:Key="SubtleBrush" Color="#F3F5F8" />
-            <SolidColorBrush x:Key="BorderBrush" Color="#C8CED8" />
-            <SolidColorBrush x:Key="MutedText" Color="#555B66" />
-            <SolidColorBrush x:Key="DangerBrush" Color="#B00020" />
-
-            <Style TargetType="Button">
-                <Setter Property="Padding" Value="10,4" />
-                <Setter Property="Margin" Value="0,0,6,6" />
-                <Setter Property="MinWidth" Value="80" />
-            </Style>
-            <Style TargetType="TextBox">
-                <Setter Property="Padding" Value="4,3" />
-                <Setter Property="Margin" Value="0,0,0,6" />
-            </Style>
-            <Style TargetType="ComboBox">
-                <Setter Property="Margin" Value="0,0,0,6" />
-                <Setter Property="Padding" Value="4,3" />
-            </Style>
-            <Style TargetType="CheckBox">
-                <Setter Property="Margin" Value="0,2,12,6" />
-            </Style>
-            <Style TargetType="RadioButton">
-                <Setter Property="Margin" Value="0,2,14,6" />
-            </Style>
-            <Style x:Key="PageTitle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="20" />
-                <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="Margin" Value="0,0,0,4" />
-            </Style>
-            <Style x:Key="PageHint" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{StaticResource MutedText}" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="Margin" Value="0,0,0,12" />
-            </Style>
-            <Style x:Key="SectionTitle" TargetType="TextBlock">
-                <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="Margin" Value="0,8,0,4" />
-            </Style>
-            <Style x:Key="Card" TargetType="Border">
-                <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="4" />
-                <Setter Property="Padding" Value="12" />
-                <Setter Property="Background" Value="White" />
-            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -13,6 +13,7 @@ dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngi
 dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngineTests.AT04_AbsoluteTolerance"  # one test
 dotnet run --project src/DaxDiff.Desktop       # launch the app
 ./scripts/build.ps1                            # Release restore/build/test/publish to ./publish
+./scripts/package.ps1                          # self-contained publish + MSI (WiX 5, installer/) to ./dist
 ```
 
 There is no linter configured. On the developer's machine, an application-control policy blocks the unsigned `DAXDiff.exe` with "Access is denied". Run the built app as `dotnet <output>/DAXDiff.dll` instead. The desktop output lands in `bin/Debug/net10.0-windows/win-x64/` because a `RuntimeIdentifier` is set.
@@ -100,6 +101,12 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
   - The Options page (`OptionsPageViewModel`) shows the selected comparison's options. Run executes the ticked comparisons one after another, in their saved versions. Results keeps the latest result per comparison.
   - Filters are edited in `FilterEditorWindow` (`FilterEditorViewModel` / `FilterItemViewModel`), opened by `IFilterEditorService` through `OptionsViewModel.EditFiltersRequested`. The value list is loaded from both connected models (first 1,000 values each, searchable).
   - "Add same to B/A" (`ComparisonsViewModel.CopyToB/CopyToA`) copies the selected grid rows to the other model by exact table and column name (measures by name).
+- **Theme.** `Themes/Numberskills.xaml` (merged in `App.xaml`) implements the Numberskills design system: the embedded fonts (`Fonts/`, Bricolage Grotesque for headings and Onest for text) and implicit styles for every standard control.
+  - **Colours are user-selectable.** `Services/ThemeService` holds 10 colour themes (tokens from the design canvas; Midnight is the default, and an unknown saved id falls back to it) and builds the brush dictionary that replaces the first merged dictionary of `App.xaml` at run time. The user picks a theme on Settings → Appearance; it is saved as `Appearance:Theme` in the user settings file.
+  - Always reference brushes with `DynamicResource` (a `StaticResource` brush never changes with the theme and fails if no theme is loaded yet). Text on a fill uses the fill's pair: `ChipBrush`/`ChipTextBrush` for selected states, `AccentFillBrush`/`OnAccentBrush`, `HeroBrush`/`HeroTextBrush`, `MintBrush`/`SelectionTextBrush`, `AccentSoftBrush`/`TileTextBrush`, and the `Header*` brushes on the header. Never hard-code White for text or surfaces, because some themes are dark.
+  - Use its keyed styles rather than local colours: `PrimaryButton` (one main action per page), `SecondaryButton`, `LightButton` (on the teal header), `Card`, `CardTitle`, `Eyebrow`/`PageTitle`/`PageHint` for page headers, `Badge` tones, `Segment`/`SegmentGroup`, `SideChipA`/`SideChipB`, `Message` tones and `CodeBox`.
+  - A TextBox's `Tag` is shown as placeholder text.
+  - Pill shapes bind `CornerRadius` through `PillRadiusConverter`, because a large fixed radius renders as an ellipse in WPF.
 - **Pages.** Each page is mapped to a view by `DataTemplate`s in `MainWindow.xaml`. The results grid builds its columns in code (`ResultsView.xaml.cs`) and binds to `ResultRowView.Cells[i]`. Sorting uses a custom comparer (`ResultsViewModel.Sort`).
 - **Typed command parameters.** A `CommandParameter` set in XAML arrives as a string, so a `RelayCommand<bool?>` throws. Use separate commands or a `string` parameter.
 - **Rendering.** Views reference styles and converters defined in `App.xaml` with `StaticResource`, so rendering a view outside the running app requires `new App().InitializeComponent()` first.

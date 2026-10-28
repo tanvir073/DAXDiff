@@ -27,6 +27,8 @@
   <ItemGroup>
     <Using Include="System.IO" />
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Numberskills design system fonts (SIL Open Font License), static instances of the variable fonts. -->
+    <Resource Include="Fonts\*.ttf" />
   </ItemGroup>
 
 </Project>

@@ -21,9 +21,31 @@ public sealed partial class SettingsViewModel : ObservableObject
         _dialogs = dialogs;
         _clientId = options.ClientId;
         _tenantId = options.TenantId;
+        _selectedTheme = ThemeService.Current;
     }
 
     public Action? ResetSession { get; set; }
+
+    public IReadOnlyList<AppTheme> Themes => ThemeService.Themes;
+
+    /// <summary>Colour theme; applied immediately and remembered in the user settings.</summary>
+    [ObservableProperty]
+    private AppTheme _selectedTheme;
+
+    partial void OnSelectedThemeChanged(AppTheme value)
+    {
+        if (value is null || value == ThemeService.Current)
+            return;
+        ThemeService.Apply(value.Id);
+        try
+        {
+            ThemeService.Save(value.Id);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _dialogs.ShowInfo($"The theme is applied but could not be saved for next time: {ex.Message}");
+        }
+    }
 
     [ObservableProperty]
     private string _clientId;

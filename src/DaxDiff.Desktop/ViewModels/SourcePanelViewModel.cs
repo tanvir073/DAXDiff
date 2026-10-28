@@ -176,7 +176,8 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     public string ServiceHint => Auth.IsConfigured
         ? "Each model signs in separately, so A and B can be in the same tenant or in different tenants, as the same or different users."
         : "No Entra client ID is configured (Settings), so DAXDiff cannot sign in to browse workspaces or use REST. " +
-          "For XMLA, enter the tenant (if not your own), workspace and model, then Test: Microsoft's sign-in appears then.";
+          "XMLA works without it: enter your account, the workspace (or its connection link) and the model, then Test connection. " +
+          "Microsoft's sign-in uses that account, and asks for it when it is not signed in yet.";
 
     /// <summary>
     /// Tenant of this source: a domain (contoso.com) or tenant ID, or "organizations" for the signed-in user's own
@@ -192,6 +193,24 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         SignedInAs = Auth.SignedInAccount;
         Workspaces.Clear();
         Datasets.Clear();
+    }
+
+    /// <summary>
+    /// The account (user@domain) this source signs in as. Without a client ID it is passed to ADOMD, so XMLA does not
+    /// silently use the Windows account.
+    /// </summary>
+    public string? AccountHint
+    {
+        get => Auth.AccountHint;
+        set
+        {
+            value = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+            if (Auth.AccountHint == value)
+                return;
+            Auth.AccountHint = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(Identity));
+        }
     }
 
     [ObservableProperty]
@@ -394,7 +413,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         WorkspaceName = reference.WorkspaceName;
         DatasetName = reference.DatasetName;
         Tenant = string.IsNullOrWhiteSpace(reference.TenantId) ? "organizations" : reference.TenantId;
-        Auth.AccountHint = reference.AccountHint;
+        AccountHint = reference.AccountHint;
         if (Kind == SourceKind.DesktopSession)
             DetectSessions();
         else

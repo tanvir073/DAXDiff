@@ -3,33 +3,33 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{Binding Title}" Width="980" Height="660" MinWidth="820" MinHeight="540"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False" ResizeMode="CanResizeWithGrip"
-        Background="{StaticResource SubtleBrush}" UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
-    <DockPanel Margin="16">
+        Background="{DynamicResource CloudBrush}" Foreground="{DynamicResource InkBrush}" FontFamily="{StaticResource TextFont}" FontSize="{StaticResource BaseFontSize}" UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+    <DockPanel Margin="24,20">
         <!-- Apply / Cancel -->
         <DockPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                <Button Content="_Apply" IsDefault="True" Click="Apply_Click" FontWeight="SemiBold" Margin="0,0,6,0" MinWidth="90" />
-                <Button Content="Cancel" IsCancel="True" Margin="0" MinWidth="90" />
+                <Button Content="Cancel" IsCancel="True" Margin="0,0,8,0" MinWidth="96" />
+                <Button Content="_Apply" IsDefault="True" Click="Apply_Click" Style="{StaticResource PrimaryButton}" Margin="0" MinWidth="96" />
             </StackPanel>
-            <TextBlock VerticalAlignment="Center" Foreground="{StaticResource MutedText}" TextWrapping="Wrap"
+            <TextBlock VerticalAlignment="Center" Foreground="{DynamicResource MutedText}" TextWrapping="Wrap"
                        Text="Each filter is applied to both models: the model A column and its model B counterpart get the same rule. Apply, then save the comparison to use the filters in runs." />
         </DockPanel>
 
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="290" />
-                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="20" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Filter list -->
             <DockPanel>
-                <TextBlock DockPanel.Dock="Top" Text="Filters on this comparison" Style="{StaticResource SectionTitle}" Margin="0,0,0,6" />
+                <TextBlock DockPanel.Dock="Top" Text="Filters on this comparison" Style="{StaticResource CardTitle}" />
                 <WrapPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
-                    <Button Content="_Add filter" Command="{Binding AddFilterCommand}" FontWeight="SemiBold" />
+                    <Button Content="+ _Add filter" Command="{Binding AddFilterCommand}" Style="{StaticResource SecondaryButton}" />
                     <Button Content="_Remove" Command="{Binding RemoveFilterCommand}" />
                 </WrapPanel>
-                <TextBlock DockPanel.Dock="Bottom" TextWrapping="Wrap" Foreground="{StaticResource DangerBrush}" Margin="0,6,0,0"
+                <TextBlock DockPanel.Dock="Bottom" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}" Margin="0,6,0,0"
                            Text="Connect both models on the Sources page to pick columns and load values."
                            Visibility="{Binding ModelsConnected, Converter={StaticResource InverseBoolToVisibility}}" />
                 <ListBox ItemsSource="{Binding Filters}" SelectedItem="{Binding Selected}" AutomationProperties.Name="Filters"
@@ -38,11 +38,11 @@
                         <DataTemplate>
                             <StackPanel Margin="2,4">
                                 <TextBlock Text="{Binding Summary}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                <TextBlock FontSize="11" Foreground="{StaticResource MutedText}" TextTrimming="CharacterEllipsis">
+                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedText}" TextTrimming="CharacterEllipsis">
                                     <Run Text="A: " /><Run Text="{Binding LeftColumn, Mode=OneWay, TargetNullValue='–'}" />
                                     <Run Text="   B: " /><Run Text="{Binding RightColumn, Mode=OneWay, TargetNullValue='–'}" />
                                 </TextBlock>
-                                <TextBlock Text="{Binding Issues}" FontSize="11" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                                <TextBlock Text="{Binding Issues}" FontSize="11" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap"
                                            Visibility="{Binding Issues, Converter={StaticResource NullToVisibility}}" />
                             </StackPanel>
                         </DataTemplate>
@@ -73,16 +73,20 @@
                             </StackPanel>
                         </Grid>
                         <WrapPanel Margin="0,4,0,4">
-                            <TextBlock Text="Filter type" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,6" />
-                            <RadioButton Content="Ba_sic filtering" IsChecked="{Binding IsBasic}" GroupName="FilterType" />
-                            <RadioButton Content="Ad_vanced filtering" IsChecked="{Binding IsAdvanced}" GroupName="FilterType" />
+                            <TextBlock Text="Filter type" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,10" />
+                            <Border Style="{StaticResource SegmentGroup}">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton Style="{StaticResource Segment}" Content="Ba_sic filtering" IsChecked="{Binding IsBasic}" GroupName="FilterType" />
+                                    <RadioButton Style="{StaticResource Segment}" Content="Ad_vanced filtering" IsChecked="{Binding IsAdvanced}" GroupName="FilterType" />
+                                </StackPanel>
+                            </Border>
                         </WrapPanel>
                     </StackPanel>
 
                     <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
                         <Label Content="_Description (shown in the Excel export)" Target="{Binding ElementName=Meaning}" Padding="0,0,0,2" />
                         <TextBox x:Name="Meaning" Text="{Binding Meaning, UpdateSourceTrigger=PropertyChanged}" />
-                        <TextBlock Text="{Binding Issues}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                        <TextBlock Text="{Binding Issues}" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap"
                                    Visibility="{Binding Issues, Converter={StaticResource NullToVisibility}}" AutomationProperties.LiveSetting="Polite" />
                     </StackPanel>
 
@@ -96,18 +100,18 @@
                             <DockPanel DockPanel.Dock="Top">
                                 <ProgressBar DockPanel.Dock="Right" Width="60" Height="6" IsIndeterminate="True" Margin="8,0,0,6"
                                              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
-                                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Search values" ToolTip="Search values" />
+                                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Search values" ToolTip="Search values" Tag="Search values" />
                             </DockPanel>
-                            <TextBlock DockPanel.Dock="Top" Text="{Binding ValuesStatus}" Foreground="{StaticResource MutedText}" FontSize="11.5" TextWrapping="Wrap" Margin="0,0,0,4" />
+                            <TextBlock DockPanel.Dock="Top" Text="{Binding ValuesStatus}" Foreground="{DynamicResource MutedText}" FontSize="11.5" TextWrapping="Wrap" Margin="0,0,0,4" />
                             <DockPanel DockPanel.Dock="Bottom" Margin="0,6,0,0">
                                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                                     <TextBox Width="160" Text="{Binding ManualValue, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,6,0"
-                                             AutomationProperties.Name="Value to add" ToolTip="Type a value (dates as yyyy-mm-dd) and Add" />
-                                    <Button Content="Add value" Command="{Binding AddManualValueCommand}" Margin="0" MinWidth="0" />
+                                             AutomationProperties.Name="Value to add" ToolTip="Type a value (dates as yyyy-mm-dd) and Add" Tag="Type a value" />
+                                    <Button Content="Add value" Command="{Binding AddManualValueCommand}" Margin="0" />
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
-                                    <Button Content="Select all shown" Command="{Binding SelectAllShownCommand}" MinWidth="0" Margin="0,0,6,0" />
-                                    <Button Content="Clear" Command="{Binding ClearSelectionCommand}" MinWidth="0" Margin="0,0,10,0" />
+                                    <Button Content="Select all shown" Command="{Binding SelectAllShownCommand}" Margin="0,0,6,0" />
+                                    <Button Content="Clear" Command="{Binding ClearSelectionCommand}" Margin="0,0,10,0" />
                                     <TextBlock Text="{Binding SelectedCountText}" VerticalAlignment="Center" FontWeight="SemiBold" />
                                 </StackPanel>
                             </DockPanel>
@@ -148,7 +152,7 @@
                                 <TextBox Grid.Column="2" Text="{Binding Condition2Value, UpdateSourceTrigger=PropertyChanged}"
                                          IsEnabled="{Binding Condition2NeedsValue}" AutomationProperties.Name="Second condition value" />
                             </Grid>
-                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource MutedText}" Margin="0,8,0,0"
+                            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource MutedText}" Margin="0,8,0,0"
                                        Text="Numbers use '.' as decimal separator; dates are written yyyy-mm-dd (optionally with hh:mm:ss). Text matching is not case-sensitive. 'is' never treats BLANK as 0." />
                         </StackPanel>
                     </Grid>

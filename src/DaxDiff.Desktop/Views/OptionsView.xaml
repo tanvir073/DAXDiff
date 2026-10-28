@@ -7,20 +7,20 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="14" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="Value comparison" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                        <TextBlock Text="Value comparison" Style="{StaticResource CardTitle}" />
                         <Label Content="_Mode" Target="{Binding ElementName=ToleranceMode}" Padding="0,0,0,2" />
                         <ComboBox x:Name="ToleranceMode" ItemsSource="{x:Static vm:OptionsViewModel.ToleranceModes}" SelectedItem="{Binding ToleranceMode}" />
                         <Label Content="_Absolute tolerance" Target="{Binding ElementName=AbsTol}" Padding="0,0,0,2" />
                         <TextBox x:Name="AbsTol" Text="{Binding AbsoluteTolerance, UpdateSourceTrigger=PropertyChanged}" />
                         <Label Content="_Relative tolerance (0.001 = 0.1%)" Target="{Binding ElementName=RelTol}" Padding="0,0,0,2" />
                         <TextBox x:Name="RelTol" Text="{Binding RelativeTolerance, UpdateSourceTrigger=PropertyChanged}" />
-                        <TextBlock Text="Match when |A − B| ≤ max(absolute, relative × max(|A|, |B|))." Foreground="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <TextBlock Text="Match when |A − B| ≤ max(absolute, relative × max(|A|, |B|))." Style="{StaticResource Muted}" FontSize="12.5" Margin="0,0,0,8" />
                         <Label Content="_Null policy" Target="{Binding ElementName=NullPolicy}" Padding="0,0,0,2" />
                         <ComboBox x:Name="NullPolicy" ItemsSource="{x:Static vm:OptionsViewModel.NullPolicies}" SelectedItem="{Binding NullPolicy}" />
                         <Label Content="Te_xt value comparison" Target="{Binding ElementName=TextCmp}" Padding="0,0,0,2" />
@@ -32,7 +32,7 @@
 
                 <Border Grid.Column="2" Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="Key normalization" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                        <TextBlock Text="Key normalization" Style="{StaticResource CardTitle}" />
                         <CheckBox Content="Trim _whitespace" IsChecked="{Binding TrimWhitespace}" />
                         <CheckBox Content="Case-_insensitive keys" IsChecked="{Binding CaseInsensitiveKeys}" />
                         <CheckBox Content="Treat BLANK and empty text as the same key" IsChecked="{Binding BlankEqualsEmpty}" />
@@ -42,7 +42,7 @@
                         <Label Content="Duplicate _key policy" Target="{Binding ElementName=Dupes}" Padding="0,0,0,2" />
                         <ComboBox x:Name="Dupes" ItemsSource="{x:Static vm:OptionsViewModel.DuplicatePolicies}" SelectedItem="{Binding DuplicateKeyPolicy}" />
 
-                        <TextBlock Text="Limits" Style="{StaticResource SectionTitle}" />
+                        <TextBlock Text="Limits" Style="{StaticResource CardTitle}" Margin="0,14,0,8" />
                         <Label Content="Max rows per _side" Target="{Binding ElementName=MaxRows}" Padding="0,0,0,2" />
                         <TextBox x:Name="MaxRows" Text="{Binding MaxRows, UpdateSourceTrigger=PropertyChanged}" />
                         <Label Content="_Timeout (seconds)" Target="{Binding ElementName=Timeout}" Padding="0,0,0,2" />
@@ -53,18 +53,18 @@
                 </Border>
             </Grid>
 
-            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0">
                 <StackPanel>
-                    <TextBlock Text="Filters (applied to both models)" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                    <TextBlock Text="Filters (applied to both models)" Style="{StaticResource CardTitle}" />
                     <TextBlock Text="{Binding FiltersSummary}" TextWrapping="Wrap" Margin="0,0,0,8" />
-                    <Button Content="Edit _filters…" Command="{Binding EditFiltersCommand}" HorizontalAlignment="Left"
+                    <Button Content="Edit _filters…" Command="{Binding EditFiltersCommand}" HorizontalAlignment="Left" Style="{StaticResource SecondaryButton}"
                             ToolTip="Basic (pick values) or advanced (conditions) filters, as in the Power BI filter pane" />
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0">
                 <StackPanel>
-                    <TextBlock Text="Query preview and estimate" Style="{StaticResource SectionTitle}" Margin="0,0,0,4" />
+                    <TextBlock Text="Query preview and estimate" Style="{StaticResource CardTitle}" />
                     <WrapPanel>
                         <Button Content="_Preview DAX" Command="{Binding PreviewQueriesCommand}" />
                         <Button Content="Estimate _rows" Command="{Binding EstimateRowsCommand}" />
@@ -76,10 +76,10 @@
                             <ColumnDefinition Width="12" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding QueryPreviewA, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" MinHeight="140"
-                                 TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" AutomationProperties.Name="Model A query" />
-                        <TextBox Grid.Column="2" Text="{Binding QueryPreviewB, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" MinHeight="140"
-                                 TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" AutomationProperties.Name="Model B query" />
+                        <TextBox Text="{Binding QueryPreviewA, Mode=OneWay}" Style="{StaticResource CodeBox}" MinHeight="150"
+                                 TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Model A query" />
+                        <TextBox Grid.Column="2" Text="{Binding QueryPreviewB, Mode=OneWay}" Style="{StaticResource CodeBox}" MinHeight="150"
+                                 TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Model B query" />
                     </Grid>
                 </StackPanel>
             </Border>

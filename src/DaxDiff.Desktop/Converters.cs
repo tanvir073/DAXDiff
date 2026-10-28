@@ -29,15 +29,14 @@ public sealed class NullToVisibilityConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }
 
-public sealed class ConnectionStateBrushConverter : IValueConverter
+/// <summary>
+/// Corner radius of half the element's height, for pill shapes. WPF scales oversized radii per axis,
+/// which turns a large fixed radius into an ellipse.
+/// </summary>
+public sealed class PillRadiusConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value switch
-    {
-        ConnectionState.Connected => Brushes.ForestGreen,
-        ConnectionState.Failed => Brushes.Firebrick,
-        ConnectionState.Working => Brushes.DarkOrange,
-        _ => Brushes.Gray,
-    };
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        new CornerRadius(value is double height && height > 0 ? height / 2 : 0);
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }

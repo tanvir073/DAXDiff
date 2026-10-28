@@ -3,11 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:DaxDiff.Desktop.Views">
     <DockPanel>
-        <StackPanel DockPanel.Dock="Top">
-            <TextBlock Text="Sources" Style="{StaticResource PageTitle}" />
-            <TextBlock Style="{StaticResource PageHint}"
-                       Text="Choose model A and model B independently: any pairing of local Power BI Desktop and Power BI Service is supported. Test each connection to load its metadata." />
-        </StackPanel>
+        <DockPanel DockPanel.Dock="Top">
+            <Button DockPanel.Dock="Right" Command="{Binding NextCommand}" Style="{StaticResource SecondaryButton}" VerticalAlignment="Bottom"
+                    Margin="16,0,0,18" Content="Next: comparisons →" />
+            <StackPanel>
+                <TextBlock Text="STEP 1 OF 5" Style="{StaticResource Eyebrow}" />
+                <TextBlock Text="Sources" Style="{StaticResource PageTitle}" />
+                <TextBlock Style="{StaticResource PageHint}"
+                           Text="Choose the two semantic models to compare: any pairing of Power BI Desktop and Power BI Service works. Test each connection to load its metadata." />
+            </StackPanel>
+        </DockPanel>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -15,9 +20,11 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <views:SourcePanelView Grid.Column="0" DataContext="{Binding SourceA}" />
-            <Button Grid.Column="1" Content="⇄ S_wap" Command="{Binding SwapCommand}" VerticalAlignment="Top" Margin="12,40,12,0"
-                    MinWidth="0" ToolTip="Swap model A and model B, including mappings and filters"
-                    AutomationProperties.Name="Swap sides" />
+            <Button Grid.Column="1" Style="{StaticResource RoundButton}" Command="{Binding SwapCommand}" VerticalAlignment="Top" Margin="12,24,12,0"
+                    ToolTip="Swap model A and model B, including every comparison's fields and filters" AutomationProperties.Name="Swap model A and model B">
+                <Path Data="M 12 0 L 16 4 L 12 8 M 16 4 H 0 M 4 10 L 0 14 L 4 18 M 0 14 H 16" Stroke="{DynamicResource TealBrush}" StrokeThickness="2"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="18" Height="18" Stretch="Uniform" />
+            </Button>
             <views:SourcePanelView Grid.Column="2" DataContext="{Binding SourceB}" />
         </Grid>
     </DockPanel>

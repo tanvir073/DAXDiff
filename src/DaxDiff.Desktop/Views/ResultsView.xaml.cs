@@ -77,15 +77,18 @@ public partial class ResultsView : UserControl
     {
         var style = new Style(typeof(TextBlock));
         style.Setters.Add(new Setter(TextBlock.FontWeightProperty, FontWeights.SemiBold));
-        style.Setters.Add(new Setter(TextBlock.PaddingProperty, new Thickness(4, 0, 4, 0)));
-        foreach (var (text, color) in new[]
+        style.Setters.Add(new Setter(TextBlock.PaddingProperty, new Thickness(8, 2, 8, 2)));
+        // Theme tones (follow the selected theme): success, danger, tile (one side only) and warning.
+        foreach (var (text, background, foreground) in new[]
                  {
-                     ("Match", "#E2F0D9"), ("Mismatch", "#F8CBAD"), ("Only in A", "#FFE699"), ("Only in B", "#BDD7EE"), ("Invalid key", "#D9C3E9"),
+                     ("Match", "SuccessSoftBrush", "SuccessBrush"), ("Mismatch", "DangerSoftBrush", "DangerBrush"),
+                     ("Only in A", "AccentSoftBrush", "TileTextBrush"), ("Only in B", "AccentSoftBrush", "TileTextBrush"),
+                     ("Invalid key", "WarningSoftBrush", "WarningBrush"),
                  })
         {
             var trigger = new DataTrigger { Binding = new Binding("Cells[0]"), Value = text };
-            trigger.Setters.Add(new Setter(TextBlock.BackgroundProperty,
-                new System.Windows.Media.BrushConverter().ConvertFromString(color)));
+            trigger.Setters.Add(new Setter(TextBlock.BackgroundProperty, new DynamicResourceExtension(background)));
+            trigger.Setters.Add(new Setter(TextBlock.ForegroundProperty, new DynamicResourceExtension(foreground)));
             style.Triggers.Add(trigger);
         }
 

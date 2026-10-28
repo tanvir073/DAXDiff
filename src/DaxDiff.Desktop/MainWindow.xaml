@@ -4,9 +4,10 @@
         xmlns:vm="clr-namespace:DaxDiff.Desktop.ViewModels"
         xmlns:views="clr-namespace:DaxDiff.Desktop.Views"
         Title="{Binding WindowTitle}"
-        Width="1280" Height="800" MinWidth="1024" MinHeight="700"
+        Width="1360" Height="860" MinWidth="1080" MinHeight="700"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource SubtleBrush}"
+        Background="{DynamicResource CloudBrush}" Foreground="{DynamicResource InkBrush}"
+        FontFamily="{StaticResource TextFont}" FontSize="{StaticResource BaseFontSize}"
         UseLayoutRounding="True" TextOptions.TextFormattingMode="Display"
         Closing="Window_Closing">
     <Window.InputBindings>
@@ -25,72 +26,183 @@
         <DataTemplate DataType="{x:Type vm:RunViewModel}"><views:RunView /></DataTemplate>
         <DataTemplate DataType="{x:Type vm:ResultsViewModel}"><views:ResultsView /></DataTemplate>
         <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><views:SettingsView /></DataTemplate>
+
+        <!-- Workflow step in the left menu: number circle, title and live status. -->
+        <DataTemplate x:Key="StepTemplate" DataType="{x:Type vm:NavItem}">
+            <Button Style="{StaticResource NavButton}" MinHeight="52"
+                    Command="{Binding DataContext.SelectNavCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"
+                    IsEnabled="{Binding IsEnabled}" ToolTip="{Binding Hint}"
+                    AutomationProperties.Name="{Binding Title, StringFormat='Step {0}'}" AutomationProperties.HelpText="{Binding Status}">
+                <DockPanel>
+                    <Border x:Name="Circle" Width="26" Height="26" CornerRadius="13" BorderThickness="1" Margin="0,0,12,0"
+                            BorderBrush="{DynamicResource StrongBorderBrush}" Background="Transparent" VerticalAlignment="Center">
+                        <TextBlock x:Name="Number" Text="{Binding Step}" FontSize="12.5" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TealBrush}" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock x:Name="Title" Text="{Binding Title}" FontWeight="Medium" />
+                        <TextBlock x:Name="Status" Text="{Binding Status}" FontSize="12.5" Foreground="{DynamicResource MutedText}" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </DockPanel>
+            </Button>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter TargetName="Circle" Property="Background" Value="{DynamicResource ChipBrush}" />
+                    <Setter TargetName="Circle" Property="BorderBrush" Value="{DynamicResource ChipBrush}" />
+                    <Setter TargetName="Number" Property="Foreground" Value="{DynamicResource ChipTextBrush}" />
+                    <Setter TargetName="Title" Property="FontWeight" Value="SemiBold" />
+                    <Setter TargetName="Status" Property="Foreground" Value="{DynamicResource SelectionTextBrush}" />
+                    <Setter TargetName="Status" Property="Opacity" Value="0.8" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <Style x:Key="StatusDot" TargetType="Ellipse">
+            <Setter Property="Width" Value="8" />
+            <Setter Property="Height" Value="8" />
+            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Fill" Value="{DynamicResource FieldBorderBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding State}" Value="Connected"><Setter Property="Fill" Value="{DynamicResource SuccessBrush}" /></DataTrigger>
+                <DataTrigger Binding="{Binding State}" Value="Failed"><Setter Property="Fill" Value="{DynamicResource DangerBrush}" /></DataTrigger>
+                <DataTrigger Binding="{Binding State}" Value="Working"><Setter Property="Fill" Value="{DynamicResource AccentDeepBrush}" /></DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <DockPanel>
-        <Border DockPanel.Dock="Top" Background="{StaticResource AccentBrush}" Padding="12,8">
+        <!-- Header -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource HeaderBrush}" Padding="20,10" MinHeight="60">
             <DockPanel>
-                <TextBlock Text="DAXDiff" Foreground="White" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,24,0" />
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <Button Content="_New project…" Command="{Binding NewProjectCommand}" ToolTip="Create a new project file (Ctrl+N)" Margin="0,0,6,0" />
-                    <Button Content="_Open project…" Command="{Binding OpenProjectCommand}" ToolTip="Open a project file (Ctrl+O)" Margin="0,0,6,0" />
-                    <Button Content="Sa_ve" Command="{Binding SaveProjectCommand}" ToolTip="Save the project (Ctrl+S)" Margin="0,0,6,0" />
-                    <Button Content="Save _as…" Command="{Binding SaveProjectAsCommand}" ToolTip="Save the project to a new file (Ctrl+Shift+S)" Margin="0,0,6,0" />
-                    <Button Content="Close" Command="{Binding CloseProjectCommand}" ToolTip="Close the project" Margin="0" />
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Canvas Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center">
+                        <Rectangle Canvas.Left="2" Canvas.Top="8" Width="15" Height="15" RadiusX="4" RadiusY="4"
+                                   Stroke="{DynamicResource LogoABrush}" StrokeThickness="2" />
+                        <Rectangle Canvas.Left="11" Canvas.Top="3" Width="15" Height="15" RadiusX="4" RadiusY="4"
+                                   Fill="{DynamicResource LogoABrush}" Opacity="0.3" />
+                        <Rectangle Canvas.Left="11" Canvas.Top="3" Width="15" Height="15" RadiusX="4" RadiusY="4"
+                                   Stroke="{DynamicResource LogoBBrush}" StrokeThickness="2" />
+                    </Canvas>
+                    <TextBlock Text="DAXDiff" FontFamily="{StaticResource DisplayFont}" FontSize="22" Foreground="{DynamicResource HeaderTextBrush}" VerticalAlignment="Center" />
                 </StackPanel>
-                <TextBlock Foreground="#DDE6F0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding ProjectPath}">
-                    <Run Text="{Binding ProjectName, Mode=OneWay}" /><Run FontStyle="Italic">
-                        <Run.Style>
-                            <Style TargetType="Run">
-                                <Setter Property="Text" Value="" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDirty}" Value="True">
-                                        <Setter Property="Text" Value=" (unsaved changes)" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Run.Style>
-                    </Run>
-                </TextBlock>
+
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Sa_ve" Command="{Binding SaveProjectCommand}" Style="{StaticResource LightButton}" ToolTip="Save the project (Ctrl+S)"
+                            Visibility="{Binding HasProject, Converter={StaticResource BoolToVisibility}}" />
+                    <Button Content="Save _as…" Command="{Binding SaveProjectAsCommand}" Style="{StaticResource LightButton}"
+                            ToolTip="Save the project to a new file (Ctrl+Shift+S)"
+                            Visibility="{Binding HasProject, Converter={StaticResource BoolToVisibility}}" />
+                    <Button Content="Close" Command="{Binding CloseProjectCommand}" Style="{StaticResource LightButton}" ToolTip="Close the project"
+                            Visibility="{Binding HasProject, Converter={StaticResource BoolToVisibility}}" />
+                    <Border Width="1" Height="24" Background="{DynamicResource HeaderLineBrush}" Margin="12,0,4,0"
+                            Visibility="{Binding HasProject, Converter={StaticResource BoolToVisibility}}" />
+                    <Button Content="_Open project…" Command="{Binding OpenProjectCommand}" Style="{StaticResource LightButton}"
+                            ToolTip="Open a project file (Ctrl+O)" />
+                    <Button Command="{Binding NewProjectCommand}" Style="{StaticResource DarkPrimaryButton}" ToolTip="Create a new project file (Ctrl+N)">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M 6 0 V 12 M 0 6 H 12" Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="2" StrokeStartLineCap="Round"
+                                  StrokeEndLineCap="Round" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <AccessText Text="_New project" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Project name and save state -->
+                <Border BorderBrush="{DynamicResource HeaderLineBrush}" BorderThickness="1,0,0,0" Margin="18,0,12,0" Padding="16,0,0,0"
+                        VerticalAlignment="Center">
+                    <Grid>
+                        <TextBlock Text="No project open" Foreground="{DynamicResource HeaderMutedBrush}" VerticalAlignment="Center"
+                                   Visibility="{Binding HasProject, Converter={StaticResource InverseBoolToVisibility}}" />
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{Binding ProjectPath}"
+                                    Visibility="{Binding HasProject, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="{Binding ProjectName}" Foreground="{DynamicResource HeaderTextBrush}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="320" />
+                            <TextBlock Text=".pbicomp" Foreground="{DynamicResource HeaderMutedBrush}" Margin="0,0,14,0" />
+                            <!-- Tick when saved, cyan dot when there are unsaved changes. -->
+                            <Grid VerticalAlignment="Center" Margin="0,0,6,0">
+                                <Path Data="M 0 5 L 4 9 L 12 0" Stroke="{DynamicResource HeaderMutedBrush}" StrokeThickness="2" StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Visibility="{Binding IsDirty, Converter={StaticResource InverseBoolToVisibility}}" />
+                                <Ellipse Width="8" Height="8" Fill="{DynamicResource AccentFillBrush}"
+                                         Visibility="{Binding IsDirty, Converter={StaticResource BoolToVisibility}}" />
+                            </Grid>
+                            <TextBlock Text="{Binding SaveStateText}" Foreground="{DynamicResource HeaderMutedBrush}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </DockPanel>
         </Border>
 
-        <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem>
-                <TextBlock Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis" />
-            </StatusBarItem>
-            <StatusBarItem HorizontalAlignment="Right">
-                <TextBlock>
-                    <Run Text="Errors in selected comparison: " /><Run Text="{Binding ErrorCount, Mode=OneWay}" />
-                    <Run Text="   A: " /><Run Text="{Binding SourceA.Identity, Mode=OneWay}" />
-                    <Run Text="   B: " /><Run Text="{Binding SourceB.Identity, Mode=OneWay}" />
-                </TextBlock>
-            </StatusBarItem>
-        </StatusBar>
+        <!-- Status bar -->
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0"
+                Padding="20,6" TextElement.FontSize="12.5" TextElement.Foreground="{DynamicResource MutedText}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock Margin="0,0,18,0" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold"
+                               Text="{Binding ErrorCount, StringFormat='{}{0} problem(s) in this comparison'}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ErrorCount}" Value="0">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <Ellipse Style="{StaticResource StatusDot}" DataContext="{Binding SourceA}" />
+                    <TextBlock Text="{Binding SourceA.Identity, StringFormat='A: {0}'}" MaxWidth="320" TextTrimming="CharacterEllipsis" Margin="0,0,18,0"
+                               ToolTip="{Binding SourceA.Identity}" />
+                    <Ellipse Style="{StaticResource StatusDot}" DataContext="{Binding SourceB}" />
+                    <TextBlock Text="{Binding SourceB.Identity, StringFormat='B: {0}'}" MaxWidth="320" TextTrimming="CharacterEllipsis"
+                               ToolTip="{Binding SourceB.Identity}" />
+                </StackPanel>
+                <TextBlock Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis" Margin="0,0,18,0" AutomationProperties.LiveSetting="Polite" />
+            </DockPanel>
+        </Border>
 
-        <ListBox DockPanel.Dock="Left" Width="200" ItemsSource="{Binding NavItems}" SelectedItem="{Binding SelectedNav}"
-                 BorderThickness="0,0,1,0" BorderBrush="{StaticResource BorderBrush}" Background="White"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 AutomationProperties.Name="Steps">
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="Padding" Value="12,8" />
-                    <Setter Property="AutomationProperties.Name" Value="{Binding Title}" />
-                    <Setter Property="AutomationProperties.HelpText" Value="{Binding Hint}" />
-                    <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
-                    <Setter Property="ToolTip" Value="{Binding Hint}" />
-                </Style>
-            </ListBox.ItemContainerStyle>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding Hint}" FontSize="11" Foreground="{StaticResource MutedText}" TextWrapping="Wrap" />
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <!-- Navigation -->
+        <Border DockPanel.Dock="Left" Width="256" Background="{DynamicResource NavBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0"
+                Padding="12,18,12,12">
+            <DockPanel>
+                <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="0,10,0,0">
+                    <Button Style="{StaticResource NavButton}" DataContext="{Binding SettingsNav}"
+                            Command="{Binding DataContext.SelectNavCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"
+                            ToolTip="{Binding Hint}" AutomationProperties.Name="Settings">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M 3 20 V 13 M 3 9 V 2 M 11 20 V 11 M 11 7 V 2 M 19 20 V 15 M 19 11 V 2 M 0 13 H 6 M 8 7 H 14 M 16 15 H 22"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0" />
+                            <TextBlock Text="Settings" />
+                        </StackPanel>
+                    </Button>
+                </Border>
 
-        <ContentControl Content="{Binding CurrentPage}" Margin="16" Focusable="False" />
+                <StackPanel>
+                    <Button Style="{StaticResource NavButton}" DataContext="{Binding HomeNav}"
+                            Command="{Binding DataContext.SelectNavCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"
+                            ToolTip="{Binding Hint}" AutomationProperties.Name="Home">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M 0 8.5 L 9 1 L 18 8.5 M 2 7.5 V 19 H 16 V 7.5"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="18" Height="18" Stretch="Uniform"
+                                  Margin="0,0,12,0" />
+                            <TextBlock Text="Home" FontWeight="Medium" />
+                        </StackPanel>
+                    </Button>
+
+                    <TextBlock Text="PROJECT WORKFLOW" Style="{StaticResource Eyebrow}" Foreground="{DynamicResource MutedText}" Margin="12,20,0,6" />
+                    <ItemsControl ItemsSource="{Binding WorkflowNav}" ItemTemplate="{StaticResource StepTemplate}" Focusable="False" />
+
+                    <DockPanel Margin="12,8,0,0" Visibility="{Binding HasProject, Converter={StaticResource InverseBoolToVisibility}}">
+                        <Path Data="M 1 8 H 13 V 16 H 1 Z M 4 8 V 5 A 3 3 0 0 1 10 5 V 8" Stroke="{DynamicResource MutedText}" StrokeThickness="1.6"
+                              Width="13" Height="14" Stretch="Uniform" VerticalAlignment="Top" Margin="0,2,8,0" />
+                        <TextBlock Text="Open or create a project to unlock these steps" FontSize="12.5" Foreground="{DynamicResource MutedText}" TextWrapping="Wrap" />
+                    </DockPanel>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <ContentControl Content="{Binding CurrentPage}" Margin="32,26,32,20" Focusable="False" />
     </DockPanel>
 </Window>

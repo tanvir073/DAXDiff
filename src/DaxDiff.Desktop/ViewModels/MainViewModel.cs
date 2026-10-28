@@ -16,12 +16,14 @@ namespace DaxDiff.Desktop.ViewModels;
 /// <summary>A step in the left-hand menu. Steps that edit a project are disabled until one is open.</summary>
 public sealed partial class NavItem : ObservableObject
 {
-    public NavItem(string title, string hint, ObservableObject page, bool requiresProject)
+    public NavItem(string title, string hint, ObservableObject page, bool requiresProject, int? step = null)
     {
         Title = title;
         Hint = hint;
         Page = page;
         RequiresProject = requiresProject;
+        Step = step;
+        _status = hint;
         _isEnabled = !requiresProject;
     }
 
@@ -30,8 +32,18 @@ public sealed partial class NavItem : ObservableObject
     public ObservableObject Page { get; }
     public bool RequiresProject { get; }
 
+    /// <summary>Position in the project workflow (1–5); null for Home and Settings.</summary>
+    public int? Step { get; }
+
+    /// <summary>Second line in the menu: the hint, or the step's live state ("1 of 2 connected").</summary>
+    [ObservableProperty]
+    private string _status;
+
     [ObservableProperty]
     private bool _isEnabled;
+
+    [ObservableProperty]
+    private bool _isSelected;
 }
 
 /// <summary>
@@ -80,7 +92,7 @@ public sealed partial class MainViewModel : ObservableObject
         Run = new RunViewModel(SourceA, SourceB, Comparisons, runner, dialogs);
         Results = new ResultsViewModel(dialogs, loggerFactory.CreateLogger<ResultsViewModel>());
         Settings = new SettingsViewModel(authOptions, sessionA.Auth, dialogs) { ResetSession = () => CloseProject() };
-        Home = new HomeViewModel(this, recent);
+        Home = new HomeViewModel(this, recent, Guid.TryParse(authOptions.ClientId, out _));
 
         Comparisons.Changed += (_, _) => OnProjectEdited();
         Comparisons.PersistRequested += (_, _) => PersistComparisons();
@@ -101,15 +113,21 @@ public sealed partial class MainViewModel : ObservableObject
         NavItems =
         [
             new NavItem("Home", "New or open a project", Home, requiresProject: false),
-            new NavItem("Sources", "Choose and connect models A and B", Sources, requiresProject: true),
-            new NavItem("Comparisons", "Fields, keys, aggregations, synonyms", Comparisons, requiresProject: true),
-            new NavItem("Options", "Filters, tolerances, rules, query preview", Options, requiresProject: true),
-            new NavItem("Run", "Execute comparisons", Run, requiresProject: true),
-            new NavItem("Results", "Inspect differences and export", Results, requiresProject: true),
+            new NavItem("Sources", "Connect model A and B", Sources, requiresProject: true, step: 1),
+            new NavItem("Comparisons", "Fields, keys, synonyms", Comparisons, requiresProject: true, step: 2),
+            new NavItem("Options", "Filters and tolerances", Options, requiresProject: true, step: 3),
+            new NavItem("Run", "Execute comparisons", Run, requiresProject: true, step: 4),
+            new NavItem("Results", "Inspect and export", Results, requiresProject: true, step: 5),
             new NavItem("Settings", "Sign-in, privacy, diagnostics", Settings, requiresProject: false),
         ];
         _currentPage = Home;
         _selectedNav = NavItems[0];
+        _selectedNav.IsSelected = true;
+        Results.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(ResultsViewModel.HasResult))
+                UpdateStepStatus();
+        };
     }
 
     public SourcePanelViewModel SourceA { get; }
@@ -122,6 +140,9 @@ public sealed partial class MainViewModel : ObservableObject
     public SettingsViewModel Settings { get; }
     public HomeViewModel Home { get; }
     public IReadOnlyList<NavItem> NavItems { get; }
+    public NavItem HomeNav => NavItems[0];
+    public IEnumerable<NavItem> WorkflowNav => NavItems.Where(n => n.Step is not null);
+    public NavItem SettingsNav => NavItems[^1];
 
     [ObservableProperty]
     private ObservableObject _currentPage;
@@ -139,8 +160,10 @@ public sealed partial class MainViewModel : ObservableObject
     private string _projectName = "No project";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(WindowTitle))]
+    [NotifyPropertyChangedFor(nameof(WindowTitle), nameof(SaveStateText))]
     private bool _isDirty;
+
+    public string SaveStateText => IsDirty ? "Unsaved changes" : "All changes saved";
 
     [ObservableProperty]
     private string _statusMessage = "Create a new project or open an existing one to start.";
@@ -152,11 +175,16 @@ public sealed partial class MainViewModel : ObservableObject
 
     public string WindowTitle => HasProject ? $"{ProjectName}{(IsDirty ? " *" : "")} – DAXDiff" : "DAXDiff";
 
-    partial void OnSelectedNavChanged(NavItem value)
+    partial void OnSelectedNavChanged(NavItem? oldValue, NavItem newValue)
     {
-        if (value is not null)
-            CurrentPage = value.Page;
-        if (value?.Page == Run)
+        if (oldValue is not null)
+            oldValue.IsSelected = false;
+        if (newValue is not null)
+        {
+            newValue.IsSelected = true;
+            CurrentPage = newValue.Page;
+        }
+        if (newValue?.Page == Run)
             Run.Refresh();
     }
 
@@ -164,9 +192,28 @@ public sealed partial class MainViewModel : ObservableObject
     {
         foreach (var item in NavItems.Where(n => n.RequiresProject))
             item.IsEnabled = value is not null;
+        UpdateStepStatus();
     }
 
     public void Navigate(ObservableObject page) => SelectedNav = NavItems.First(n => n.Page == page);
+
+    [RelayCommand]
+    private void SelectNav(NavItem? item)
+    {
+        if (item is { IsEnabled: true })
+            SelectedNav = item;
+    }
+
+    /// <summary>Live second lines for the workflow steps in the menu.</summary>
+    private void UpdateStepStatus()
+    {
+        var connected = (SourceA.State == ConnectionState.Connected ? 1 : 0) + (SourceB.State == ConnectionState.Connected ? 1 : 0);
+        NavItems[1].Status = HasProject ? $"{connected} of 2 connected" : NavItems[1].Hint;
+        NavItems[2].Status = HasProject
+            ? Comparisons.Comparisons.Count switch { 0 => "None yet", 1 => "1 comparison", var n => $"{n} comparisons" }
+            : NavItems[2].Hint;
+        NavItems[5].Status = Results.HasResult ? $"{Results.Results.Count} result(s)" : NavItems[5].Hint;
+    }
 
     // ---- Project lifecycle ----------------------------------------------------------------------
 
@@ -364,15 +411,21 @@ public sealed partial class MainViewModel : ObservableObject
         Results.Clear();
         _savedFingerprint = null;
         IsDirty = false;
+        UpdateStepStatus();
     }
 
     private void OnProjectEdited()
     {
         ErrorCount = Comparisons.Selected?.ErrorCount ?? 0;
         UpdateDirty();
+        UpdateStepStatus();
     }
 
-    private void OnSourceChanged() => UpdateDirty();
+    private void OnSourceChanged()
+    {
+        UpdateDirty();
+        UpdateStepStatus();
+    }
 
     private void UpdateDirty()
     {
@@ -422,6 +475,7 @@ public sealed class SourcesViewModel(MainViewModel main) : ObservableObject
     public SourcePanelViewModel SourceA => main.SourceA;
     public SourcePanelViewModel SourceB => main.SourceB;
     public IRelayCommand SwapCommand => main.SwapSourcesCommand;
+    public IRelayCommand NextCommand { get; } = new RelayCommand(() => main.Navigate(main.Comparisons));
 }
 
 /// <summary>Options page: the options of the comparison selected on the Comparisons page (each comparison has its own).</summary>
@@ -430,26 +484,37 @@ public sealed class OptionsPageViewModel(ComparisonsViewModel comparisons) : Obs
     public ComparisonsViewModel Comparisons => comparisons;
 }
 
+/// <summary>A recent project file as shown on Home.</summary>
+public sealed record RecentProject(string Path)
+{
+    public string Name => System.IO.Path.GetFileNameWithoutExtension(Path);
+    public string Folder => System.IO.Path.GetDirectoryName(Path) ?? "";
+}
+
 /// <summary>Home page: the two ways in, New project and Open project (FR-019), plus recent projects.</summary>
 public sealed partial class HomeViewModel : ObservableObject
 {
     private readonly MainViewModel _main;
 
-    public HomeViewModel(MainViewModel main, RecentProjects recent)
+    public HomeViewModel(MainViewModel main, RecentProjects recent, bool clientIdConfigured)
     {
         _main = main;
-        Recent = new ObservableCollection<string>(recent.Load());
+        ClientIdConfigured = clientIdConfigured;
+        Recent = new ObservableCollection<RecentProject>(recent.Load().Select(p => new RecentProject(p)));
     }
 
-    public ObservableCollection<string> Recent { get; }
+    public ObservableCollection<RecentProject> Recent { get; }
     public IRelayCommand NewCommand => _main.NewProjectCommand;
     public IAsyncRelayCommand OpenCommand => _main.OpenProjectCommand;
+
+    /// <summary>Workspace browsing and REST need an Entra client ID (Settings).</summary>
+    public bool ClientIdConfigured { get; }
 
     public void SetRecent(IEnumerable<string> paths)
     {
         Recent.Clear();
         foreach (var path in paths)
-            Recent.Add(path);
+            Recent.Add(new RecentProject(path));
     }
 
     [RelayCommand]

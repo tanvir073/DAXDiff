@@ -49,6 +49,7 @@ public partial class App : System.Windows.Application
         _host = builder.Build();
 
         DispatcherUnhandledException += OnUnhandledException;
+        ThemeService.Apply(builder.Configuration["Appearance:Theme"]);
 
         var main = _host.Services.GetRequiredService<MainViewModel>();
         var window = new MainWindow { DataContext = main };

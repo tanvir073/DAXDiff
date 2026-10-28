@@ -5,17 +5,17 @@
              x:Name="Root">
     <UserControl.Resources>
         <HierarchicalDataTemplate DataType="{x:Type vm:TableNode}" ItemsSource="{Binding Fields}">
-            <TextBlock Text="{Binding Display}" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding Display}" FontWeight="SemiBold" Margin="0,2" />
         </HierarchicalDataTemplate>
         <DataTemplate DataType="{x:Type vm:FieldNode}">
-            <TextBlock Text="{Binding Display}" AutomationProperties.Name="{Binding AccessibleName}" />
+            <TextBlock Text="{Binding Display}" AutomationProperties.Name="{Binding AccessibleName}" Margin="0,1" />
         </DataTemplate>
         <Style TargetType="TreeViewItem">
             <Setter Property="AutomationProperties.Name" Value="{Binding Display}" />
         </Style>
 
         <!-- Field grid for one side; DataContext = that side's FieldsA / FieldsB collection. -->
-        <Style x:Key="FieldGrid" TargetType="DataGrid">
+        <Style x:Key="FieldGrid" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
             <Setter Property="AutoGenerateColumns" Value="False" />
             <Setter Property="CanUserAddRows" Value="False" />
             <Setter Property="CanUserDeleteRows" Value="False" />
@@ -23,18 +23,33 @@
             <Setter Property="HeadersVisibility" Value="Column" />
             <Setter Property="SelectionMode" Value="Extended" />
             <Setter Property="SelectionUnit" Value="FullRow" />
-            <Setter Property="RowHeight" Value="28" />
+            <Setter Property="RowHeight" Value="36" />
         </Style>
-        <!-- Yellow: warning (e.g. not compared). Pink: error that blocks the run. -->
-        <Style x:Key="ProblemRow" TargetType="DataGridRow">
+        <!-- Amber: warning (for example not compared). Red: error that blocks the run. -->
+        <Style x:Key="ProblemRow" TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Issue, Converter={StaticResource NullToVisibility}}" Value="Visible">
-                    <Setter Property="Background" Value="#FFF4CE" />
+                    <Setter Property="Background" Value="{DynamicResource WarningSoftBrush}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding HasError}" Value="True">
-                    <Setter Property="Background" Value="#FDE2E1" />
+                    <Setter Property="Background" Value="{DynamicResource DangerSoftBrush}" />
                 </DataTrigger>
             </Style.Triggers>
+        </Style>
+        <Style x:Key="CellCombo" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="Padding" Value="8,2,26,2" />
+        </Style>
+        <Style x:Key="CellText" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="Padding" Value="8,2" />
+        </Style>
+        <Style x:Key="SmallButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="Margin" Value="0,0,6,0" />
         </Style>
     </UserControl.Resources>
 
@@ -46,45 +61,43 @@
         </Grid.RowDefinitions>
 
         <StackPanel>
-            <TextBlock Text="Comparisons" Style="{StaticResource PageTitle}" />
-            <TextBlock Style="{StaticResource PageHint}"
-                       Text="Insert any column (or a whole table's columns) from each model, mark the key columns, choose how other columns are aggregated, and give fields that should be compared the same synonym on both sides." />
+            <TextBlock Text="STEP 2 OF 5" Style="{StaticResource Eyebrow}" />
+            <TextBlock Text="Comparisons" Style="{StaticResource PageTitle}" Margin="0,0,0,14" />
         </StackPanel>
 
-        <!-- Comparison list -->
-        <Border Grid.Row="1" Style="{StaticResource Card}" Padding="10,8" Margin="0,0,0,10">
+        <!-- Comparison picker and save bar -->
+        <Border Grid.Row="1" Style="{StaticResource Card}" Padding="18,12,18,4" Margin="0,0,0,12">
             <StackPanel>
                 <WrapPanel>
-                    <Label Content="_Comparison" Target="{Binding ElementName=ComparisonPicker}" VerticalAlignment="Center" Padding="0,0,6,6" />
-                    <ComboBox x:Name="ComparisonPicker" Width="220" ItemsSource="{Binding Comparisons}" SelectedItem="{Binding Selected}"
-                              DisplayMemberPath="DisplayName" Margin="0,0,12,6" ToolTip="* marks unsaved changes" />
-                    <Label Content="N_ame" Target="{Binding ElementName=ComparisonName}" VerticalAlignment="Center" Padding="0,0,6,6" />
-                    <TextBox x:Name="ComparisonName" Width="190" Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}"
-                             IsEnabled="{Binding HasSelection}" Margin="0,0,12,6" />
-                    <Button Content="New comparison" Command="{Binding NewComparisonCommand}" />
+                    <Label Content="_Comparison" Target="{Binding ElementName=ComparisonPicker}" VerticalAlignment="Center" Padding="0,0,8,8" />
+                    <ComboBox x:Name="ComparisonPicker" Width="240" ItemsSource="{Binding Comparisons}" SelectedItem="{Binding Selected}"
+                              DisplayMemberPath="DisplayName" Margin="0,0,16,8" ToolTip="* marks unsaved changes" />
+                    <Label Content="N_ame" Target="{Binding ElementName=ComparisonName}" VerticalAlignment="Center" Padding="0,0,8,8" />
+                    <TextBox x:Name="ComparisonName" Width="210" Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding HasSelection}" Margin="0,0,16,8" />
+                    <Button Content="+ New comparison" Command="{Binding NewComparisonCommand}" Style="{StaticResource SecondaryButton}" />
                     <Button Content="Duplicate" Command="{Binding DuplicateComparisonCommand}" />
                     <Button Content="Delete" Command="{Binding DeleteComparisonCommand}" />
                 </WrapPanel>
                 <DockPanel Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding Selected.StatusText}" VerticalAlignment="Center" Margin="12,0,0,6"
-                               AutomationProperties.LiveSetting="Polite" FontWeight="SemiBold" />
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding Selected.StatusText}" VerticalAlignment="Center" Margin="12,0,0,8"
+                               AutomationProperties.LiveSetting="Polite" FontWeight="SemiBold" Foreground="{DynamicResource TealBrush}" />
                     <WrapPanel>
+                        <Button Command="{Binding Selected.SaveCommand}" Style="{StaticResource PrimaryButton}"
+                                ToolTip="Save this comparison to the project; runs use the saved version" Content="_Save comparison" />
+                        <Button Content="Discard changes" Command="{Binding Selected.DiscardChangesCommand}" ToolTip="Go back to the last saved version" />
                         <Button Command="{Binding Selected.Options.EditFiltersCommand}" ToolTip="Filter both models to the same slice of data">
                             <TextBlock>
                                 <Run Text="Filters (" /><Run Text="{Binding Selected.Options.Filters.Count, Mode=OneWay}" /><Run Text=")…" />
                             </TextBlock>
                         </Button>
-                        <Button Content="_Save comparison" Command="{Binding Selected.SaveCommand}" FontWeight="SemiBold"
-                                ToolTip="Save this comparison to the project; runs use the saved version" />
-                        <Button Content="Discard changes" Command="{Binding Selected.DiscardChangesCommand}"
-                                ToolTip="Go back to the last saved version" />
-                        <TextBlock Text="{Binding Selected.SaveStateText}" VerticalAlignment="Center" Margin="4,0,0,6" AutomationProperties.LiveSetting="Polite">
+                        <TextBlock Text="{Binding Selected.SaveStateText}" VerticalAlignment="Center" Margin="6,0,0,8" AutomationProperties.LiveSetting="Polite">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Selected.IsModified}" Value="True">
-                                            <Setter Property="Foreground" Value="DarkGoldenrod" />
+                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
                                             <Setter Property="FontWeight" Value="SemiBold" />
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -96,198 +109,233 @@
             </StackPanel>
         </Border>
 
-        <TextBlock Grid.Row="2" Text="This project has no comparisons yet. Click 'New comparison' to create one."
-                   Style="{StaticResource PageHint}" Visibility="{Binding HasSelection, Converter={StaticResource InverseBoolToVisibility}}" />
+        <Border Grid.Row="2" Style="{StaticResource Card}" VerticalAlignment="Top" Visibility="{Binding HasSelection, Converter={StaticResource InverseBoolToVisibility}}">
+            <StackPanel>
+                <TextBlock Text="No comparisons yet" Style="{StaticResource CardTitle}" />
+                <TextBlock Text="Insert any column (or a whole table's columns) from each model, mark the key columns, choose how the other columns are aggregated, and give fields that should be compared the same synonym on both sides. Create a comparison to start." Style="{StaticResource Muted}"
+                           Margin="0,0,0,14" />
+                <Button Content="+ New comparison" Command="{Binding NewComparisonCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" />
+            </StackPanel>
+        </Border>
 
         <Grid Grid.Row="2" Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
             <Grid.RowDefinitions>
+                <RowDefinition Height="5*" MinHeight="260" />
+                <RowDefinition Height="12" />
                 <RowDefinition Height="2*" MinHeight="120" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="4*" MinHeight="160" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="2*" MinHeight="100" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="14" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Model A: tree -->
-            <DockPanel Grid.Row="0" Grid.Column="0">
-                <TextBlock DockPanel.Dock="Top" Text="{Binding HeaderA, StringFormat='Model A — {0}'}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                <TextBox DockPanel.Dock="Top" Text="{Binding SearchA, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,4"
-                         AutomationProperties.Name="Search model A tables and fields" ToolTip="Search model A tables and fields" />
-                <TreeView x:Name="TreeA" ItemsSource="{Binding TreeA}" SelectedItemChanged="TreeA_SelectedItemChanged"
-                          MouseDoubleClick="TreeA_MouseDoubleClick" KeyDown="TreeA_KeyDown"
-                          AutomationProperties.Name="Model A tables and fields" VirtualizingPanel.IsVirtualizing="True" />
-            </DockPanel>
-            <WrapPanel Grid.Row="1" Grid.Column="0" Margin="0,6,0,0">
-                <Button Content="Insert into A ▾" Command="{Binding InsertACommand}" FontWeight="SemiBold"
-                        ToolTip="Insert the selected field, or every column of the selected table (double-click or Enter also inserts)" />
-            </WrapPanel>
-
-            <!-- Model B: tree -->
-            <DockPanel Grid.Row="0" Grid.Column="2">
-                <TextBlock DockPanel.Dock="Top" Text="{Binding HeaderB, StringFormat='Model B — {0}'}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                <TextBox DockPanel.Dock="Top" Text="{Binding SearchB, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,4"
-                         AutomationProperties.Name="Search model B tables and fields" ToolTip="Search model B tables and fields" />
-                <TreeView x:Name="TreeB" ItemsSource="{Binding TreeB}" SelectedItemChanged="TreeB_SelectedItemChanged"
-                          MouseDoubleClick="TreeB_MouseDoubleClick" KeyDown="TreeB_KeyDown"
-                          AutomationProperties.Name="Model B tables and fields" VirtualizingPanel.IsVirtualizing="True" />
-            </DockPanel>
-            <WrapPanel Grid.Row="1" Grid.Column="2" Margin="0,6,0,0">
-                <Button Content="Insert into B ▾" Command="{Binding InsertBCommand}" FontWeight="SemiBold"
-                        ToolTip="Insert the selected field, or every column of the selected table (double-click or Enter also inserts)" />
-                <CheckBox Content="Show _hidden fields" IsChecked="{Binding ShowHidden}" VerticalAlignment="Center" />
-            </WrapPanel>
-
-            <!-- Model A: inserted fields -->
-            <DockPanel Grid.Row="2" Grid.Column="0">
-                <WrapPanel DockPanel.Dock="Bottom" Margin="0,4,0,0">
-                    <Button Content="Add same to B ▸" MinWidth="0" Command="{Binding CopyToBCommand}" CommandParameter="{Binding SelectedItems, ElementName=FieldsA}"
-                            ToolTip="Add the selected fields to model B: same table and column name, same key, aggregation and synonym" />
-                    <Button Content="Remove" MinWidth="0" Command="{Binding RemoveFieldsCommand}" CommandParameter="{Binding SelectedItems, ElementName=FieldsA}" />
-                    <Button Content="▲" MinWidth="32" Command="{Binding MoveFieldUpCommand}" CommandParameter="{Binding SelectedItem, ElementName=FieldsA}"
-                            AutomationProperties.Name="Move model A field up" ToolTip="Move up (key order in results)" />
-                    <Button Content="▼" MinWidth="32" Command="{Binding MoveFieldDownCommand}" CommandParameter="{Binding SelectedItem, ElementName=FieldsA}"
-                            AutomationProperties.Name="Move model A field down" ToolTip="Move down (key order in results)" />
-                </WrapPanel>
-                <TextBlock DockPanel.Dock="Bottom" TextWrapping="Wrap" Margin="0,4,0,0" FontSize="11.5"
-                           Text="{Binding SelectedItem.PairText, ElementName=FieldsA}" Foreground="{StaticResource MutedText}"
-                           Visibility="{Binding SelectedItem.PairText, ElementName=FieldsA, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" />
-                <TextBlock DockPanel.Dock="Bottom" TextWrapping="Wrap" Margin="0,4,0,0" FontSize="11.5"
-                           Text="{Binding SelectedItem.Issue, ElementName=FieldsA}" Foreground="{StaticResource DangerBrush}"
-                           Visibility="{Binding SelectedItem.Issue, ElementName=FieldsA, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" />
-                <DataGrid x:Name="FieldsA" ItemsSource="{Binding Selected.FieldsA}" Style="{StaticResource FieldGrid}"
-                          RowStyle="{StaticResource ProblemRow}" AutomationProperties.Name="Model A fields in this comparison">
-                    <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Key">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <CheckBox IsChecked="{Binding IsKey, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanBeKey}"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"
-                                              AutomationProperties.Name="Key" ToolTip="Part of the comparison key (grain)" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="Field" Binding="{Binding FieldText}" IsReadOnly="True" Width="*" />
-                        <DataGridTextColumn Header="Type" Binding="{Binding TypeText}" IsReadOnly="True" />
-                        <DataGridTemplateColumn Header="Aggregation" Width="115">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <ComboBox ItemsSource="{Binding AllowedAggregations}" SelectedItem="{Binding Aggregation, UpdateSourceTrigger=PropertyChanged}"
-                                              IsEnabled="{Binding CanAggregate}" Margin="0" Padding="4,1" AutomationProperties.Name="Aggregation" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Synonym" Width="130">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBox Text="{Binding Synonym, UpdateSourceTrigger=PropertyChanged}" Margin="0" Padding="2,1"
-                                             AutomationProperties.Name="Synonym" ToolTip="{Binding PairText}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </DockPanel>
-
-            <!-- Model B: inserted fields -->
-            <DockPanel Grid.Row="2" Grid.Column="2">
-                <WrapPanel DockPanel.Dock="Bottom" Margin="0,4,0,0">
-                    <Button Content="◂ Add same to A" MinWidth="0" Command="{Binding CopyToACommand}" CommandParameter="{Binding SelectedItems, ElementName=FieldsB}"
-                            ToolTip="Add the selected fields to model A: same table and column name, same key, aggregation and synonym" />
-                    <Button Content="Remove" MinWidth="0" Command="{Binding RemoveFieldsCommand}" CommandParameter="{Binding SelectedItems, ElementName=FieldsB}" />
-                    <Button Content="▲" MinWidth="32" Command="{Binding MoveFieldUpCommand}" CommandParameter="{Binding SelectedItem, ElementName=FieldsB}"
-                            AutomationProperties.Name="Move model B field up" ToolTip="Move up" />
-                    <Button Content="▼" MinWidth="32" Command="{Binding MoveFieldDownCommand}" CommandParameter="{Binding SelectedItem, ElementName=FieldsB}"
-                            AutomationProperties.Name="Move model B field down" ToolTip="Move down" />
-                </WrapPanel>
-                <TextBlock DockPanel.Dock="Bottom" TextWrapping="Wrap" Margin="0,4,0,0" FontSize="11.5"
-                           Text="{Binding SelectedItem.PairText, ElementName=FieldsB}" Foreground="{StaticResource MutedText}"
-                           Visibility="{Binding SelectedItem.PairText, ElementName=FieldsB, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" />
-                <TextBlock DockPanel.Dock="Bottom" TextWrapping="Wrap" Margin="0,4,0,0" FontSize="11.5"
-                           Text="{Binding SelectedItem.Issue, ElementName=FieldsB}" Foreground="{StaticResource DangerBrush}"
-                           Visibility="{Binding SelectedItem.Issue, ElementName=FieldsB, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" />
-                <DataGrid x:Name="FieldsB" ItemsSource="{Binding Selected.FieldsB}" Style="{StaticResource FieldGrid}"
-                          RowStyle="{StaticResource ProblemRow}" AutomationProperties.Name="Model B fields in this comparison">
-                    <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Key">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <CheckBox IsChecked="{Binding IsKey, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanBeKey}"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"
-                                              AutomationProperties.Name="Key" ToolTip="Part of the comparison key (grain)" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="Field" Binding="{Binding FieldText}" IsReadOnly="True" Width="*" />
-                        <DataGridTextColumn Header="Type" Binding="{Binding TypeText}" IsReadOnly="True" />
-                        <DataGridTemplateColumn Header="Aggregation" Width="115">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <ComboBox ItemsSource="{Binding AllowedAggregations}" SelectedItem="{Binding Aggregation, UpdateSourceTrigger=PropertyChanged}"
-                                              IsEnabled="{Binding CanAggregate}" Margin="0" Padding="4,1" AutomationProperties.Name="Aggregation" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Synonym" Width="130">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBox Text="{Binding Synonym, UpdateSourceTrigger=PropertyChanged}" Margin="0" Padding="2,1"
-                                             AutomationProperties.Name="Synonym" ToolTip="{Binding PairText}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </DockPanel>
-
-            <!-- Pairing tools -->
-            <WrapPanel Grid.Row="3" Grid.ColumnSpan="3" Margin="0,8,0,4">
-                <Button Content="_Match synonyms" Command="{Binding MatchSynonymsCommand}"
-                        ToolTip="Give model B fields the synonym of the equivalent model A field (by name and synonym dictionary)" />
-                <Button Content="Find equivalent _B fields" Command="{Binding AddMatchingFieldsCommand}"
-                        ToolTip="For model A fields without a counterpart, find a model B field with an equivalent name (also via the synonym dictionary) and insert it with the same synonym" />
-                <TextBlock VerticalAlignment="Center" Margin="6,0,0,6" Foreground="{StaticResource MutedText}" TextWrapping="Wrap"
-                           Text="Fields with the same synonym (not case-sensitive) are compared. Keys must be marked on both sides." />
-            </WrapPanel>
-
-            <!-- Result of pairing and validation -->
-            <TabControl Grid.Row="4" Grid.ColumnSpan="3">
-                <TabItem Header="Compared pairs">
-                    <DataGrid ItemsSource="{Binding Selected.Pairs}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
-                              AutomationProperties.Name="Compared pairs">
+            <!-- Model A -->
+            <Border Style="{StaticResource Card}" Padding="16,14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="4*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <DockPanel Margin="0,0,0,8">
+                        <Border Style="{StaticResource SideChipA}" Margin="0,0,10,0" Padding="10,4" ToolTip="{Binding HeaderA}"
+                                AutomationProperties.Name="{Binding HeaderA}"><TextBlock Text="A" FontSize="13" /></Border>
+                        <Button DockPanel.Dock="Right" Content="Insert into A ▾" Command="{Binding InsertACommand}" Style="{StaticResource SecondaryButton}"
+                                Margin="8,0,0,0" ToolTip="Insert the selected field, or every column of the selected table (double-click or Enter also inserts)" />
+                        <TextBox Text="{Binding SearchA, UpdateSourceTrigger=PropertyChanged}" Margin="0" Tag="Search model A tables and fields"
+                                 AutomationProperties.Name="Search model A tables and fields" ToolTip="Search model A tables and fields" />
+                    </DockPanel>
+                    <TreeView Grid.Row="1" x:Name="TreeA" ItemsSource="{Binding TreeA}" SelectedItemChanged="TreeA_SelectedItemChanged"
+                              MouseDoubleClick="TreeA_MouseDoubleClick" KeyDown="TreeA_KeyDown"
+                              AutomationProperties.Name="Model A tables and fields" VirtualizingPanel.IsVirtualizing="True" />
+                    <DataGrid Grid.Row="2" Margin="0,8,0,0" x:Name="FieldsA" ItemsSource="{Binding Selected.FieldsA}" Style="{StaticResource FieldGrid}"
+                              RowStyle="{StaticResource ProblemRow}" AutomationProperties.Name="Model A fields in this comparison">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Synonym" Binding="{Binding Synonym}" Width="150" />
-                            <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="60" />
-                            <DataGridTextColumn Header="Model A" Binding="{Binding A}" Width="*" />
-                            <DataGridTextColumn Header="Model B" Binding="{Binding B}" Width="*" />
+                            <DataGridTemplateColumn Header="Key">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsKey, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanBeKey}"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"
+                                                  AutomationProperties.Name="Key" ToolTip="Part of the comparison key (grain)" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Field" Binding="{Binding FieldText}" IsReadOnly="True" Width="*" MinWidth="110" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding TypeText}" IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="Aggregation" Width="118">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding AllowedAggregations}" SelectedItem="{Binding Aggregation, UpdateSourceTrigger=PropertyChanged}"
+                                                  IsEnabled="{Binding CanAggregate}" Style="{StaticResource CellCombo}" AutomationProperties.Name="Aggregation" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Synonym" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Synonym, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CellText}"
+                                                 AutomationProperties.Name="Synonym" ToolTip="{Binding PairText}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                </TabItem>
-                <TabItem Header="{Binding Selected.Compiled.Issues.Count}" HeaderStringFormat="Problems and warnings ({0})">
-                    <ListBox ItemsSource="{Binding Selected.Compiled.Issues}" AutomationProperties.Name="Problems and warnings">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" TextWrapping="Wrap">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="DarkGoldenrod" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Severity}" Value="Error">
-                                                    <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </TabItem>
-            </TabControl>
+                    <StackPanel Grid.Row="3">
+                        <TextBlock TextWrapping="Wrap" Margin="0,6,0,0" FontSize="12.5"
+                                   Text="{Binding SelectedItem.Issue, ElementName=FieldsA}" Foreground="{DynamicResource DangerBrush}"
+                                   Visibility="{Binding SelectedItem.Issue, ElementName=FieldsA, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" />
+                        <TextBlock TextWrapping="Wrap" Margin="0,6,0,0" FontSize="12.5"
+                                   Text="{Binding SelectedItem.PairText, ElementName=FieldsA}" Foreground="{DynamicResource MutedText}"
+                                   Visibility="{Binding SelectedItem.PairText, ElementName=FieldsA, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" />
+                        <WrapPanel Margin="0,8,0,0">
+                            <Button Content="Add same to B ▸" Style="{StaticResource SmallButton}" Command="{Binding CopyToBCommand}"
+                                    CommandParameter="{Binding SelectedItems, ElementName=FieldsA}"
+                                    ToolTip="Add the selected fields to model B: same table and column name, same key, aggregation and synonym" />
+                            <Button Content="Remove" Style="{StaticResource SmallButton}" Command="{Binding RemoveFieldsCommand}"
+                                    CommandParameter="{Binding SelectedItems, ElementName=FieldsA}" />
+                            <Button Content="▲" Style="{StaticResource SmallButton}" Command="{Binding MoveFieldUpCommand}"
+                                    CommandParameter="{Binding SelectedItem, ElementName=FieldsA}"
+                                    AutomationProperties.Name="Move model A field up" ToolTip="Move up (key order in results)" />
+                            <Button Content="▼" Style="{StaticResource SmallButton}" Command="{Binding MoveFieldDownCommand}"
+                                    CommandParameter="{Binding SelectedItem, ElementName=FieldsA}"
+                                    AutomationProperties.Name="Move model A field down" ToolTip="Move down (key order in results)" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Model B -->
+            <Border Grid.Column="2" Style="{StaticResource Card}" Padding="16,14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="4*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <DockPanel Margin="0,0,0,8">
+                        <Border Style="{StaticResource SideChipB}" Margin="0,0,10,0" Padding="10,4" ToolTip="{Binding HeaderB}"
+                                AutomationProperties.Name="{Binding HeaderB}"><TextBlock Text="B" FontSize="13" /></Border>
+                        <Button DockPanel.Dock="Right" Content="Insert into B ▾" Command="{Binding InsertBCommand}" Style="{StaticResource SecondaryButton}"
+                                Margin="8,0,0,0" ToolTip="Insert the selected field, or every column of the selected table (double-click or Enter also inserts)" />
+                        <TextBox Text="{Binding SearchB, UpdateSourceTrigger=PropertyChanged}" Margin="0" Tag="Search model B tables and fields"
+                                 AutomationProperties.Name="Search model B tables and fields" ToolTip="Search model B tables and fields" />
+                    </DockPanel>
+                    <TreeView Grid.Row="1" x:Name="TreeB" ItemsSource="{Binding TreeB}" SelectedItemChanged="TreeB_SelectedItemChanged"
+                              MouseDoubleClick="TreeB_MouseDoubleClick" KeyDown="TreeB_KeyDown"
+                              AutomationProperties.Name="Model B tables and fields" VirtualizingPanel.IsVirtualizing="True" />
+                    <DataGrid Grid.Row="2" Margin="0,8,0,0" x:Name="FieldsB" ItemsSource="{Binding Selected.FieldsB}" Style="{StaticResource FieldGrid}"
+                              RowStyle="{StaticResource ProblemRow}" AutomationProperties.Name="Model B fields in this comparison">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Key">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsKey, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanBeKey}"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"
+                                                  AutomationProperties.Name="Key" ToolTip="Part of the comparison key (grain)" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Field" Binding="{Binding FieldText}" IsReadOnly="True" Width="*" MinWidth="110" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding TypeText}" IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="Aggregation" Width="118">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding AllowedAggregations}" SelectedItem="{Binding Aggregation, UpdateSourceTrigger=PropertyChanged}"
+                                                  IsEnabled="{Binding CanAggregate}" Style="{StaticResource CellCombo}" AutomationProperties.Name="Aggregation" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Synonym" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Synonym, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CellText}"
+                                                 AutomationProperties.Name="Synonym" ToolTip="{Binding PairText}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Grid.Row="3">
+                        <TextBlock TextWrapping="Wrap" Margin="0,6,0,0" FontSize="12.5"
+                                   Text="{Binding SelectedItem.Issue, ElementName=FieldsB}" Foreground="{DynamicResource DangerBrush}"
+                                   Visibility="{Binding SelectedItem.Issue, ElementName=FieldsB, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" />
+                        <TextBlock TextWrapping="Wrap" Margin="0,6,0,0" FontSize="12.5"
+                                   Text="{Binding SelectedItem.PairText, ElementName=FieldsB}" Foreground="{DynamicResource MutedText}"
+                                   Visibility="{Binding SelectedItem.PairText, ElementName=FieldsB, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" />
+                        <WrapPanel Margin="0,8,0,0">
+                            <Button Content="◂ Add same to A" Style="{StaticResource SmallButton}" Command="{Binding CopyToACommand}"
+                                    CommandParameter="{Binding SelectedItems, ElementName=FieldsB}"
+                                    ToolTip="Add the selected fields to model A: same table and column name, same key, aggregation and synonym" />
+                            <Button Content="Remove" Style="{StaticResource SmallButton}" Command="{Binding RemoveFieldsCommand}"
+                                    CommandParameter="{Binding SelectedItems, ElementName=FieldsB}" />
+                            <Button Content="▲" Style="{StaticResource SmallButton}" Command="{Binding MoveFieldUpCommand}"
+                                    CommandParameter="{Binding SelectedItem, ElementName=FieldsB}"
+                                    AutomationProperties.Name="Move model B field up" ToolTip="Move up" />
+                            <Button Content="▼" Style="{StaticResource SmallButton}" Command="{Binding MoveFieldDownCommand}"
+                                    CommandParameter="{Binding SelectedItem, ElementName=FieldsB}"
+                                    AutomationProperties.Name="Move model B field down" ToolTip="Move down" />
+                            <CheckBox Content="Show _hidden fields" IsChecked="{Binding ShowHidden}" VerticalAlignment="Center" Margin="8,0,0,0"
+                                      ToolTip="Show hidden tables and fields in both models" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <GridSplitter Grid.Row="1" Grid.ColumnSpan="3" Height="12" HorizontalAlignment="Stretch" Background="Transparent" ResizeDirection="Rows"
+                          ToolTip="Drag to resize" AutomationProperties.Name="Resize the pairing panel" />
+
+            <!-- Pairing and validation -->
+            <Border Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource Card}" Padding="16,14">
+                <DockPanel>
+                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="_Match synonyms" Command="{Binding MatchSynonymsCommand}" Style="{StaticResource SmallButton}"
+                                    ToolTip="Give model B fields the synonym of the equivalent model A field (by name and synonym dictionary)" />
+                            <Button Content="Find equivalent _B fields" Command="{Binding AddMatchingFieldsCommand}" Style="{StaticResource SmallButton}" Margin="0"
+                                    ToolTip="For model A fields without a counterpart, find a model B field with an equivalent name (also via the synonym dictionary) and insert it with the same synonym" />
+                        </StackPanel>
+                        <TextBlock VerticalAlignment="Center" Style="{StaticResource Muted}" FontSize="13" Margin="0,0,12,0"
+                                   Text="Fields with the same synonym (not case-sensitive) are compared. Keys must be marked on both sides." />
+                    </DockPanel>
+                    <TabControl>
+                        <TabItem Header="Compared pairs">
+                            <DataGrid ItemsSource="{Binding Selected.Pairs}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
+                                      AutomationProperties.Name="Compared pairs">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Synonym" Binding="{Binding Synonym}" Width="160" />
+                                    <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="70" />
+                                    <DataGridTextColumn Header="Model A" Binding="{Binding A}" Width="*" />
+                                    <DataGridTextColumn Header="Model B" Binding="{Binding B}" Width="*" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                        <TabItem Header="{Binding Selected.Compiled.Issues.Count}" HeaderStringFormat="Problems and warnings ({0})">
+                            <ListBox ItemsSource="{Binding Selected.Compiled.Issues}" AutomationProperties.Name="Problems and warnings"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Severity}" Value="Error">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </TabItem>
+                    </TabControl>
+                </DockPanel>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>
