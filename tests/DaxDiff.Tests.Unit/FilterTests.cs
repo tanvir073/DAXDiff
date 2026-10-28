@@ -120,4 +120,11 @@ public class FilterTests
     [InlineData(" 72f988bf-86f1-41af-91ab-2d7cd011db47 ", "powerbi://api.powerbi.com/v1.0/72f988bf-86f1-41af-91ab-2d7cd011db47/Sales")]
     public void FR002_XmlaAddressesTheSourcesTenant(string? tenant, string expected) =>
         Assert.Equal(expected, ServiceXmlaConnector.DataSource("powerbi://api.powerbi.com/v1.0/myorg/", tenant, "Sales"));
+
+    [Theory]
+    [InlineData("organizations", " powerbi://api.powerbi.com/v1.0/myorg/Scandi - Power BI data sets ", "powerbi://api.powerbi.com/v1.0/myorg/Scandi - Power BI data sets")]
+    [InlineData("contoso.com", "powerbi://api.powerbi.com/v1.0/myorg/Scandi - Power BI data sets", "powerbi://api.powerbi.com/v1.0/contoso.com/Scandi - Power BI data sets")]
+    [InlineData("contoso.com", "powerbi://api.powerbi.com/v1.0/fabrikam.com/Sales", "powerbi://api.powerbi.com/v1.0/fabrikam.com/Sales")]
+    public void FR002_PastedConnectionLinkKeepsItsAddress(string tenant, string link, string expected) =>
+        Assert.Equal(expected, ServiceXmlaConnector.DataSource("powerbi://api.powerbi.com/v1.0/myorg/", tenant, link));
 }

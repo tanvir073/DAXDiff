@@ -47,9 +47,19 @@ public sealed class ServiceXmlaConnector : AdomdConnectorBase
     /// <summary>
     /// The XMLA data source for a workspace. For another tenant the "myorg" segment is replaced by that tenant's domain
     /// or ID (powerbi://api.powerbi.com/v1.0/contoso.com/Sales), which is how the service addresses external tenants.
+    /// A full connection link copied from the workspace settings is used as it is, except that its "myorg" segment
+    /// also gets the tenant.
     /// </summary>
     public static string DataSource(string endpointBase, string? tenant, string workspace)
     {
+        workspace = workspace.Trim();
+        if (workspace.StartsWith("powerbi://", StringComparison.OrdinalIgnoreCase))
+        {
+            var at = workspace.IndexOf("/myorg/", StringComparison.OrdinalIgnoreCase);
+            return at < 0 || AuthOptions.IsHomeTenant(tenant)
+                ? workspace
+                : workspace[..(at + 1)] + tenant!.Trim() + workspace[(at + "/myorg".Length)..];
+        }
         var baseUrl = endpointBase.TrimEnd('/');
         if (!AuthOptions.IsHomeTenant(tenant) && baseUrl.EndsWith("/myorg", StringComparison.OrdinalIgnoreCase))
             baseUrl = baseUrl[..^"myorg".Length] + tenant!.Trim();
@@ -64,6 +74,13 @@ public sealed class ServiceXmlaConnector : AdomdConnectorBase
             ["Data Source"] = endpoint,
             ["Initial Catalog"] = Reference.DatasetName!,
         };
+        // Without MSAL, ADOMD signs in on its own and silently picks the Windows account. "User ID" (no password) makes it
+        // sign in as the account the user named instead, prompting when that account has no cached sign-in.
+        if (!_auth.IsConfigured && !string.IsNullOrWhiteSpace(Reference.AccountHint))
+        {
+            builder["User ID"] = Reference.AccountHint.Trim();
+            _account = Reference.AccountHint.Trim();
+        }
         var connection = new AdomdConnection(builder.ConnectionString);
 
         if (_auth.IsConfigured)

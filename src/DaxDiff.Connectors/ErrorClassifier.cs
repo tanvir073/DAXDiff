@@ -40,6 +40,15 @@ public static class ErrorClassifier
                 "This workspace does not support XMLA connections (no Premium, PPU or Fabric capacity).",
                 "Use the REST transport for this model or move the workspace to a supported capacity.", inner: ex);
 
+        // The service gives the same answer for a wrong name, a workspace the account cannot see and one without capacity.
+        if (lower.Contains("workspace") && lower.Contains("not found"))
+            return new DaxDiffException(ErrorCategory.Configuration, "CON-WORKSPACE-NOT-FOUND",
+                $"{transport}: the workspace was not found for the signed-in account.",
+                "Paste the workspace connection link (Power BI: Workspace settings → License info → Connection link) into the workspace field. " +
+                "Check that the tenant is the workspace's tenant, and that the account is a member of the workspace " +
+                "(without a client ID, XMLA uses your Windows account unless you enter one in the Account field), " +
+                "and that the workspace is on Premium, PPU or Fabric capacity (XMLA needs one).", inner: ex);
+
         if (lower.Contains("permission") || lower.Contains("not authorized") || lower.Contains("unauthorized") || lower.Contains("access is denied") || lower.Contains("forbidden"))
             return new DaxDiffException(ErrorCategory.Authorization, "CON-PERMISSION",
                 "Access was denied for this model.",

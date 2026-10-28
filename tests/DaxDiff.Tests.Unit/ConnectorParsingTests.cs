@@ -78,6 +78,7 @@ public class ConnectorParsingTests
     [InlineData("Either the user does not exist or does not have permission", "CON-PERMISSION")]
     [InlineData("No connection could be made because the target machine actively refused it", "CON-NETWORK")]
     [InlineData("Query (1, 10) The column 'Foo' cannot be found", "QRY-INVALID")]
+    [InlineData("The specified Power BI workspace ('Scandi%20-%20Power%20BI%20data%20sets') is not found.", "CON-WORKSPACE-NOT-FOUND")]
     public void AdomdMessages_AreClassified(string message, string code)
     {
         Assert.Equal(code, ErrorClassifier.Classify(new InvalidOperationException(message), "XMLA").DiagnosticCode);
