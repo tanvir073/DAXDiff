@@ -139,4 +139,11 @@ public class DaxQueryBuilderTests
     [Fact]
     public void UnaggregatedValueColumn_IsRejected() =>
         Assert.Throws<ArgumentException>(() => DaxQueryBuilder.ValueExpression(Col("Fact", "Amount"), Aggregation.None));
+
+    [Theory]
+    [InlineData(Aggregation.Max, "MAXX")]
+    [InlineData(Aggregation.Min, "MINX")]
+    public void FR017_BooleanMinMax_EvaluatesThroughOneAndZero(Aggregation aggregation, string function) =>
+        Assert.Equal($"VAR __v = {function}(VALUES('Fact'[Active]), IF('Fact'[Active], 1, 0)) RETURN IF(NOT ISBLANK(__v), __v = 1)",
+            DaxQueryBuilder.ValueExpression(Col("Fact", "Active"), aggregation, DataKind.Boolean));
 }

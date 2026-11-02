@@ -252,4 +252,51 @@ public class ComparisonEngineTests
         Assert.Equal((1, 1, 1), (output.Summary.Matches, output.Summary.OnlyInA, output.Summary.OnlyInB));
         Assert.All(output.Rows, r => Assert.Empty(r.Measures));
     }
+
+    private static (QueryResult A, QueryResult B) FourCases() =>
+    (
+        Result(3, Row(2025L, "North", 1200m), Row(2025L, "South", 850m), Row(2025L, "East", 300m), Row(2025L, "Mid", 10m)),
+        Result(3, Row(2025L, "North", 1198m), Row(2025L, "South", 850m), Row(2025L, "West", 150m), Row(2025L, "Mid", 10m))
+    );
+
+    [Fact]
+    public void ResultSettings_DefaultKeepsEveryRow()
+    {
+        var (a, b) = FourCases();
+
+        var output = ComparisonEngine.Compare(a, b, Config);
+
+        Assert.Equal(5, output.Rows.Count);
+        Assert.Equal(0, output.Summary.RowsOmitted);
+    }
+
+    [Fact]
+    public void ResultSettings_DifferencesOnly_DropsMatchesButCountsThem()
+    {
+        var (a, b) = FourCases();
+
+        var output = ComparisonEngine.Compare(a, b, Config.With(o => o with { Results = new ResultSettings { Rows = ResultRows.DifferencesOnly } }));
+
+        Assert.Equal(3, output.Rows.Count);
+        Assert.DoesNotContain(output.Rows, r => r.Status == RowStatus.Match);
+        Assert.Equal(2, output.Summary.Matches);
+        Assert.Equal(2, output.Summary.RowsOmitted);
+        Assert.Contains(output.Warnings, w => w.Contains("3 of 5"));
+    }
+
+    [Fact]
+    public void ResultSettings_RowLimit_KeepsDifferencesFirstInOriginalOrder()
+    {
+        var (a, b) = FourCases();
+        var all = ComparisonEngine.Compare(a, b, Config).Rows;
+
+        var output = ComparisonEngine.Compare(a, b, Config.With(o => o with { Results = new ResultSettings { MaxRows = 4 } }));
+
+        Assert.Equal(4, output.Rows.Count);
+        Assert.Equal(3, output.Rows.Count(r => r.Status != RowStatus.Match));
+        var kept = output.Rows.Select(r => r.NormalizedKey).ToList();
+        Assert.Equal(all.Select(r => r.NormalizedKey).Where(kept.Contains), kept);
+        Assert.Equal(1, output.Summary.RowsOmitted);
+        Assert.Equal(5, output.Summary.TotalKeys);
+    }
 }

@@ -204,6 +204,28 @@ public enum PercentBaseline
     B,
 }
 
+/// <summary>Which compared rows a run keeps for the Results page and the workbook.</summary>
+public enum ResultRows
+{
+    /// <summary>Matches and differences.</summary>
+    All,
+
+    /// <summary>Mismatches, one-sided keys and invalid keys; matches are counted but not kept.</summary>
+    DifferencesOnly,
+}
+
+/// <summary>
+/// What a run keeps of its compared rows. The summary always counts every row; these settings only decide which
+/// rows are listed. The defaults keep every row.
+/// </summary>
+public sealed record ResultSettings
+{
+    public ResultRows Rows { get; init; } = ResultRows.All;
+
+    /// <summary>Most rows kept, differences before matches; null keeps every row.</summary>
+    public int? MaxRows { get; init; }
+}
+
 public sealed record ExecutionLimits
 {
     /// <summary>Maximum rows retrieved per side. Exceeding it marks the run Partial (NFR-05).</summary>
@@ -224,6 +246,7 @@ public sealed record ComparisonOptions
     public DuplicateKeyPolicy DuplicateKeyPolicy { get; init; } = DuplicateKeyPolicy.Fail;
     public PercentBaseline PercentBaseline { get; init; } = PercentBaseline.A;
     public ExecutionLimits Limits { get; init; } = new();
+    public ResultSettings Results { get; init; } = new();
 }
 
 /// <summary>

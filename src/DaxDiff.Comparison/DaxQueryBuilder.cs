@@ -28,7 +28,7 @@ public static class DaxQueryBuilder
 
         sb.AppendLine("EVALUATE");
         sb.AppendLine("SUMMARIZECOLUMNS(");
-        var args = SummarizeArguments(config, side, filterVars);
+        var args = SummarizeArguments(config, side, filterVars, metadata);
         sb.AppendLine(string.Join("," + Environment.NewLine, args.Select(a => "    " + a)));
         sb.AppendLine(")");
 
@@ -43,33 +43,44 @@ public static class DaxQueryBuilder
     {
         var sb = new StringBuilder();
         var filterVars = AppendDefine(sb, config, side, metadata);
-        var args = SummarizeArguments(config, side, filterVars);
+        var args = SummarizeArguments(config, side, filterVars, metadata);
 
         sb.AppendLine("EVALUATE");
         sb.AppendLine($"ROW(\"Rows\", COUNTROWS(SUMMARIZECOLUMNS({string.Join(", ", args)})))");
         return sb.ToString();
     }
 
-    private static List<string> SummarizeArguments(ComparisonConfig config, Side side, List<string> filterVars)
+    private static List<string> SummarizeArguments(ComparisonConfig config, Side side, List<string> filterVars, ModelMetadata? metadata)
     {
         var args = new List<string>();
         args.AddRange(config.Keys.Select(p => ColumnRef(Pick(p, side))));
         args.AddRange(filterVars);
         args.AddRange(config.Values.Select((p, i) =>
-            $"{StringLiteral(ValueColumnAlias(i))}, {ValueExpression(Pick(p, side), side == Side.A ? p.LeftAggregation : p.RightAggregation)}"));
+        {
+            var field = Pick(p, side);
+            var expression = ValueExpression(field, side == Side.A ? p.LeftAggregation : p.RightAggregation, metadata?.KindOf(field) ?? DataKind.Unknown);
+            return $"{StringLiteral(ValueColumnAlias(i))}, {expression}";
+        }));
         return args;
     }
 
     /// <summary>
     /// The DAX expression for one compared value: a measure as defined in the model, or an aggregated column (FR-017).
-    /// Concatenate joins the distinct values in ascending order so both models produce comparable text.
+    /// Concatenate joins the distinct values in ascending order so both models produce comparable text. MIN and MAX
+    /// reject true/false columns, so on those Max means "any TRUE" and Min "all TRUE", evaluated through 1/0.
     /// </summary>
-    public static string ValueExpression(FieldRef field, Aggregation aggregation)
+    public static string ValueExpression(FieldRef field, Aggregation aggregation, DataKind dataKind = DataKind.Unknown)
     {
         if (field.Kind == FieldKind.Measure)
             return MeasureRef(field);
 
         var col = ColumnRef(field);
+        if (dataKind == DataKind.Boolean && aggregation is Aggregation.Min or Aggregation.Max)
+        {
+            var function = aggregation == Aggregation.Max ? "MAXX" : "MINX";
+            return $"VAR __v = {function}(VALUES({col}), IF({col}, 1, 0)) RETURN IF(NOT ISBLANK(__v), __v = 1)";
+        }
+
         return aggregation switch
         {
             Aggregation.Sum => $"SUM({col})",

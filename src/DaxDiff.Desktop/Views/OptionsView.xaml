@@ -49,6 +49,15 @@
                         <TextBox x:Name="Timeout" Text="{Binding TimeoutSeconds, UpdateSourceTrigger=PropertyChanged}" />
                         <Label Content="Retries on transient _errors" Target="{Binding ElementName=Retries}" Padding="0,0,0,2" />
                         <TextBox x:Name="Retries" Text="{Binding RetryCount, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Text="Result rows" Style="{StaticResource CardTitle}" Margin="0,14,0,8" />
+                        <RadioButton Content="Show matches and _differences" GroupName="ResultRows" IsChecked="{Binding DifferencesOnly, Converter={StaticResource InverseBool}}" />
+                        <RadioButton Content="Show differences _only" GroupName="ResultRows" IsChecked="{Binding DifferencesOnly}" />
+                        <CheckBox Content="_Limit the number of result rows" IsChecked="{Binding LimitResultRows}" Margin="0,8,0,0" />
+                        <TextBox Text="{Binding MaxResultRows, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding LimitResultRows}"
+                                 AutomationProperties.Name="Maximum result rows" />
+                        <TextBlock Text="Summary counts always include every row. With a limit, differences are kept before matches."
+                                   Style="{StaticResource Muted}" FontSize="12.5" TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
             </Grid>

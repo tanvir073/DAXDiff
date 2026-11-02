@@ -62,6 +62,8 @@ public static class MappingValidator
             issues.Add(Error("OPT-ROWS", "Maximum rows must be greater than zero."));
         if (config.Options.Limits.TimeoutSeconds <= 0)
             issues.Add(Error("OPT-TIMEOUT", "Timeout must be greater than zero."));
+        if (config.Options.Results.MaxRows is <= 0)
+            issues.Add(Error("OPT-RESULT-ROWS", "The result row limit must be greater than zero."));
 
         foreach (var (meta, side) in new[] { (a, Side.A), (b, Side.B) })
         {

@@ -4,6 +4,7 @@
         xmlns:vm="clr-namespace:DaxDiff.Desktop.ViewModels"
         xmlns:views="clr-namespace:DaxDiff.Desktop.Views"
         Title="{Binding WindowTitle}"
+        Icon="Assets/DAXDiff.ico"
         Width="1360" Height="860" MinWidth="1080" MinHeight="700"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource CloudBrush}" Foreground="{DynamicResource InkBrush}"
@@ -76,15 +77,28 @@
         <Border DockPanel.Dock="Top" Background="{DynamicResource HeaderBrush}" Padding="20,10" MinHeight="60">
             <DockPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Canvas Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center">
-                        <Rectangle Canvas.Left="2" Canvas.Top="8" Width="15" Height="15" RadiusX="4" RadiusY="4"
-                                   Stroke="{DynamicResource LogoABrush}" StrokeThickness="2" />
-                        <Rectangle Canvas.Left="11" Canvas.Top="3" Width="15" Height="15" RadiusX="4" RadiusY="4"
-                                   Fill="{DynamicResource LogoABrush}" Opacity="0.3" />
-                        <Rectangle Canvas.Left="11" Canvas.Top="3" Width="15" Height="15" RadiusX="4" RadiusY="4"
-                                   Stroke="{DynamicResource LogoBBrush}" StrokeThickness="2" />
-                    </Canvas>
-                    <TextBlock Text="DAXDiff" FontFamily="{StaticResource DisplayFont}" FontSize="22" Foreground="{DynamicResource HeaderTextBrush}" VerticalAlignment="Center" />
+                    <!-- "Outer join" mark: model A and model B as overlapping circles, the matched rows as the lens. -->
+                    <Viewbox Width="32" Height="32" Margin="0,0,8,0" VerticalAlignment="Center" AutomationProperties.Name="DAXDiff logo">
+                        <Canvas Width="100" Height="100">
+                            <Ellipse Canvas.Left="8" Canvas.Top="22" Width="56" Height="56" Fill="{DynamicResource LogoABrush}" />
+                            <Ellipse Canvas.Left="36" Canvas.Top="22" Width="56" Height="56" Fill="{DynamicResource LogoBBrush}" />
+                            <Path Data="M50,25.75 A28,28 0 0 1 50,74.25 A28,28 0 0 1 50,25.75 Z" Fill="{DynamicResource LogoLensBrush}"
+                                  Stroke="{DynamicResource HeaderBrush}" StrokeThickness="6" StrokeLineJoin="Round" />
+                        </Canvas>
+                    </Viewbox>
+                    <!-- Wordmark "DAX" regular + "DIFF" bold. WPF has no letter spacing, so the 0.06em tracking is a margin per letter. -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" AutomationProperties.Name="DAXDiff">
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontFamily" Value="{StaticResource TextFont}" />
+                                <Setter Property="FontSize" Value="21" />
+                                <Setter Property="Foreground" Value="{DynamicResource HeaderTextBrush}" />
+                                <Setter Property="Margin" Value="0,0,1.3,0" />
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="D" /><TextBlock Text="A" /><TextBlock Text="X" />
+                        <TextBlock Text="D" FontWeight="Bold" /><TextBlock Text="I" FontWeight="Bold" /><TextBlock Text="F" FontWeight="Bold" /><TextBlock Text="F" FontWeight="Bold" />
+                    </StackPanel>
                 </StackPanel>
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">

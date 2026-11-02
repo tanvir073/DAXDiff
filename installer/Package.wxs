@@ -5,6 +5,10 @@
     <MajorUpgrade DowngradeErrorMessage="A newer version of DAXDiff is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
+    <!-- "Outer join" logo for the Start menu shortcut and Settings > Apps. -->
+    <Icon Id="AppIcon" SourceFile="$(AppIcon)" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="DAXDiff" />
     </StandardDirectory>
@@ -14,7 +18,7 @@
     <!-- The executable is declared on its own so the Start menu shortcut can hang off it. -->
     <Component Id="MainExecutable" Directory="INSTALLFOLDER" Guid="4B8F0C2D-6E1A-4C7B-9F35-A2D8E6B1C904">
       <File Id="DaxDiffExe" Source="$(AppDir)\DAXDiff.exe" KeyPath="yes">
-        <Shortcut Id="DaxDiffShortcut" Directory="ProgramMenuFolder" Name="DAXDiff" Advertise="yes"
+        <Shortcut Id="DaxDiffShortcut" Directory="ProgramMenuFolder" Name="DAXDiff" Advertise="yes" Icon="AppIcon"
                   Description="Compare two Power BI semantic models" WorkingDirectory="INSTALLFOLDER" />
       </File>
     </Component>

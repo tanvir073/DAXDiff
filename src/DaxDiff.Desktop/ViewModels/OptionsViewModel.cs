@@ -89,6 +89,16 @@ public sealed partial class OptionsViewModel : ObservableObject
     [ObservableProperty]
     private int _retryCount = new ExecutionLimits().RetryCount;
 
+    /// <summary>True when the result keeps only differences; false keeps matches and differences (the default).</summary>
+    [ObservableProperty]
+    private bool _differencesOnly;
+
+    [ObservableProperty]
+    private bool _limitResultRows;
+
+    [ObservableProperty]
+    private int _maxResultRows = 10_000;
+
     [ObservableProperty]
     private string _queryPreviewA = "";
 
@@ -131,6 +141,11 @@ public sealed partial class OptionsViewModel : ObservableObject
             DateOnly = DateOnly,
         },
         Limits = new ExecutionLimits { MaxRows = MaxRows, TimeoutSeconds = TimeoutSeconds, RetryCount = RetryCount },
+        Results = new ResultSettings
+        {
+            Rows = DifferencesOnly ? ResultRows.DifferencesOnly : ResultRows.All,
+            MaxRows = LimitResultRows ? MaxResultRows : null,
+        },
     };
 
     public void Load(ComparisonOptions config)
@@ -151,6 +166,9 @@ public sealed partial class OptionsViewModel : ObservableObject
         MaxRows = config.Limits.MaxRows;
         TimeoutSeconds = config.Limits.TimeoutSeconds;
         RetryCount = config.Limits.RetryCount;
+        DifferencesOnly = config.Results.Rows == ResultRows.DifferencesOnly;
+        LimitResultRows = config.Results.MaxRows is not null;
+        MaxResultRows = config.Results.MaxRows ?? 10_000;
     }
 
     /// <summary>Tolerances are entered with invariant culture; invalid input becomes -1 so validation reports it.</summary>

@@ -91,13 +91,36 @@ public static class ComparisonEngine
             rows.Add(OneSided(key, indexB.Rows[key], keyCount, valuePairs, Side.B));
         }
 
+        // The summary counts every row; the result settings only decide which rows are listed.
+        var summary = Summarize(rows, a, b, valuePairs, keyCount);
+        var kept = KeepRows(rows, config.Options.Results);
+        if (kept.Count < rows.Count)
+        {
+            warnings.Add($"The result lists {kept.Count:N0} of {rows.Count:N0} compared rows (result settings of this comparison). " +
+                         "Summary counts include every row.");
+        }
+
         return new EngineOutput
         {
-            Rows = rows,
-            Summary = Summarize(rows, a, b, valuePairs, keyCount),
+            Rows = kept,
+            Summary = summary with { RowsOmitted = rows.Count - kept.Count },
             Warnings = warnings,
             HasDuplicateKeys = duplicateKeys.Count > 0,
         };
+    }
+
+    /// <summary>
+    /// Applies the comparison's result settings. Differences are kept before matches, so a row limit never drops a
+    /// difference while listing a match; kept rows stay in their original order.
+    /// </summary>
+    public static List<ComparisonRow> KeepRows(List<ComparisonRow> rows, ResultSettings settings)
+    {
+        var candidates = settings.Rows == ResultRows.DifferencesOnly ? rows.Where(r => r.Status != RowStatus.Match).ToList() : rows;
+        if (settings.MaxRows is not { } max || candidates.Count <= max)
+            return candidates;
+
+        var keep = candidates.OrderBy(r => r.Status == RowStatus.Match ? 1 : 0).Take(max).ToHashSet(ReferenceEqualityComparer.Instance);
+        return candidates.Where(keep.Contains).ToList();
     }
 
     private static string Occurrences(int duplicates, bool present) => (duplicates + (present ? 1 : 0)).ToString();

@@ -289,7 +289,9 @@ public sealed partial class ComparisonsViewModel : ObservableObject
             }
 
             var kind = meta.KindOf(match);
-            var aggregation = AggregationRules.IsAllowed(field.Aggregation, match.Kind, kind, field.IsKey) ? field.Aggregation : Aggregation.None;
+            var aggregation = AggregationRules.IsAllowed(field.Aggregation, match.Kind, kind, field.IsKey)
+                ? field.Aggregation
+                : AggregationRules.Default(match.Kind, kind, field.IsKey);
             destination.Add(new ComparisonFieldViewModel(match, kind, field.IsKey, aggregation, field.Synonym));
             added++;
         }

@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DaxDiff.Application\DaxDiff.Application.csproj" />
+    <ProjectReference Include="..\DaxDiff.Connectors\DaxDiff.Connectors.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +23,8 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
+    <!-- "Outer join" logo: exe, taskbar and Start menu icon. -->
+    <ApplicationIcon>Assets\DAXDiff.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +32,7 @@
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
     <!-- Numberskills design system fonts (SIL Open Font License), static instances of the variable fonts. -->
     <Resource Include="Fonts\*.ttf" />
+    <Resource Include="Assets\DAXDiff.ico" />
   </ItemGroup>
 
 </Project>

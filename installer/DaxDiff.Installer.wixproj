@@ -4,5 +4,6 @@
     <OutputName>DAXDiff-$(Version)-x64</OutputName>
     <InstallerPlatform>x64</InstallerPlatform>
     <AppDir Condition="'$(AppDir)' == ''">$(MSBuildThisFileDirectory)..\publish\app</AppDir>
-    <DefineConstants>AppDir=$(AppDir);ProductVersion=$(Version);ToolsDir=$(MSBuildThisFileDirectory)..\tools</DefineConstants>  </PropertyGroup>
+    <DefineConstants>AppDir=$(AppDir);ProductVersion=$(Version);ToolsDir=$(MSBuildThisFileDirectory)..\tools;AppIcon=$(MSBuildThisFileDirectory)..\src\DaxDiff.Desktop\Assets\DAXDiff.ico</DefineConstants>
+  </PropertyGroup>
 </Project>

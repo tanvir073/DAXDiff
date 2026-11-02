@@ -189,4 +189,17 @@ public class MappingTests
         Assert.Empty(result.Matches);
         Assert.Single(result.Ambiguous);
     }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData(500, false)]
+    [InlineData(0, true)]
+    public void ResultRowLimit_MustBePositive(int? limit, bool expectError)
+    {
+        var config = YearRegionSales().With(o => o with { Results = new ResultSettings { MaxRows = limit } });
+
+        var issues = MappingValidator.Validate(config, ModelA(), ModelB());
+
+        Assert.Equal(expectError, issues.Any(i => i.Code == "OPT-RESULT-ROWS"));
+    }
 }

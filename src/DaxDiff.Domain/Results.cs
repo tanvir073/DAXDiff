@@ -83,6 +83,10 @@ public sealed record ComparisonSummary
     public int OnlyInA { get; init; }
     public int OnlyInB { get; init; }
     public int InvalidKeys { get; init; }
+
+    /// <summary>Compared rows left out of <see cref="ComparisonResult.Rows"/> by the comparison's result settings.</summary>
+    public int RowsOmitted { get; init; }
+
     public IReadOnlyList<MeasureSummary> Measures { get; init; } = [];
 
     /// <summary>Share of keys present on both sides that fully match.</summary>

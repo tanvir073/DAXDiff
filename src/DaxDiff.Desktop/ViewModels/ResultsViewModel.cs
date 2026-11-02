@@ -263,7 +263,10 @@ public sealed partial class ResultsViewModel : ObservableObject
     }
 
     private void UpdateCount() =>
-        VisibleCountText = RowsView is null ? "" : $"{RowsView.Cast<object>().Count():N0} of {_rows.Count:N0} rows";
+        VisibleCountText = RowsView is null
+            ? ""
+            : $"{RowsView.Cast<object>().Count():N0} of {_rows.Count:N0} rows" +
+              (Result?.Summary.RowsOmitted is > 0 and var omitted ? $" ({omitted:N0} more not listed by the comparison's result settings)" : "");
 
     private bool Matches(object item)
     {

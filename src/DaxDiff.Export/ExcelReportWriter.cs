@@ -132,6 +132,8 @@ public static class ExcelReportWriter
         Pair("Only in B", result.Summary.OnlyInB);
         Pair("Invalid / duplicate keys", result.Summary.InvalidKeys);
         Pair("Difference rows exported", differenceCount);
+        if (result.Summary.RowsOmitted > 0)
+            Pair("Rows not listed (result settings)", result.Summary.RowsOmitted);
         Pair("Difference sheets", differenceSheets);
         Pair("Match rate", result.Summary.MatchRate);
         ws.Cell(row - 1, 2).Style.NumberFormat.Format = PercentFormat;
@@ -318,6 +320,8 @@ public static class ExcelReportWriter
             ("Max rows per side", config.Limits.MaxRows),
             ("Timeout (seconds)", config.Limits.TimeoutSeconds),
             ("Retries", config.Limits.RetryCount),
+            ("Result rows", config.Results.Rows == ResultRows.DifferencesOnly ? "Differences only" : "Matches and differences"),
+            ("Result row limit", config.Results.MaxRows is { } max ? max : (object)"No limit"),
             ("Query scope", $"{compiled.Keys.Count} key(s), {compiled.Values.Count} value(s), {config.Filters.Count} filter(s)"),
         };
 

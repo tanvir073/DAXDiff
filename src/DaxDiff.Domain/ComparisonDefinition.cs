@@ -46,7 +46,7 @@ public sealed record ComparisonDefinition
 /// <summary>Which aggregations are offered for which field, and what type they return.</summary>
 public static class AggregationRules
 {
-    // None comes first for non-key columns: it is the starting value, and must be replaced before the column can be compared.
+    // None is listed for non-key columns, but a compared column must have an aggregation before it can run.
     private static readonly Aggregation[] Numeric =
         [Aggregation.None, Aggregation.Sum, Aggregation.Average, Aggregation.Min, Aggregation.Max, Aggregation.Count, Aggregation.DistinctCount];
 
@@ -56,7 +56,7 @@ public static class AggregationRules
     private static readonly Aggregation[] Dates =
         [Aggregation.None, Aggregation.Min, Aggregation.Max, Aggregation.Count, Aggregation.DistinctCount];
 
-    private static readonly Aggregation[] Counts = [Aggregation.None, Aggregation.Count, Aggregation.DistinctCount];
+    private static readonly Aggregation[] Booleans = [Aggregation.None, Aggregation.Min, Aggregation.Max, Aggregation.Count, Aggregation.DistinctCount];
 
     /// <summary>Type not known (metadata not loaded or not reported): nothing can be ruled out.</summary>
     private static readonly Aggregation[] Unknown =
@@ -64,7 +64,7 @@ public static class AggregationRules
 
     /// <summary>
     /// Aggregations a field may select. Keys and measures only allow <see cref="Aggregation.None"/>; non-key columns
-    /// also list <see cref="Aggregation.None"/> (their starting value), which validation rejects until one is chosen.
+    /// also list <see cref="Aggregation.None"/>, which validation rejects for a compared column.
     /// </summary>
     public static IReadOnlyList<Aggregation> Allowed(FieldKind kind, DataKind dataKind, bool isKey)
     {
@@ -75,16 +75,28 @@ public static class AggregationRules
             DataKind.Integer or DataKind.Decimal or DataKind.Double => Numeric,
             DataKind.Text => Text,
             DataKind.DateTime => Dates,
-            DataKind.Boolean => Counts,
+            DataKind.Boolean => Booleans,
             _ => Unknown,
         };
     }
 
     /// <summary>
-    /// Inserted fields start with no aggregation: the user decides for each non-key column (FR-017). Nothing is
-    /// summed or concatenated without being asked for.
+    /// The aggregation an inserted non-key column starts with (FR-017): Sum for numbers, Concatenate for text and Max
+    /// (any TRUE) for true/false. Keys, measures, dates and columns of unknown type start with none, so the user
+    /// chooses.
     /// </summary>
-    public static Aggregation Default(FieldKind kind, DataKind dataKind, bool isKey) => Aggregation.None;
+    public static Aggregation Default(FieldKind kind, DataKind dataKind, bool isKey)
+    {
+        if (isKey || kind == FieldKind.Measure)
+            return Aggregation.None;
+        return dataKind switch
+        {
+            DataKind.Integer or DataKind.Decimal or DataKind.Double => Aggregation.Sum,
+            DataKind.Text => Aggregation.Concatenate,
+            DataKind.Boolean => Aggregation.Max,
+            _ => Aggregation.None,
+        };
+    }
 
     /// <summary>True when the field is compared as a value and still needs an aggregation chosen.</summary>
     public static bool NeedsAggregation(FieldKind kind, bool isKey, Aggregation aggregation) =>

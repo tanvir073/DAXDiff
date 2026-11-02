@@ -122,16 +122,19 @@ public class ComparisonCompilerTests
     }
 
     [Theory]
-    [InlineData(DataKind.Decimal)]
-    [InlineData(DataKind.Text)]
-    [InlineData(DataKind.DateTime)]
-    [InlineData(DataKind.Boolean)]
-    public void FR017_InsertedFieldsStartWithoutAggregation(DataKind kind)
+    [InlineData(DataKind.Integer, Aggregation.Sum)]
+    [InlineData(DataKind.Decimal, Aggregation.Sum)]
+    [InlineData(DataKind.Double, Aggregation.Sum)]
+    [InlineData(DataKind.Text, Aggregation.Concatenate)]
+    [InlineData(DataKind.Boolean, Aggregation.Max)]
+    [InlineData(DataKind.DateTime, Aggregation.None)]
+    [InlineData(DataKind.Unknown, Aggregation.None)]
+    public void FR017_InsertedColumnsStartWithTheirTypesAggregation(DataKind kind, Aggregation expected)
     {
-        Assert.Equal(Aggregation.None, AggregationRules.Default(FieldKind.Column, kind, isKey: false));
+        Assert.Equal(expected, AggregationRules.Default(FieldKind.Column, kind, isKey: false));
+        Assert.True(AggregationRules.IsAllowed(expected, FieldKind.Column, kind, isKey: false));
         Assert.Equal(Aggregation.None, AggregationRules.Default(FieldKind.Column, kind, isKey: true));
         Assert.Equal(Aggregation.None, AggregationRules.Default(FieldKind.Measure, kind, isKey: false));
-        Assert.Equal(Aggregation.None, AggregationRules.Allowed(FieldKind.Column, kind, isKey: false)[0]);
     }
 
     [Fact]
