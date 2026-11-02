@@ -1,0 +1,69 @@
+﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject ProjectState State
+
+<div class="shell">
+    <header class="header">
+        <a class="logo" href="">
+            <Logo />
+            <span class="logo-tag">web</span>
+        </a>
+        @if (State.Project is { } project)
+        {
+            <div class="header-project">
+                <span class="header-name">@project.Name</span>
+                @if (State.IsSample)
+                {
+                    <span class="badge info">Sample</span>
+                }
+                else if (State.IsDirty)
+                {
+                    <span class="header-dirty" title="Unsaved changes">● unsaved</span>
+                }
+            </div>
+            <div class="header-actions">
+                @if (!State.IsSample)
+                {
+                    <button class="btn light" @onclick="() => State.SaveAsync()">Save</button>
+                }
+            </div>
+        }
+    </header>
+
+    <nav class="nav" aria-label="Steps">
+        <NavLink class="nav-item" href="" Match="NavLinkMatch.All"><span class="nav-num">1</span>Project</NavLink>
+        @foreach (var (number, href, label) in Steps)
+        {
+            if (State.Project is null)
+            {
+                <span class="nav-item disabled" aria-disabled="true"><span class="nav-num">@number</span>@label</span>
+            }
+            else
+            {
+                <NavLink class="nav-item" href="@href"><span class="nav-num">@number</span>@label</NavLink>
+            }
+        }
+        <div class="nav-spacer"></div>
+        <NavLink class="nav-item" href="settings"><span class="nav-num">⚙</span>Settings</NavLink>
+    </nav>
+
+    <main class="page">
+        @Body
+    </main>
+</div>
+
+@code {
+    private static readonly (string Number, string Href, string Label)[] Steps =
+    [
+        ("2", "sources", "Sources"),
+        ("3", "comparisons", "Comparisons"),
+        ("4", "run", "Run"),
+        ("5", "results", "Results"),
+    ];
+
+    protected override void OnInitialized() => State.Changed += OnChanged;
+
+    private void OnChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => State.Changed -= OnChanged;
+}

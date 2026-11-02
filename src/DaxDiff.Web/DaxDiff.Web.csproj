@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <!--
+    Browser-only DAXDiff: a static site. Sign-in (MSAL.js), Power BI queries (Execute Queries REST API), the comparison
+    and the Excel workbook all run in the user's browser; no server holds credentials or data.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\DaxDiff.Application\DaxDiff.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.8" PrivateAssets="all" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <AssemblyName>DaxDiff.Web</AssemblyName>
+    <!-- Projects (.pbicomp) are (de)serialized by reflection in ProjectStore. -->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    <!--
+      Plain framework file names, so index.html needs no inline import map and the content security policy can forbid
+      inline scripts. Static hosts such as GitHub Pages set their own short cache lifetimes.
+    -->
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Keep the reflection-serialized domain records and the workbook library intact when publishing trimmed. -->
+    <TrimmerRootAssembly Include="DaxDiff.Domain" />
+    <TrimmerRootAssembly Include="DaxDiff.Application" />
+  </ItemGroup>
+
+</Project>

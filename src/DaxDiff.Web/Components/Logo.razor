@@ -1,0 +1,11 @@
+@* The desktop app's logo (MainWindow.xaml): the "outer join" mark, models A and B as overlapping circles with the
+   matched rows as the lens, and the wordmark "DAX" regular + "DIFF" bold. Colours come from the --logo-* tokens. *@
+<span class="logo-lockup" role="img" aria-label="DAXDiff">
+    <svg class="logo-mark" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="36" cy="50" r="28" fill="var(--logo-a)" />
+        <circle cx="64" cy="50" r="28" fill="var(--logo-b)" />
+        <path d="M50,25.75 A28,28 0 0 1 50,74.25 A28,28 0 0 1 50,25.75 Z" fill="var(--logo-lens)"
+              stroke="var(--logo-gap)" stroke-width="6" stroke-linejoin="round" />
+    </svg>
+    <span class="logo-word" aria-hidden="true">DAX<b>DIFF</b></span>
+</span>

@@ -1,0 +1,86 @@
+@page "/settings"
+@inherits ProjectComponent
+@inject WebSettings WebSettings
+
+<PageTitle>Settings · DAXDiff</PageTitle>
+
+<div class="eyebrow">Settings</div>
+<h1 class="page-title">Sign-in and privacy</h1>
+<p class="page-hint">These settings are kept in this browser only.</p>
+
+<div class="grid two">
+    <section class="card">
+        <h2 class="card-title">Microsoft Entra ID</h2>
+        <p class="muted">
+            DAXDiff signs in with a single-page application registration that has the delegated Power BI permissions
+            <code>Dataset.Read.All</code> and <code>Workspace.Read.All</code>. @(WebSettings.HostProvidesClientId ? "This site provides one; you only need to change it to use your own." : "Enter the client ID of your organization's registration.")
+        </p>
+        <label class="field">
+            <span>Client ID</span>
+            <input @bind="clientId" placeholder="00000000-0000-0000-0000-000000000000" />
+        </label>
+        <label class="field">
+            <span>Default tenant</span>
+            <input @bind="tenant" placeholder="organizations" />
+        </label>
+        <label class="field">
+            <span>Redirect URI to register (type: single-page application)</span>
+            <input value="@WebSettings.Auth.RedirectUri" readonly />
+        </label>
+        <div class="row">
+            <button class="btn primary" @onclick="SaveAsync" disabled="@(!ValidClientId)">Save</button>
+            @if (saved)
+            {
+                <span class="muted small">Saved. New sign-ins use these settings.</span>
+            }
+            else if (!ValidClientId && clientId.Length > 0)
+            {
+                <span class="small bad-text">The client ID must be a GUID.</span>
+            }
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Where your data goes</h2>
+        <ul class="plain">
+            <li>Sign-in happens in a Microsoft pop-up. Tokens are kept in this tab's session storage and are cleared when the tab closes.</li>
+            <li>Queries go straight from this browser to <code>api.powerbi.com</code>. Results are compared in this browser and kept in memory only.</li>
+            <li>Projects and workbooks are saved to files you choose. The site that served DAXDiff never receives credentials, queries or data.</li>
+        </ul>
+        <button class="btn secondary" @onclick="SignOutEverywhereAsync">Sign out of all accounts in this browser</button>
+        @if (signedOut)
+        {
+            <p class="muted small">Signed out.</p>
+        }
+    </section>
+</div>
+
+@code {
+    private string clientId = "";
+    private string tenant = "";
+    private bool saved;
+    private bool signedOut;
+
+    private bool ValidClientId => Guid.TryParse(clientId.Trim(), out _);
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        clientId = WebSettings.Auth.ClientId;
+        tenant = WebSettings.Auth.TenantId;
+    }
+
+    private async Task SaveAsync()
+    {
+        await WebSettings.SaveAsync(clientId, tenant);
+        saved = true;
+    }
+
+    private async Task SignOutEverywhereAsync()
+    {
+        await State.SourceA.SignOutAsync();
+        await State.SourceB.Auth.SignOutEverywhereAsync();
+        await State.SourceB.SignOutAsync();
+        signedOut = true;
+    }
+}

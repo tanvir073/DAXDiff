@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\DaxDiff.Domain\DaxDiff.Domain.csproj" />
     <ProjectReference Include="..\DaxDiff.Comparison\DaxDiff.Comparison.csproj" />
-    <ProjectReference Include="..\DaxDiff.Connectors\DaxDiff.Connectors.csproj" />
+    <ProjectReference Include="..\DaxDiff.Connectors.Core\DaxDiff.Connectors.Core.csproj" />
     <ProjectReference Include="..\DaxDiff.Export\DaxDiff.Export.csproj" />
   </ItemGroup>
 
@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
 using DaxDiff.Domain;
-using Microsoft.Identity.Client;
 
 namespace DaxDiff.Connectors;
 
@@ -15,16 +14,6 @@ public static class ErrorClassifier
 
         var message = Flatten(ex);
         var lower = message.ToLowerInvariant();
-
-        if (ex is MsalException msal)
-        {
-            return msal.ErrorCode == MsalError.AuthenticationCanceledError
-                ? new DaxDiffException(ErrorCategory.Authentication, "AUTH-CANCELLED", "Sign-in was cancelled.",
-                    "Sign in again to continue.", inner: ex)
-                : new DaxDiffException(ErrorCategory.Authentication, "AUTH-" + msal.ErrorCode.ToUpperInvariant(),
-                    $"Sign-in failed: {msal.Message}",
-                    "Check the tenant and client ID in Settings, then sign in again. Your administrator may need to grant consent.", inner: ex);
-        }
 
         if (ex is TimeoutException || lower.Contains("timed out") || lower.Contains("timeout expired"))
             return new DaxDiffException(ErrorCategory.Timeout, "QRY-TIMEOUT", $"{transport}: the query timed out.",

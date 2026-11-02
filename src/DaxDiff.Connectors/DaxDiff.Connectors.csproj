@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\DaxDiff.Domain\DaxDiff.Domain.csproj" />
+    <ProjectReference Include="..\DaxDiff.Connectors.Core\DaxDiff.Connectors.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

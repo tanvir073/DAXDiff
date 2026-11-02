@@ -1,0 +1,33 @@
+@page "/sources"
+@inherits ProjectComponent
+@inject WebSettings Settings
+
+<PageTitle>Sources · DAXDiff</PageTitle>
+
+<div class="eyebrow">Step 2</div>
+<h1 class="page-title">Sources</h1>
+<p class="page-hint">
+    Sign in and pick a published semantic model for each side. Each side has its own sign-in, so the models can be in
+    different tenants or use different accounts. A browser reaches the Power BI service through the Execute Queries REST
+    API only: up to 100,000 rows or 1,000,000 values per query, and it needs Build permission plus the tenant setting
+    "Semantic model Execute Queries REST API".
+</p>
+
+@if (State.Project is null)
+{
+    <div class="message info">Create or open a project first. <a href="">Go to Project</a></div>
+}
+else
+{
+    @if (!State.IsSample && !Guid.TryParse(Settings.Auth.ClientId, out _))
+    {
+        <div class="message warn">
+            No Entra ID client ID is set, so sign-in is unavailable. <a href="settings">Open Settings</a> to enter it.
+        </div>
+    }
+
+    <div class="grid two">
+        <SourcePanel Source="State.SourceA" />
+        <SourcePanel Source="State.SourceB" />
+    </div>
+}

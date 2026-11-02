@@ -12,6 +12,7 @@ dotnet test tests/DaxDiff.Tests.Unit           # all unit tests
 dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngineTests"          # one class
 dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngineTests.AT04_AbsoluteTolerance"  # one test
 dotnet run --project src/DaxDiff.Desktop       # launch the app
+dotnet run --project src/DaxDiff.Web --launch-profile http   # web app on http://localhost:5215
 ./scripts/build.ps1                            # Release restore/build/test/publish to ./publish
 ./scripts/package.ps1                          # self-contained publish + MSI (WiX 5, installer/) to ./dist
 ```
@@ -20,9 +21,10 @@ There is no linter configured. On the developer's machine, an application-contro
 
 ## Architecture
 
-The dependency direction is Desktop → Application → {Comparison, Connectors, Export} → Domain.
+The dependency direction is Desktop → {Application, Connectors} and Web → Application → {Comparison, Connectors.Core, Export} → Domain, with Connectors → Connectors.Core.
 
-- **Target frameworks:** `Domain`, `Comparison` and `Export` target `net10.0`. `Connectors`, `Application`, `Desktop` and the test project target `net10.0-windows`, because Connectors uses `System.Management` for WMI.
+- **Target frameworks:** `Domain`, `Comparison`, `Export`, `Connectors.Core`, `Application` and `Web` target `net10.0`. `Connectors`, `Desktop` and the test project target `net10.0-windows`, because Connectors uses `System.Management` for WMI and ADOMD.
+- **Connectors.Core vs Connectors.** `Connectors.Core` holds everything without a Windows dependency: `IModelConnector`, `IAuthService`/`AuthOptions`/`SourceSession`, `ErrorClassifier`, the metadata parsers and the REST connector, client and discovery. `Connectors` holds ADOMD (Desktop, XMLA), WMI session discovery, `MsalAuthService` (which maps `MsalException` itself) and `ConnectorFactory`. Namespaces did not change. Keep Windows-only code out of Core and Application, or the web app stops building.
 - **Shared build settings:** `Directory.Build.props` sets Nullable, ImplicitUsings and the version for every project.
 - **Implicit usings in Desktop:** WPF projects don't get `System.IO` implicitly, so the Desktop csproj adds `<Using Include="System.IO" />`.
 
@@ -32,7 +34,7 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
 - **Comparison.** A `ComparisonDefinition` has `FieldsA` and `FieldsB` (each a `ComparisonField`: field ref, `IsKey`, `Aggregation`, `Synonym`) and its own `ComparisonOptions` (filters, tolerance, normalization, limits).
 - **Pairing is by synonym, not explicit pairs.** `ComparisonCompiler.Compile` matches A and B fields whose `SynonymKey` (trimmed, upper-cased) is equal. It emits a `ComparisonConfig`: `FieldPairs` (keys first, then values, in model A order) plus `Options`. Each `FieldPair` carries `LeftAggregation` and `RightAggregation`.
 - **One validation entry point.** `ComparisonCompiler.CompileAndValidate` returns the compiler's issues (unpaired keys, duplicate synonyms, disallowed aggregations, missing fields) plus `MappingValidator`'s (roles, type compatibility after aggregation, filters, settings). The UI and `RunRequest.For` both use it.
-- **Aggregation rules.** `AggregationRules` (Domain) decides which aggregations a field may use, from `FieldKind`, `DataKind` and `IsKey`. It also gives the aggregated result type. Every inserted field starts at `None` (FR-017). Keys and measures only allow `None`. Non-key columns list `None` too, but a compared column left at `None` fails validation (`MAP-AGG`) until the user picks one.
+- **Aggregation rules.** `AggregationRules` (Domain) decides which aggregations a field may use, from `FieldKind`, `DataKind` and `IsKey`. It also gives the aggregated result type. `AggregationRules.Default` gives an inserted non-key column Sum (numbers), Concatenate (text) or Max (true/false, "any TRUE"); dates, unknown types, keys and measures start at `None` (FR-017). Keys and measures only allow `None`. Non-key columns list `None` too, but a compared column left at `None` fails validation (`MAP-AGG`) until the user picks one. DAX `MIN`/`MAX` reject booleans, so `DaxQueryBuilder.ValueExpression` evaluates boolean Min/Max through 1/0 and needs the column's `DataKind`.
 
 ### End-to-end flow of one run (`Application/ComparisonRunner.RunAsync`)
 
@@ -54,6 +56,7 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
   - Text is never cast to a number, so "0012" ≠ 12.
   - Numbers go through decimal and then `Normalize`, so 1.20 == 1.2 and `long` 2025 == `decimal` 2025.
   - Normalization (trim, case, Unicode, blank==empty, date-only) only happens when `KeyNormalization` asks for it.
+- **Result settings only trim the listing.** `ComparisonOptions.Results` (all rows or differences only, optional row limit; defaults keep every row) is applied by `ComparisonEngine.KeepRows` after the summary is computed, so counts always cover every row. A limit keeps differences before matches. Left-out rows are counted in `ComparisonSummary.RowsOmitted` and reported as a warning; they never change the run status.
 - **Duplicate normalized keys** become `RowStatus.InvalidKey` rows and are excluded from matching. They are never deduplicated.
 - **REST must match ADOMD types.** `ServiceRestConnector.ToClr` turns JSON numbers into `long` or `decimal` and ISO timestamp strings into `DateTime`, so keys compare equal across transports.
 - **Safe DAX (FR-009).** All identifiers go through `TableRef`/`ColumnRef`/`MeasureRef`, which escape `'` and `]`. Filter values go through `TypedLiteral`, which parses them by column `DataKind` and throws `FormatException` otherwise. Never splice user text into DAX.
@@ -110,6 +113,15 @@ The dependency direction is Desktop → Application → {Comparison, Connectors,
 - **Pages.** Each page is mapped to a view by `DataTemplate`s in `MainWindow.xaml`. The results grid builds its columns in code (`ResultsView.xaml.cs`) and binds to `ResultRowView.Cells[i]`. Sorting uses a custom comparer (`ResultsViewModel.Sort`).
 - **Typed command parameters.** A `CommandParameter` set in XAML arrives as a string, so a `RelayCommand<bool?>` throws. Use separate commands or a `string` parameter.
 - **Rendering.** Views reference styles and converters defined in `App.xaml` with `StaticResource`, so rendering a view outside the running app requires `new App().InitializeComponent()` first.
+
+### Web (`DaxDiff.Web`, Blazor WebAssembly)
+
+- **Browser-only.** A static site: sign-in through MSAL.js (`wwwroot/lib/msal-browser`, vendored 4.x, via `wwwroot/js/auth.js`), queries through `ServiceRestConnector`, comparison and Excel export in WebAssembly. Nothing runs on a server. See `docs/web.md`.
+- **State.** `ProjectState` (singleton) holds the open project, two `SourceState`s (each with its own `BrowserAuthService`, so FR-002 holds), the run and the latest result per comparison. Components derive from `ProjectComponent` to re-render on its `Changed` event.
+- **Only REST.** Desktop-session sources are reported as unsupported. XMLA references are connected over REST by resolving workspace and model names. Comparison editing is not in the web app yet.
+- **Files.** `wwwroot/js/files.js` uses the File System Access API where available (Save writes back), else upload and download.
+- **Sample.** `SampleConnector` serves an in-memory sample project, used to try the app and for headless smoke tests.
+- **Publishing.** `WasmFingerprintAssets` is off so `index.html` needs no inline import map under its CSP meta tag. Domain and Application are trimmer roots, for reflection-based project JSON. `.github/workflows/web-pages.yml` deploys to a separate public repo for GitHub Pages.
 
 ## Testing
 

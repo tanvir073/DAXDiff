@@ -1,0 +1,99 @@
+@page "/run"
+@inherits ProjectComponent
+@inject NavigationManager Navigation
+
+<PageTitle>Run · DAXDiff</PageTitle>
+
+<div class="eyebrow">Step 4</div>
+<h1 class="page-title">Run</h1>
+<p class="page-hint">
+    Runs the ticked comparisons one after another. Both models are queried in parallel from this browser, and the
+    results are joined and compared here too.
+</p>
+
+@if (State.Project is null)
+{
+    <div class="message info">Create or open a project first. <a href="">Go to Project</a></div>
+}
+else
+{
+    @if (!State.BothConnected)
+    {
+        <div class="message warn">Connect both models before running. <a href="sources">Go to Sources</a></div>
+    }
+
+    <section class="card">
+        <h2 class="card-title">Comparisons to run</h2>
+        @if (State.Comparisons.Count == 0)
+        {
+            <p class="muted">This project has no comparisons yet.</p>
+        }
+        <ul class="checklist">
+            @foreach (var definition in State.Comparisons)
+            {
+                var id = definition.Id;
+                <li>
+                    <label>
+                        <input type="checkbox" checked="@State.IncludedInRun.Contains(id)" disabled="@State.IsRunning"
+                               @onchange="e => Toggle(id, e.Value is true)" />
+                        <span>@definition.Name</span>
+                    </label>
+                    @if (State.BothConnected)
+                    {
+                        <IssueBadge Issues="State.Compile(definition).Issues" />
+                    }
+                    @if (State.Results.TryGetValue(id, out var last))
+                    {
+                        <span class="badge @Format.RunTone(last.Status)">Last: @last.Status</span>
+                    }
+                </li>
+            }
+        </ul>
+
+        <div class="row">
+            @if (State.IsRunning)
+            {
+                <button class="btn secondary" @onclick="State.Cancel">Cancel</button>
+                <span class="busy">@State.RunStep</span>
+            }
+            else
+            {
+                <button class="btn primary" @onclick="RunAsync" disabled="@(!State.BothConnected || State.IncludedInRun.Count == 0)">Run comparisons</button>
+                @if (State.Results.Count > 0)
+                {
+                    <a class="btn secondary" href="results">View results</a>
+                }
+            }
+        </div>
+    </section>
+
+    @if (State.RunLog.Count > 0)
+    {
+        <section class="card">
+            <h2 class="card-title">Log</h2>
+            <ol class="log">
+                @foreach (var entry in State.RunLog)
+                {
+                    <li class="@(entry.IsError ? "bad" : "")"><span class="log-time">@entry.At.ToString(@"mm\:ss")</span> @entry.Text</li>
+                }
+            </ol>
+        </section>
+    }
+}
+
+@code {
+    private void Toggle(Guid id, bool include)
+    {
+        if (include)
+            State.IncludedInRun.Add(id);
+        else
+            State.IncludedInRun.Remove(id);
+    }
+
+    private async Task RunAsync()
+    {
+        await State.RunAsync();
+        if (State.Results.Count > 0 && State.RunLog.All(e => !e.IsError))
+            Navigation.NavigateTo("results");
+    }
+}

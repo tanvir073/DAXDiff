@@ -1,63 +1,10 @@
+using DaxDiff.Connectors.Service;
 using DaxDiff.Domain;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace DaxDiff.Connectors.Auth;
-
-public sealed class AuthOptions
-{
-    /// <summary>Entra ID public-client application ID. When empty, XMLA falls back to ADOMD's built-in sign-in and REST/discovery are unavailable.</summary>
-    public string ClientId { get; set; } = "";
-
-    /// <summary>Default tenant for new sources: a tenant ID or domain; "organizations" lets the user pick any work account.</summary>
-    public string TenantId { get; set; } = "organizations";
-
-    public string RedirectUri { get; set; } = "http://localhost";
-    public string PowerBiApiBase { get; set; } = "https://api.powerbi.com/v1.0/myorg";
-    public string XmlaEndpointBase { get; set; } = "powerbi://api.powerbi.com/v1.0/myorg";
-    public string[] Scopes { get; set; } = ["https://analysis.windows.net/powerbi/api/.default"];
-
-    /// <summary>Directory for the encrypted MSAL token cache.</summary>
-    public string CacheDirectory { get; set; } =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DAXDiff");
-
-    /// <summary>True for the tenant values that mean "the user's own tenant" rather than a specific one.</summary>
-    public static bool IsHomeTenant(string? tenant) =>
-        string.IsNullOrWhiteSpace(tenant) || tenant.Trim().ToLowerInvariant() is "organizations" or "common" or "myorg";
-}
-
-public sealed record AuthToken(string AccessToken, DateTimeOffset ExpiresOn, string Account, string TenantId);
-
-/// <summary>
-/// Sign-in for one source. Each source has its own instance, tenant and account, so model A and model B can be
-/// in the same tenant or in different tenants, signed in as the same or different users (FR-002).
-/// </summary>
-public interface IAuthService
-{
-    bool IsConfigured { get; }
-
-    /// <summary>Tenant ID or domain; "organizations" for the user's home tenant. Changing it signs this source out.</summary>
-    string Tenant { get; set; }
-
-    /// <summary>User name to prefer when signing in silently (e.g. remembered from the project).</summary>
-    string? AccountHint { get; set; }
-
-    string? SignedInAccount { get; }
-    string? SignedInTenant { get; }
-
-    /// <summary>Interactive sign-in with an account picker, so a different account can be chosen per source.</summary>
-    Task<AuthToken> SignInAsync(CancellationToken cancellationToken);
-
-    /// <summary>Returns a token silently if possible, otherwise prompts interactively.</summary>
-    Task<AuthToken> GetTokenAsync(CancellationToken cancellationToken);
-
-    /// <summary>Forgets this source's account (other sources keep theirs).</summary>
-    Task SignOutAsync();
-
-    /// <summary>Removes every account from the shared token cache.</summary>
-    Task SignOutEverywhereAsync();
-}
 
 /// <summary>
 /// Delegated interactive sign-in via the system browser. Tokens live only in the DPAPI-encrypted MSAL cache,
@@ -150,6 +97,15 @@ public sealed class MsalAuthService : IAuthService
             _logger.LogInformation("Acquired Power BI token for tenant {TenantId}", result.TenantId);
             return new AuthToken(result.AccessToken, result.ExpiresOn, result.Account?.Username ?? "unknown", result.TenantId);
         }
+        catch (MsalException ex)
+        {
+            throw ex.ErrorCode == MsalError.AuthenticationCanceledError
+                ? new DaxDiffException(ErrorCategory.Authentication, "AUTH-CANCELLED", "Sign-in was cancelled.",
+                    "Sign in again to continue.", inner: ex)
+                : new DaxDiffException(ErrorCategory.Authentication, "AUTH-" + ex.ErrorCode.ToUpperInvariant(),
+                    $"Sign-in failed: {ex.Message}",
+                    "Check the tenant and client ID in Settings, then sign in again. Your administrator may need to grant consent.", inner: ex);
+        }
         catch (Exception ex) when (ex is not DaxDiffException and not OperationCanceledException)
         {
             throw ErrorClassifier.Classify(ex, "Sign-in");
@@ -237,9 +193,6 @@ public sealed class MsalAuthService : IAuthService
     }
 }
 
-/// <summary>Everything a source needs to reach the Power BI service as its own signed-in user.</summary>
-public sealed record SourceSession(IAuthService Auth, Service.PowerBiRestClient Rest, Service.PowerBiDiscoveryService Discovery);
-
 /// <summary>Creates an independent sign-in (tenant, account, REST client) per source.</summary>
 public sealed class SourceSessionFactory
 {
@@ -260,7 +213,7 @@ public sealed class SourceSessionFactory
     public SourceSession Create()
     {
         var auth = new MsalAuthService(_options, _loggerFactory.CreateLogger<MsalAuthService>()) { ParentWindow = () => ParentWindow?.Invoke() ?? IntPtr.Zero };
-        var rest = new Service.PowerBiRestClient(_http, auth, _options, _loggerFactory.CreateLogger<Service.PowerBiRestClient>());
-        return new SourceSession(auth, rest, new Service.PowerBiDiscoveryService(rest));
+        var rest = new PowerBiRestClient(_http, auth, _options, _loggerFactory.CreateLogger<Service.PowerBiRestClient>());
+        return new SourceSession(auth, rest, new PowerBiDiscoveryService(rest));
     }
 }

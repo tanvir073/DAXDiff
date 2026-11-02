@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DAXDiff</title>
+    <!-- Rewritten at publish for a sub-path host such as GitHub Pages (/<repo>/). -->
+    <base href="/" />
+    <!--
+        Static hosts like GitHub Pages cannot send headers, so the content security policy lives here. Network access is
+        limited to Microsoft sign-in and the Power BI API; 'wasm-unsafe-eval' is required to run .NET WebAssembly.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://login.microsoftonline.com https://api.powerbi.com; frame-src https://login.microsoftonline.com; object-src 'none'; base-uri 'self'" />
+    <link rel="preload" id="webassembly" />
+    <!-- The desktop app icon (src/DaxDiff.Desktop/Assets/DAXDiff.ico). -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+    <link rel="apple-touch-icon" href="icon-256.png" />
+    <link rel="stylesheet" href="css/app.css" />
+</head>
+
+<body>
+    <div id="app">
+        <div class="boot">
+            <!-- Same lockup as Components/Logo.razor, for the moment before .NET starts. -->
+            <span class="logo-lockup boot-logo" role="img" aria-label="DAXDiff">
+                <svg class="logo-mark" viewBox="0 0 100 100" aria-hidden="true">
+                    <circle cx="36" cy="50" r="28" fill="var(--logo-a)" />
+                    <circle cx="64" cy="50" r="28" fill="var(--logo-b)" />
+                    <path d="M50,25.75 A28,28 0 0 1 50,74.25 A28,28 0 0 1 50,25.75 Z" fill="var(--logo-lens)"
+                          stroke="var(--page)" stroke-width="6" stroke-linejoin="round" />
+                </svg>
+                <span class="logo-word" aria-hidden="true">DAX<b>DIFF</b></span>
+            </span>
+            <div class="boot-text">Loading…</div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unexpected error occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">✕</span>
+    </div>
+    <script src="lib/msal-browser/msal-browser.min.js"></script>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+</body>
+
+</html>

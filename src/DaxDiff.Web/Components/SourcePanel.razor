@@ -1,0 +1,130 @@
+@* One source: its own tenant and sign-in (FR-002), then a workspace and semantic model, then Connect. *@
+@implements IDisposable
+
+<section class="card source">
+    <div class="card-head">
+        <span class="chip @(Source.Side == Side.A ? "a" : "b")">@Source.Side</span>
+        <h2 class="card-title">Model @Source.Side</h2>
+        @if (Source.IsConnected)
+        {
+            <span class="badge ok">Connected</span>
+        }
+    </div>
+
+    @if (Source.Reference is { } reference)
+    {
+        <p class="muted">@reference.Describe()</p>
+    }
+
+    @if (Source.Unsupported is { } unsupported)
+    {
+        <div class="message warn">@unsupported</div>
+    }
+
+    @if (Source.Connector is SampleConnector)
+    {
+        <div class="message info">Sample model generated in the browser. Nothing to sign in to.</div>
+    }
+    else
+    {
+        <label class="field">
+            <span>Tenant</span>
+            <input @bind="Source.Tenant" placeholder="Your own tenant, or a domain / tenant ID (contoso.com)" disabled="@(Source.Busy is not null)" />
+        </label>
+
+        <div class="row">
+            @if (Source.Auth.SignedInAccount is { } account)
+            {
+                <span class="signed-in">Signed in as <strong>@account</strong></span>
+                <button class="btn secondary small" @onclick="Source.SignOutAsync" disabled="@(Source.Busy is not null)">Sign out</button>
+            }
+            else
+            {
+                <button class="btn primary" @onclick="Source.SignInAsync" disabled="@(Source.Busy is not null)">Sign in</button>
+                @if (Source.Auth.AccountHint is { } hint)
+                {
+                    <span class="muted small">Last used: @hint</span>
+                }
+            }
+        </div>
+
+        @if (Source.Workspaces.Count > 0)
+        {
+            <label class="field">
+                <span>Workspace</span>
+                <select value="@Source.WorkspaceId" @onchange="e => Source.SelectWorkspaceAsync(e.Value?.ToString())" disabled="@(Source.Busy is not null)">
+                    <option value="">Choose a workspace…</option>
+                    @foreach (var w in Source.Workspaces)
+                    {
+                        <option value="@w.Id">@w.Name</option>
+                    }
+                </select>
+            </label>
+            <label class="field">
+                <span>Semantic model</span>
+                <select value="@Source.SelectedDatasetId" @onchange="e => Source.SelectDatasetAsync(e.Value?.ToString())" disabled="@(Source.Busy is not null || Source.Datasets.Count == 0)">
+                    <option value="">Choose a semantic model…</option>
+                    @foreach (var d in Source.Datasets)
+                    {
+                        <option value="@d.Id">@d.Name</option>
+                    }
+                </select>
+            </label>
+        }
+
+        <div class="row">
+            <button class="btn secondary" @onclick="Source.ConnectAsync"
+                    disabled="@(Source.Busy is not null || Source.Reference is null || Source.Unsupported is not null || Source.Auth.SignedInAccount is null)">
+                @(Source.IsConnected ? "Reconnect" : "Connect")
+            </button>
+            @if (Source.Busy is { } busy)
+            {
+                <span class="busy">@busy…</span>
+            }
+        </div>
+    }
+
+    @if (Source.Metadata is { } metadata)
+    {
+        <dl class="facts">
+            <dt>Model</dt>
+            <dd>@metadata.ModelName</dd>
+            <dt>Contents</dt>
+            <dd>@metadata.Tables.Count tables, @metadata.AllColumns.Count() columns, @metadata.Measures.Count measures</dd>
+            <dt>Last refresh</dt>
+            <dd>@Format.Utc(metadata.LastRefreshUtc)</dd>
+            <dt>Runs as</dt>
+            <dd>@Source.Connector?.SecurityContext</dd>
+        </dl>
+        @foreach (var warning in metadata.Warnings)
+        {
+            <div class="message info small">@warning</div>
+        }
+    }
+
+    <ErrorMessage Error="Source.Error" />
+</section>
+
+@code {
+    [Parameter, EditorRequired] public SourceState Source { get; set; } = default!;
+
+    private SourceState? subscribed;
+
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(subscribed, Source))
+            return;
+        if (subscribed is not null)
+            subscribed.Changed -= OnChanged;
+        subscribed = Source;
+        Source.Changed += OnChanged;
+    }
+
+    private void OnChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        if (subscribed is not null)
+            subscribed.Changed -= OnChanged;
+    }
+}

@@ -1,0 +1,14 @@
+@using DaxDiff.Comparison
+@if (Issues.Count > 0)
+{
+    <ul class="issues">
+        @foreach (var issue in Issues.OrderBy(i => i.Severity == IssueSeverity.Error ? 0 : 1))
+        {
+            <li class="@(issue.Severity == IssueSeverity.Error ? "bad" : "warn")">@issue.Message</li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<ValidationIssue> Issues { get; set; } = [];
+}

@@ -1,0 +1,81 @@
+# Builds DAXDiff web (src/DaxDiff.Web) and publishes it to GitHub Pages in a separate public repository, so this
+# repository's source can stay private on the GitHub Free plan. Only the compiled static site is pushed.
+#
+# One-time setup (docs/web.md):
+#   - Repository variable PAGES_REPOSITORY: the public site repository, e.g. tanvir073/daxdiff-web
+#   - Repository secret PAGES_DEPLOY_KEY: private half of a deploy key that has write access to that repository
+#   - Optional variable DAXDIFF_CLIENT_ID: Entra ID client ID baked into appsettings.json (not a secret)
+#   - Optional variable PAGES_BASE_PATH: defaults to /<site repository name>/ ; use / for a custom domain
+name: Web (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/DaxDiff.Web/**"
+      - "src/DaxDiff.Application/**"
+      - "src/DaxDiff.Comparison/**"
+      - "src/DaxDiff.Connectors.Core/**"
+      - "src/DaxDiff.Domain/**"
+      - "src/DaxDiff.Export/**"
+      - "Directory.Build.props"
+      - ".github/workflows/web-pages.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: web-pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # The unit tests reference the Windows connectors, so they run on Windows.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet test tests/DaxDiff.Tests.Unit -c Release
+
+  deploy:
+    needs: test
+    if: vars.PAGES_REPOSITORY != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish
+        run: dotnet publish src/DaxDiff.Web/DaxDiff.Web.csproj -c Release -o out
+
+      - name: Prepare for GitHub Pages
+        working-directory: out/wwwroot
+        env:
+          SITE_REPOSITORY: ${{ vars.PAGES_REPOSITORY }}
+          BASE_PATH: ${{ vars.PAGES_BASE_PATH }}
+          CLIENT_ID: ${{ vars.DAXDIFF_CLIENT_ID }}
+        run: |
+          base="${BASE_PATH:-/${SITE_REPOSITORY#*/}/}"
+          sed -i "s#<base href=\"/\" />#<base href=\"${base}\" />#" index.html
+          if [ -n "$CLIENT_ID" ]; then
+            jq --arg id "$CLIENT_ID" '.Auth.ClientId = $id' appsettings.json > appsettings.tmp && mv appsettings.tmp appsettings.json
+          fi
+          # Pages compresses on the fly and ignores precompressed files, which would now be stale anyway.
+          find . -name '*.br' -delete
+          find . -name '*.gz' -delete
+          # Deep links (e.g. /results) load the app; Jekyll must not hide _framework.
+          cp index.html 404.html
+          touch .nojekyll
+          grep -o '<base href="[^"]*"' index.html
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.PAGES_DEPLOY_KEY }}
+          external_repository: ${{ vars.PAGES_REPOSITORY }}
+          publish_branch: gh-pages
+          publish_dir: out/wwwroot
+          force_orphan: true
+          commit_message: "Deploy DAXDiff web ${{ github.sha }}"

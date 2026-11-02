@@ -1,0 +1,21 @@
+@using DaxDiff.Comparison
+@{
+    var errors = Issues.Count(i => i.Severity == IssueSeverity.Error);
+    var warnings = Issues.Count(i => i.Severity == IssueSeverity.Warning);
+}
+@if (errors > 0)
+{
+    <span class="badge bad">@errors error@(errors == 1 ? "" : "s")</span>
+}
+else if (warnings > 0)
+{
+    <span class="badge warn">@warnings warning@(warnings == 1 ? "" : "s")</span>
+}
+else
+{
+    <span class="badge ok">Ready</span>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<ValidationIssue> Issues { get; set; } = [];
+}

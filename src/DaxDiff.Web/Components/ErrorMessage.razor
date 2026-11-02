@@ -1,0 +1,13 @@
+@* An actionable error (FR-015): what happened, what to do, and the diagnostic code. *@
+@if (Error is not null)
+{
+    <div class="message bad" role="alert">
+        <div class="message-title">@(Error.Side is { } side ? $"Model {side}: " : "")@Error.Message</div>
+        <div><strong>What to do:</strong> @Error.Remedy</div>
+        <div class="muted small">Diagnostic code: @Error.DiagnosticCode</div>
+    </div>
+}
+
+@code {
+    [Parameter] public DaxDiff.Domain.DaxDiffException? Error { get; set; }
+}

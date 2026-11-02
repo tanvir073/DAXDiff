@@ -1,0 +1,134 @@
+@page "/"
+@inherits ProjectComponent
+@inject NavigationManager Navigation
+
+<PageTitle>DAXDiff</PageTitle>
+
+@if (State.Project is not { } project)
+{
+    <div class="eyebrow">Compare two Power BI semantic models</div>
+    <h1 class="page-title">Start a project</h1>
+    <p class="page-hint">
+        A project holds two models and the comparisons between them. Everything runs in this browser: sign-in, queries,
+        the comparison and the Excel workbook. Nothing is sent to or stored on a DAXDiff server.
+    </p>
+
+    <div class="grid three">
+        <section class="card">
+            <h2 class="card-title">New project</h2>
+            <label class="field">
+                <span>Name</span>
+                <input @bind="newName" @bind:event="oninput" placeholder="e.g. Finance dev vs prod" />
+            </label>
+            <button class="btn primary" @onclick="NewAsync">Create</button>
+        </section>
+        <section class="card">
+            <h2 class="card-title">Open project</h2>
+            <p class="muted">Open a <code>.pbicomp</code> file saved by the desktop or web app.</p>
+            <button class="btn secondary" @onclick="OpenAsync">Open…</button>
+        </section>
+        <section class="card">
+            <h2 class="card-title">Try it</h2>
+            <p class="muted">A sample project with two in-memory models and planted differences. No sign-in needed.</p>
+            <button class="btn secondary" @onclick="SampleAsync">Open sample</button>
+        </section>
+    </div>
+}
+else
+{
+    <div class="eyebrow">Project</div>
+    <h1 class="page-title">@project.Name</h1>
+    <p class="page-hint">@(State.IsSample ? "Sample data generated in the browser." : State.FileName is { } file ? $"File: {file}" : "Not saved yet.")</p>
+
+    <div class="grid two">
+        <section class="card">
+            <h2 class="card-title">Details</h2>
+            <label class="field">
+                <span>Name</span>
+                <input value="@project.Name" @onchange="e => State.RenameAsync(e.Value?.ToString() ?? project.Name)" />
+            </label>
+            <div class="row">
+                @if (!State.IsSample)
+                {
+                    <button class="btn primary" @onclick="() => SaveAsync(false)">Save</button>
+                    <button class="btn secondary" @onclick="() => SaveAsync(true)">Save as…</button>
+                }
+                <button class="btn secondary" @onclick="CloseAsync">Close project</button>
+            </div>
+        </section>
+        <section class="card">
+            <h2 class="card-title">Overview</h2>
+            <dl class="facts">
+                <dt><span class="chip a">A</span></dt>
+                <dd>@(State.SourceA.Reference?.Describe() ?? "Not chosen") @Connected(State.SourceA)</dd>
+                <dt><span class="chip b">B</span></dt>
+                <dd>@(State.SourceB.Reference?.Describe() ?? "Not chosen") @Connected(State.SourceB)</dd>
+                <dt>Comparisons</dt>
+                <dd>@project.Comparisons.Count</dd>
+                <dt>Results</dt>
+                <dd>@State.Results.Count in this session</dd>
+            </dl>
+            <a class="btn secondary" href="@(State.BothConnected ? "run" : "sources")">@(State.BothConnected ? "Go to Run" : "Go to Sources")</a>
+        </section>
+    </div>
+}
+
+<ErrorMessage Error="error" />
+
+@code {
+    private string newName = "";
+    private DaxDiffException? error;
+
+    private static string Connected(SourceState source) => source.IsConnected ? "· connected" : "";
+
+    private Task NewAsync() => GuardAsync(async () =>
+    {
+        await State.NewAsync(newName);
+        Navigation.NavigateTo("sources");
+    });
+
+    private Task OpenAsync() => GuardAsync(async () =>
+    {
+        if (await State.OpenAsync())
+            Navigation.NavigateTo("sources");
+    });
+
+    private Task SampleAsync() => GuardAsync(async () =>
+    {
+        await State.OpenSampleAsync();
+        Navigation.NavigateTo("run");
+    });
+
+    private Task SaveAsync(bool saveAs) => GuardAsync(() => State.SaveAsync(saveAs));
+
+    private Task CloseAsync() => GuardAsync(async () =>
+    {
+        if (!State.IsDirty || await JS.InvokeAsync<bool>("confirm", "Close the project without saving your changes?"))
+            await State.CloseAsync();
+    });
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+
+    private async Task GuardAsync(Func<Task> action)
+    {
+        error = null;
+        try
+        {
+            await action();
+        }
+        catch (Exception ex) when (ex is System.Text.Json.JsonException or InvalidDataException)
+        {
+            error = new DaxDiffException(ErrorCategory.Configuration, "PRJ-INVALID", "The file is not a valid DAXDiff project: " + ex.Message,
+                "Choose a .pbicomp file saved by DAXDiff.");
+        }
+        catch (JSException ex)
+        {
+            error = new DaxDiffException(ErrorCategory.Unknown, "WEB-FILE", "The browser could not open or save the file: " + ex.Message.Split('\n')[0],
+                "Try again, or use a Chromium-based browser (Edge, Chrome) for direct file access.");
+        }
+        catch (DaxDiffException ex)
+        {
+            error = ex;
+        }
+    }
+}

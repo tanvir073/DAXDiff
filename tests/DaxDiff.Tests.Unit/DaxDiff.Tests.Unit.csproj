@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\DaxDiff.Application\DaxDiff.Application.csproj" />
+    <ProjectReference Include="..\..\src\DaxDiff.Connectors\DaxDiff.Connectors.csproj" />
   </ItemGroup>
 
 </Project>

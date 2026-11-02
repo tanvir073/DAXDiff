@@ -1,0 +1,64 @@
+@page "/comparisons"
+@inherits ProjectComponent
+
+<PageTitle>Comparisons · DAXDiff</PageTitle>
+
+<div class="eyebrow">Step 3</div>
+<h1 class="page-title">Comparisons</h1>
+<p class="page-hint">
+    The saved comparisons in this project. Fields on A and B are paired by synonym; keys set the grain and the other
+    fields are compared per key. Editing comparisons in the browser is not available yet. Create and change them in the
+    desktop app, save the project, and open it here.
+</p>
+
+@if (State.Project is null)
+{
+    <div class="message info">Create or open a project first. <a href="">Go to Project</a></div>
+}
+else if (State.Comparisons.Count == 0)
+{
+    <div class="message info">This project has no comparisons yet.</div>
+}
+else
+{
+    @if (!State.BothConnected)
+    {
+        <div class="message info">Connect both sources to check the fields against the models' metadata.</div>
+    }
+
+    @foreach (var definition in State.Comparisons)
+    {
+        var compiled = State.Compile(definition);
+        <section class="card">
+            <div class="card-head">
+                <h2 class="card-title">@definition.Name</h2>
+                <IssueBadge Issues="compiled.Issues" />
+            </div>
+            <div class="table-wrap">
+                <table class="grid-table">
+                    <thead>
+                        <tr><th>Compared as</th><th>Role</th><th><span class="chip a">A</span> Field</th><th>Aggregation</th><th><span class="chip b">B</span> Field</th><th>Aggregation</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pair in compiled.Config.FieldPairs)
+                        {
+                            <tr>
+                                <td><strong>@pair.Alias</strong></td>
+                                <td>@(pair.Role == FieldRole.Key ? "Key" : "Value")</td>
+                                <td><code>@pair.Left.QualifiedName</code></td>
+                                <td>@Agg(pair.LeftAggregation)</td>
+                                <td><code>@pair.Right.QualifiedName</code></td>
+                                <td>@Agg(pair.RightAggregation)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <IssueList Issues="compiled.Issues" />
+        </section>
+    }
+}
+
+@code {
+    private static string Agg(Aggregation aggregation) => aggregation == Aggregation.None ? "–" : aggregation.ToString();
+}

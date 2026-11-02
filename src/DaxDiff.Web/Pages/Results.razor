@@ -1,0 +1,199 @@
+@page "/results"
+@inherits ProjectComponent
+@inject BrowserFiles Files
+@using DaxDiff.Export
+
+<PageTitle>Results · DAXDiff</PageTitle>
+
+<div class="eyebrow">Step 5</div>
+<h1 class="page-title">Results</h1>
+<p class="page-hint">The latest result of each comparison in this session. Results are never saved in the project; export a workbook to keep them.</p>
+
+@if (State.Results.Count == 0)
+{
+    <div class="message info">No results yet. <a href="run">Go to Run</a></div>
+}
+else
+{
+    <div class="segment-group" role="tablist">
+        @foreach (var (id, r) in State.Results)
+        {
+            <button class="segment @(id == Selected?.Id ? "active" : "")" role="tab" @onclick="() => Select(id)">
+                @r.ComparisonName <span class="dot @Format.RunTone(r.Status)"></span>
+            </button>
+        }
+    </div>
+
+    @if (Result is { } result)
+    {
+        var summary = result.Summary;
+        <section class="card hero">
+            <div class="hero-head">
+                <span class="badge @Format.RunTone(result.Status)">@result.Status</span>
+                <span class="hero-time">@Format.Utc(result.FinishedUtc) · @((result.FinishedUtc - result.StartedUtc).TotalSeconds.ToString("0.0")) s</span>
+            </div>
+            @if (result.FailureMessage is { } failure)
+            {
+                <pre class="failure">@failure</pre>
+            }
+            <div class="tiles">
+                <div class="tile"><div class="tile-value">@Format.Rate(summary.MatchRate)</div><div class="tile-label">Match rate</div></div>
+                <div class="tile"><div class="tile-value">@Format.Count(summary.TotalKeys)</div><div class="tile-label">Keys</div></div>
+                <div class="tile"><div class="tile-value">@Format.Count(summary.Matches)</div><div class="tile-label">Match</div></div>
+                <div class="tile"><div class="tile-value">@Format.Count(summary.Mismatches)</div><div class="tile-label">Mismatch</div></div>
+                <div class="tile"><div class="tile-value">@Format.Count(summary.OnlyInA)</div><div class="tile-label">Only in A</div></div>
+                <div class="tile"><div class="tile-value">@Format.Count(summary.OnlyInB)</div><div class="tile-label">Only in B</div></div>
+                <div class="tile"><div class="tile-value">@Format.Count(summary.InvalidKeys)</div><div class="tile-label">Invalid key</div></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-head">
+                <h2 class="card-title">Export</h2>
+            </div>
+            <div class="row">
+                <label class="check"><input type="checkbox" @bind="exportAll" /> Include matching rows</label>
+                <label class="check"><input type="checkbox" @bind="exportDax" /> Include DAX query text</label>
+                <button class="btn primary" @onclick="ExportAsync" disabled="@exporting">@(exporting ? "Building workbook…" : "Download Excel workbook")</button>
+            </div>
+            <ErrorMessage Error="exportError" />
+        </section>
+
+        @if (result.Warnings.Count > 0)
+        {
+            <details class="card">
+                <summary class="card-title">Warnings (@result.Warnings.Count)</summary>
+                <ul class="issues">
+                    @foreach (var warning in result.Warnings)
+                    {
+                        <li class="warn">@warning</li>
+                    }
+                </ul>
+            </details>
+        }
+
+        @if (result.Rows.Count > 0)
+        {
+            var keys = result.Config.Keys;
+            var values = result.Config.Values;
+            var rows = FilteredRows(result);
+            <section class="card">
+                <div class="card-head">
+                    <h2 class="card-title">Rows</h2>
+                    <div class="segment-group compact">
+                        @foreach (var (label, filter) in Filters)
+                        {
+                            <button class="segment @(statusFilter == filter ? "active" : "")" @onclick="() => statusFilter = filter">@label</button>
+                        }
+                    </div>
+                    <span class="muted small">@Format.Count(rows.Count) of @Format.Count(result.Rows.Count)@(summary.RowsOmitted > 0 ? $" ({Format.Count(summary.RowsOmitted)} omitted by result settings)" : "")</span>
+                </div>
+                <div class="table-wrap tall">
+                    <table class="grid-table results">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                @foreach (var key in keys)
+                                {
+                                    <th>@key.Alias</th>
+                                }
+                                @foreach (var value in values)
+                                {
+                                    <th class="num">@value.Alias A</th>
+                                    <th class="num">@value.Alias B</th>
+                                    <th class="num">Δ</th>
+                                    <th class="num">Δ %</th>
+                                }
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <Virtualize Items="rows" Context="row" ItemSize="34" OverscanCount="20">
+                                <tr>
+                                    <td><span class="badge @Format.StatusTone(row.Status)">@ExcelReportWriter.StatusText(row.Status)</span></td>
+                                    @for (var i = 0; i < keys.Count; i++)
+                                    {
+                                        <td>@(i < row.DisplayKey.Length ? Format.Key(row.DisplayKey[i]) : "")</td>
+                                    }
+                                    @foreach (var value in values)
+                                    {
+                                        var cell = row.Measures.FirstOrDefault(m => m.Alias == value.Alias);
+                                        var tone = cell is { IsMatch: false } ? "diff" : "";
+                                        <td class="num @tone">@(cell is null ? "" : Format.Value(cell.A))</td>
+                                        <td class="num @tone">@(cell is null ? "" : Format.Value(cell.B))</td>
+                                        <td class="num @tone">@Format.Delta(cell?.Delta)</td>
+                                        <td class="num @tone">@Format.Percent(cell?.DeltaPercent)</td>
+                                    }
+                                    <td class="muted">@row.Reason</td>
+                                </tr>
+                            </Virtualize>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+    }
+}
+
+@code {
+    private static readonly (string Label, RowStatus? Filter)[] Filters =
+    [
+        ("All", null), ("Mismatch", RowStatus.Mismatch), ("Only in A", RowStatus.OnlyInA),
+        ("Only in B", RowStatus.OnlyInB), ("Invalid key", RowStatus.InvalidKey), ("Match", RowStatus.Match),
+    ];
+
+    private RowStatus? statusFilter;
+    private bool exportAll;
+    private bool exportDax;
+    private bool exporting;
+    private DaxDiffException? exportError;
+
+    private (Guid Id, ComparisonResult Result)? Selected =>
+        State.SelectedResultId is { } id && State.Results.TryGetValue(id, out var r) ? (id, r)
+        : State.Results.Count > 0 ? (State.Results.First().Key, State.Results.First().Value) : null;
+
+    private ComparisonResult? Result => Selected?.Result;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        exportAll = State.Project?.Ui.ExportAllData ?? false;
+    }
+
+    private void Select(Guid id)
+    {
+        State.SelectedResultId = id;
+        statusFilter = null;
+        exportError = null;
+    }
+
+    private List<ComparisonRow> FilteredRows(ComparisonResult result) =>
+        statusFilter is { } status ? result.Rows.Where(r => r.Status == status).ToList() : result.Rows.ToList();
+
+    private async Task ExportAsync()
+    {
+        if (Result is not { } result)
+            return;
+        exporting = true;
+        exportError = null;
+        StateHasChanged();
+        await Task.Yield();
+        try
+        {
+            using var stream = new MemoryStream();
+            ExcelReportWriter.Write(result, stream, new ExcelExportOptions { IncludeAllData = exportAll, IncludeQueryText = exportDax });
+            stream.Position = 0;
+            var name = string.Concat($"DAXDiff {result.ComparisonName} {result.FinishedUtc.UtcDateTime:yyyy-MM-dd HHmm}".Split(Path.GetInvalidFileNameChars()));
+            await Files.DownloadAsync(name + ".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", stream);
+        }
+        catch (Exception ex)
+        {
+            exportError = new DaxDiffException(ErrorCategory.Unknown, "EXP-FAILED", "The workbook could not be built: " + ex.Message,
+                "Try again without matching rows, or export from the desktop app.", inner: ex);
+        }
+        finally
+        {
+            exporting = false;
+        }
+    }
+}
