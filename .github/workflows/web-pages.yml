@@ -1,16 +1,14 @@
-# Builds DAXDiff web (src/DaxDiff.Web) and publishes it to GitHub Pages in a separate public repository, so this
-# repository's source can stay private on the GitHub Free plan. Only the compiled static site is pushed.
+# Builds DAXDiff web (src/DaxDiff.Web) and deploys it to this repository's GitHub Pages site
+# (https://<owner>.github.io/<repo>/). Only the compiled static site is served.
 #
-# One-time setup (docs/web.md):
-#   - Repository variable PAGES_REPOSITORY: the public site repository, e.g. tanvir073/daxdiff-web
-#   - Repository secret PAGES_DEPLOY_KEY: private half of a deploy key that has write access to that repository
+# One-time setup (docs/web.md): Settings -> Pages -> Source: GitHub Actions.
 #   - Optional variable DAXDIFF_CLIENT_ID: Entra ID client ID baked into appsettings.json (not a secret)
-#   - Optional variable PAGES_BASE_PATH: defaults to /<site repository name>/ ; use / for a custom domain
+#   - Optional variable PAGES_BASE_PATH: defaults to /<repository name>/ ; use / for a custom domain
 name: Web (GitHub Pages)
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - "src/DaxDiff.Web/**"
       - "src/DaxDiff.Application/**"
@@ -21,6 +19,11 @@ on:
       - "Directory.Build.props"
       - ".github/workflows/web-pages.yml"
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: web-pages
@@ -39,8 +42,10 @@ jobs:
 
   deploy:
     needs: test
-    if: vars.PAGES_REPOSITORY != ''
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -53,11 +58,11 @@ jobs:
       - name: Prepare for GitHub Pages
         working-directory: out/wwwroot
         env:
-          SITE_REPOSITORY: ${{ vars.PAGES_REPOSITORY }}
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
           BASE_PATH: ${{ vars.PAGES_BASE_PATH }}
           CLIENT_ID: ${{ vars.DAXDIFF_CLIENT_ID }}
         run: |
-          base="${BASE_PATH:-/${SITE_REPOSITORY#*/}/}"
+          base="${BASE_PATH:-/${REPOSITORY_NAME}/}"
           sed -i "s#<base href=\"/\" />#<base href=\"${base}\" />#" index.html
           if [ -n "$CLIENT_ID" ]; then
             jq --arg id "$CLIENT_ID" '.Auth.ClientId = $id' appsettings.json > appsettings.tmp && mv appsettings.tmp appsettings.json
@@ -70,12 +75,10 @@ jobs:
           touch .nojekyll
           grep -o '<base href="[^"]*"' index.html
 
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
+      - uses: actions/upload-pages-artifact@v3
         with:
-          deploy_key: ${{ secrets.PAGES_DEPLOY_KEY }}
-          external_repository: ${{ vars.PAGES_REPOSITORY }}
-          publish_branch: gh-pages
-          publish_dir: out/wwwroot
-          force_orphan: true
-          commit_message: "Deploy DAXDiff web ${{ github.sha }}"
+          path: out/wwwroot
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

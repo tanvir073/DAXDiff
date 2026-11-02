@@ -41,7 +41,7 @@ signing in.
    organisational directory, or in any organisational directory if users from other tenants will sign in (FR-002).
 2. **Authentication** → *Add a platform* → **Single-page application**. Add one redirect URI per place the site runs:
    - `http://localhost:5215/redirect.html` (local development)
-   - `https://<user>.github.io/<site-repo>/redirect.html` (GitHub Pages)
+   - `https://tanvir073.github.io/DAXDiff/redirect.html` (GitHub Pages)
 
    Settings in the web app shows the exact URI for the current site.
 3. **API permissions** → *Power BI Service* → delegated `Dataset.Read.All` and `Workspace.Read.All`. Grant admin
@@ -53,26 +53,20 @@ Tokens are kept in the tab's session storage and are cleared when the tab closes
 to Microsoft Entra ID and the Power BI API. The content security policy in `index.html` only allows network access to
 `login.microsoftonline.com` and `api.powerbi.com`.
 
-## Deploy to GitHub Pages (Free plan, private source)
+## Deploy to GitHub Pages
 
-On the GitHub Free plan, Pages only serves public repositories. The workflow `.github/workflows/web-pages.yml` keeps
-this repository private: it builds the site and pushes only the compiled files to a separate public repository.
+The workflow `.github/workflows/web-pages.yml` runs the unit tests, publishes the web app and deploys the static
+files to this repository's GitHub Pages site. On the GitHub Free plan, Pages only serves public repositories.
 
-1. Create an empty **public** repository, for example `tanvir073/daxdiff-web`.
-2. Create a deploy key pair: `ssh-keygen -t ed25519 -C daxdiff-pages -f daxdiff-pages -N ""`.
-   - In the **site** repository: *Settings → Deploy keys → Add*, paste `daxdiff-pages.pub` and tick **Allow write access**.
-   - In **this** repository: *Settings → Secrets and variables → Actions → New repository secret* named
-     `PAGES_DEPLOY_KEY`, with the contents of `daxdiff-pages` (the private key). Then delete both local files.
-3. In this repository, under *Actions → Variables*, add:
-   - `PAGES_REPOSITORY` = `tanvir073/daxdiff-web`
-   - `DAXDIFF_CLIENT_ID` = the Entra client ID (optional)
-   - `PAGES_BASE_PATH` (optional). The default is `/<site repo name>/`; use `/` for a custom domain.
-4. Run the workflow (*Actions → Web (GitHub Pages) → Run workflow*). After that it runs on every push to `main` that
-   touches the web app or the shared projects.
-5. In the **site** repository: *Settings → Pages → Build and deployment*, source *Deploy from a branch*, branch
-   `gh-pages`, folder `/ (root)`.
+1. *Settings → Pages → Build and deployment*, source **GitHub Actions**.
+2. *Settings → Environments → github-pages*: allow every branch that should deploy (`main` and `dev`).
+3. Optional, under *Settings → Secrets and variables → Actions → Variables*:
+   - `DAXDIFF_CLIENT_ID` = the Entra client ID
+   - `PAGES_BASE_PATH`. The default is `/<repository name>/`; use `/` for a custom domain.
+4. Push to `main` or `dev` with changes to the web app or the shared projects, or run the workflow by hand
+   (*Actions → Web (GitHub Pages) → Run workflow*).
 
-The site appears at `https://tanvir073.github.io/daxdiff-web/`. Add its `redirect.html` URI to the app registration.
+The site appears at `https://tanvir073.github.io/DAXDiff/`. Add its `redirect.html` URI to the app registration.
 
 The workflow sets the `<base href>`, copies `index.html` to `404.html` so deep links work, adds `.nojekyll` so Pages
 serves `_framework/`, and removes the precompressed `.br`/`.gz` files that Pages ignores.

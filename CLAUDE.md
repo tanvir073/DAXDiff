@@ -121,7 +121,7 @@ The dependency direction is Desktop → {Application, Connectors} and Web → Ap
 - **Only REST.** Desktop-session sources are reported as unsupported. XMLA references are connected over REST by resolving workspace and model names. Comparison editing is not in the web app yet.
 - **Files.** `wwwroot/js/files.js` uses the File System Access API where available (Save writes back), else upload and download.
 - **Sample.** `SampleConnector` serves an in-memory sample project, used to try the app and for headless smoke tests.
-- **Publishing.** `WasmFingerprintAssets` is off so `index.html` needs no inline import map under its CSP meta tag. Domain and Application are trimmer roots, for reflection-based project JSON. `.github/workflows/web-pages.yml` deploys to a separate public repo for GitHub Pages.
+- **Publishing.** `WasmFingerprintAssets` is off so `index.html` needs no inline import map under its CSP meta tag. Domain and Application are trimmer roots, for reflection-based project JSON. `.github/workflows/web-pages.yml` deploys to this repo's GitHub Pages site (`https://tanvir073.github.io/DAXDiff/`) on pushes to `main` and `dev`.
 
 ## Testing
 
