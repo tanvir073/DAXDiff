@@ -6,6 +6,7 @@ using DaxDiff.Application;
 using DaxDiff.Comparison;
 using DaxDiff.Desktop.Services;
 using DaxDiff.Domain;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.ViewModels;
 
@@ -35,7 +36,9 @@ public sealed partial class OptionsViewModel : ObservableObject
     /// <summary>This comparison's filters, edited in the filter pop-up (FR-020).</summary>
     public ObservableCollection<FilterPair> Filters { get; } = [];
 
-    public string FiltersSummary => Filters.Count == 0 ? "No filters." : $"{Filters.Count} filter(s): " + string.Join("; ", Filters.Select(f => f.Describe()));
+    public string FiltersSummary => Filters.Count == 0
+        ? Strings.Options_NoFilters
+        : Localized.Format(Strings.Options_FiltersSummary, Filters.Count, string.Join("; ", Filters.Select(f => f.Describe())));
 
     public static IReadOnlyList<ToleranceMode> ToleranceModes { get; } = Enum.GetValues<ToleranceMode>();
     public static IReadOnlyList<NullPolicy> NullPolicies { get; } = Enum.GetValues<NullPolicy>();
@@ -187,7 +190,7 @@ public sealed partial class OptionsViewModel : ObservableObject
         }
         catch (Exception ex) when (ex is ArgumentException or FormatException)
         {
-            QueryPreviewA = QueryPreviewB = "Cannot generate a query yet: " + ex.Message;
+            QueryPreviewA = QueryPreviewB = Localized.Format(Strings.Options_CannotGenerateQuery, ex.Message);
         }
     }
 
@@ -199,28 +202,28 @@ public sealed partial class OptionsViewModel : ObservableObject
         var config = compiled.Config;
         if (_sourceA.Connector is null || _sourceB.Connector is null)
         {
-            _dialogs.ShowInfo("Connect both models first.");
+            _dialogs.ShowInfo(Strings.Options_ConnectBothFirst);
             return;
         }
 
         if (compiled.HasErrors)
         {
-            _dialogs.ShowInfo("Fix the comparison's errors first:" + Environment.NewLine + string.Join(Environment.NewLine, compiled.Issues.Where(i => i.Severity == IssueSeverity.Error)));
+            _dialogs.ShowInfo(Strings.Options_FixErrorsFirst + Environment.NewLine + string.Join(Environment.NewLine, compiled.Issues.Where(i => i.Severity == IssueSeverity.Error)));
             return;
         }
 
-        EstimateText = "Estimating…";
+        EstimateText = Strings.Options_Estimating;
         try
         {
             var a = _runner.EstimateRowsAsync(_sourceA.Connector, config, Side.A, _sourceA.Metadata, CancellationToken.None);
             var b = _runner.EstimateRowsAsync(_sourceB.Connector, config, Side.B, _sourceB.Metadata, CancellationToken.None);
             await Task.WhenAll(a, b);
-            EstimateText = $"Estimated keys – A: {a.Result:N0}, B: {b.Result:N0}." +
-                           (a.Result > MaxRows || b.Result > MaxRows ? $" Exceeds the row cap ({MaxRows:N0}): the run would be Partial. Add filters or raise the cap." : "");
+            EstimateText = Localized.Format(Strings.Options_Estimate, a.Result, b.Result) +
+                           (a.Result > MaxRows || b.Result > MaxRows ? " " + Localized.Format(Strings.Options_EstimateExceedsCap, MaxRows) : "");
         }
         catch (Exception ex)
         {
-            EstimateText = "Estimate failed.";
+            EstimateText = Strings.Options_EstimateFailed;
             _dialogs.ShowError(ex);
         }
     }

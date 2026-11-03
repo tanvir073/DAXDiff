@@ -1,6 +1,7 @@
 using System.Globalization;
 using ClosedXML.Excel;
 using DaxDiff.Domain;
+using DaxDiff.Export.Resources;
 
 namespace DaxDiff.Export;
 
@@ -55,34 +56,34 @@ public static class ExcelReportWriter
             throw new ArgumentOutOfRangeException(nameof(options), "MaxRowsPerSheet must be between 1 and 1,048,575.");
 
         var workbook = new XLWorkbook();
-        workbook.Properties.Title = "DAXDiff comparison";
-        workbook.Properties.Comments = $"Run {result.RunId} – {result.Status}";
+        workbook.Properties.Title = Strings.Workbook_Title;
+        workbook.Properties.Comments = Format(Strings.Workbook_Comments, result.RunId, EnumText(result.Status));
 
         var differences = result.Rows.Where(r => r.Status != RowStatus.Match).ToList();
         var diffSheets = Math.Max(1, (int)Math.Ceiling(differences.Count / (double)options.MaxRowsPerSheet));
-        WriteSummary(workbook.AddWorksheet("Summary"), result, differences.Count, diffSheets);
-        WriteRows(workbook, "Differences", differences, result.Config, options.MaxRowsPerSheet);
+        WriteSummary(workbook.AddWorksheet(Strings.Sheet_Summary), result, differences.Count, diffSheets);
+        WriteRows(workbook, Strings.Sheet_Differences, differences, result.Config, options.MaxRowsPerSheet);
 
         if (options.IncludeAllData)
         {
-            WriteRows(workbook, "All Data", result.Rows, result.Config, options.MaxRowsPerSheet);
+            WriteRows(workbook, Strings.Sheet_AllData, result.Rows, result.Config, options.MaxRowsPerSheet);
         }
         else
         {
-            var note = workbook.AddWorksheet("All Data");
-            note.Cell(1, 1).Value = "All compared rows were omitted from this workbook by export settings (data minimization).";
-            note.Cell(2, 1).Value = $"Total compared keys: {result.Summary.TotalKeys:N0}. Re-export with 'Include all data' to add them.";
+            var note = workbook.AddWorksheet(Strings.Sheet_AllData);
+            note.Cell(1, 1).Value = Strings.AllData_Omitted;
+            note.Cell(2, 1).Value = Format(Strings.AllData_TotalKeys, result.Summary.TotalKeys);
         }
 
-        WriteMapping(workbook.AddWorksheet("Field Mapping"), result);
-        WriteSettings(workbook.AddWorksheet("Settings"), result.Config);
-        WriteExecutionLog(workbook.AddWorksheet("Execution Log"), result, options);
+        WriteMapping(workbook.AddWorksheet(Strings.Sheet_FieldMapping), result);
+        WriteSettings(workbook.AddWorksheet(Strings.Sheet_Settings), result.Config);
+        WriteExecutionLog(workbook.AddWorksheet(Strings.Sheet_ExecutionLog), result, options);
         return workbook;
     }
 
     private static void WriteSummary(IXLWorksheet ws, ComparisonResult result, int differenceCount, int differenceSheets)
     {
-        ws.Cell(1, 1).Value = "DAXDiff comparison summary";
+        ws.Cell(1, 1).Value = Strings.Summary_Title;
         ws.Cell(1, 1).Style.Font.SetBold().Font.SetFontSize(14);
 
         var row = 2;
@@ -91,9 +92,9 @@ public static class ExcelReportWriter
             var banner = ws.Range(row, 1, row, 6).Merge();
             banner.Value = result.Status switch
             {
-                RunStatus.Partial => "PARTIAL RESULT – the comparison is incomplete. Do not treat missing differences as equality.",
-                RunStatus.Cancelled => "CANCELLED – this run was cancelled before completion. Results are not complete.",
-                _ => "FAILED – the comparison did not complete. " + result.FailureMessage,
+                RunStatus.Partial => Strings.Summary_BannerPartial,
+                RunStatus.Cancelled => Strings.Summary_BannerCancelled,
+                _ => Strings.Summary_BannerFailed + result.FailureMessage,
             };
             banner.Style.Fill.SetBackgroundColor(XLColor.FromHtml("#C00000")).Font.SetFontColor(XLColor.White).Font.SetBold();
             row++;
@@ -108,38 +109,42 @@ public static class ExcelReportWriter
         }
 
         row++;
-        Pair("Comparison", result.ComparisonName);
-        Pair("Run ID", result.RunId.ToString());
-        Pair("Status", result.Status.ToString());
-        Pair("Started (UTC)", result.StartedUtc.UtcDateTime);
-        Pair("Finished (UTC)", result.FinishedUtc.UtcDateTime);
-        Pair("Model A", result.SourceA.Describe());
-        Pair("Model A source type", result.SourceA.Kind.ToString());
-        Pair("Model A identity", result.SecurityContextA);
-        Pair("Model A last refresh (UTC)", result.MetadataA?.LastRefreshUtc?.UtcDateTime);
-        Pair("Model B", result.SourceB.Describe());
-        Pair("Model B source type", result.SourceB.Kind.ToString());
-        Pair("Model B identity", result.SecurityContextB);
-        Pair("Model B last refresh (UTC)", result.MetadataB?.LastRefreshUtc?.UtcDateTime);
-        Pair("Scope notice", "Results are as observed by the current caller on each side; row-level and object-level security may hide data.");
+        Pair(Strings.Summary_Comparison, result.ComparisonName);
+        Pair(Strings.Summary_RunId, result.RunId.ToString());
+        Pair(Strings.Summary_Status, EnumText(result.Status));
+        Pair(Strings.Summary_Started, result.StartedUtc.UtcDateTime);
+        Pair(Strings.Summary_Finished, result.FinishedUtc.UtcDateTime);
+        Pair(Format(Strings.Summary_Model, "A"), result.SourceA.Describe());
+        Pair(Format(Strings.Summary_ModelSourceType, "A"), EnumText(result.SourceA.Kind));
+        Pair(Format(Strings.Summary_ModelIdentity, "A"), result.SecurityContextA);
+        Pair(Format(Strings.Summary_ModelLastRefresh, "A"), result.MetadataA?.LastRefreshUtc?.UtcDateTime);
+        Pair(Format(Strings.Summary_Model, "B"), result.SourceB.Describe());
+        Pair(Format(Strings.Summary_ModelSourceType, "B"), EnumText(result.SourceB.Kind));
+        Pair(Format(Strings.Summary_ModelIdentity, "B"), result.SecurityContextB);
+        Pair(Format(Strings.Summary_ModelLastRefresh, "B"), result.MetadataB?.LastRefreshUtc?.UtcDateTime);
+        Pair(Strings.Summary_ScopeNotice, Strings.Summary_ScopeNoticeText);
         row++;
-        Pair("Rows retrieved A", result.Summary.RowsA);
-        Pair("Rows retrieved B", result.Summary.RowsB);
-        Pair("Total keys", result.Summary.TotalKeys);
-        Pair("Matches", result.Summary.Matches);
-        Pair("Value mismatches", result.Summary.Mismatches);
-        Pair("Only in A", result.Summary.OnlyInA);
-        Pair("Only in B", result.Summary.OnlyInB);
-        Pair("Invalid / duplicate keys", result.Summary.InvalidKeys);
-        Pair("Difference rows exported", differenceCount);
+        Pair(Format(Strings.Summary_RowsRetrieved, "A"), result.Summary.RowsA);
+        Pair(Format(Strings.Summary_RowsRetrieved, "B"), result.Summary.RowsB);
+        Pair(Strings.Summary_TotalKeys, result.Summary.TotalKeys);
+        Pair(Strings.Summary_Matches, result.Summary.Matches);
+        Pair(Strings.Summary_ValueMismatches, result.Summary.Mismatches);
+        Pair(Strings.Summary_OnlyInA, result.Summary.OnlyInA);
+        Pair(Strings.Summary_OnlyInB, result.Summary.OnlyInB);
+        Pair(Strings.Summary_InvalidKeys, result.Summary.InvalidKeys);
+        Pair(Strings.Summary_DifferenceRowsExported, differenceCount);
         if (result.Summary.RowsOmitted > 0)
-            Pair("Rows not listed (result settings)", result.Summary.RowsOmitted);
-        Pair("Difference sheets", differenceSheets);
-        Pair("Match rate", result.Summary.MatchRate);
+            Pair(Strings.Summary_RowsNotListed, result.Summary.RowsOmitted);
+        Pair(Strings.Summary_DifferenceSheets, differenceSheets);
+        Pair(Strings.Summary_MatchRate, result.Summary.MatchRate);
         ws.Cell(row - 1, 2).Style.NumberFormat.Format = PercentFormat;
         row++;
 
-        var header = new[] { "Value", "Compared keys", "Mismatches", "Total A", "Total B", "Total A − B", "Max |Δ|" };
+        var header = new[]
+        {
+            Strings.Summary_HeaderValue, Strings.Summary_HeaderComparedKeys, Strings.Summary_HeaderMismatches, Format(Strings.Summary_HeaderTotal, "A"),
+            Format(Strings.Summary_HeaderTotal, "B"), Strings.Summary_HeaderTotalDifference, Strings.Summary_HeaderMaxDelta,
+        };
         for (var c = 0; c < header.Length; c++)
             ws.Cell(row, c + 1).Value = header[c];
         StyleHeader(ws.Range(row, 1, row, header.Length));
@@ -163,7 +168,7 @@ public static class ExcelReportWriter
         if (result.Warnings.Count > 0)
         {
             row += 2;
-            ws.Cell(row, 1).Value = "Warnings";
+            ws.Cell(row, 1).Value = Strings.Summary_Warnings;
             ws.Cell(row, 1).Style.Font.SetBold();
             foreach (var warning in result.Warnings)
                 SetValue(ws.Cell(++row, 1), warning);
@@ -179,7 +184,7 @@ public static class ExcelReportWriter
     {
         var dims = config.Keys;
         var measures = config.Values;
-        var headers = new List<string> { "Status" };
+        var headers = new List<string> { Strings.Rows_Status };
         foreach (var d in dims)
         {
             headers.Add($"{d.Alias} (A)");
@@ -194,13 +199,13 @@ public static class ExcelReportWriter
             headers.Add($"{m.Alias} Δ%");
         }
 
-        headers.Add("Reason");
-        headers.Add("Normalized key");
+        headers.Add(Strings.Rows_Reason);
+        headers.Add(Strings.Rows_NormalizedKey);
 
         var sheetCount = Math.Max(1, (int)Math.Ceiling(rows.Count / (double)maxRowsPerSheet));
         for (var s = 0; s < sheetCount; s++)
         {
-            var ws = workbook.AddWorksheet(s == 0 ? baseName : $"{baseName} ({s + 1})");
+            var ws = workbook.AddWorksheet(s == 0 ? baseName : Format(Strings.Sheet_Continued, baseName, s + 1));
             for (var c = 0; c < headers.Count; c++)
                 ws.Cell(1, c + 1).Value = headers[c];
             StyleHeader(ws.Range(1, 1, 1, headers.Count));
@@ -255,7 +260,12 @@ public static class ExcelReportWriter
 
     private static void WriteMapping(IXLWorksheet ws, ComparisonResult result)
     {
-        var headers = new[] { "Role", "Synonym", "A table", "A field", "A aggregation", "A type", "B table", "B field", "B aggregation", "B type" };
+        var headers = new[]
+        {
+            Strings.Mapping_Role, Strings.Mapping_Synonym,
+            Format(Strings.Mapping_Table, "A"), Format(Strings.Mapping_Field, "A"), Format(Strings.Mapping_Aggregation, "A"), Format(Strings.Mapping_Type, "A"),
+            Format(Strings.Mapping_Table, "B"), Format(Strings.Mapping_Field, "B"), Format(Strings.Mapping_Aggregation, "B"), Format(Strings.Mapping_Type, "B"),
+        };
         for (var c = 0; c < headers.Length; c++)
             ws.Cell(1, c + 1).Value = headers[c];
         StyleHeader(ws.Range(1, 1, 1, headers.Length));
@@ -264,31 +274,31 @@ public static class ExcelReportWriter
         foreach (var pair in result.Config.FieldPairs)
         {
             r++;
-            ws.Cell(r, 1).Value = pair.Role.ToString();
+            ws.Cell(r, 1).Value = EnumText(pair.Role);
             SetValue(ws.Cell(r, 2), pair.Alias);
             SetValue(ws.Cell(r, 3), pair.Left.Table);
             SetValue(ws.Cell(r, 4), Describe(pair.Left));
-            ws.Cell(r, 5).Value = pair.LeftAggregation.ToString();
-            ws.Cell(r, 6).Value = (result.MetadataA?.KindOf(pair.Left) ?? DataKind.Unknown).ToString();
+            ws.Cell(r, 5).Value = EnumText(pair.LeftAggregation);
+            ws.Cell(r, 6).Value = EnumText(result.MetadataA?.KindOf(pair.Left) ?? DataKind.Unknown);
             SetValue(ws.Cell(r, 7), pair.Right.Table);
             SetValue(ws.Cell(r, 8), Describe(pair.Right));
-            ws.Cell(r, 9).Value = pair.RightAggregation.ToString();
-            ws.Cell(r, 10).Value = (result.MetadataB?.KindOf(pair.Right) ?? DataKind.Unknown).ToString();
+            ws.Cell(r, 9).Value = EnumText(pair.RightAggregation);
+            ws.Cell(r, 10).Value = EnumText(result.MetadataB?.KindOf(pair.Right) ?? DataKind.Unknown);
         }
 
         ws.Range(1, 1, r, headers.Length).SetAutoFilter();
         ws.SheetView.FreezeRows(1);
 
         r += 2;
-        ws.Cell(r, 1).Value = "Active filters";
+        ws.Cell(r, 1).Value = Strings.Mapping_ActiveFilters;
         ws.Cell(r, 1).Style.Font.SetBold();
         if (result.Config.Options.Filters.Count == 0)
-            ws.Cell(++r, 1).Value = "None";
+            ws.Cell(++r, 1).Value = Strings.Mapping_NoFilters;
         foreach (var filter in result.Config.Options.Filters)
         {
             r++;
             SetValue(ws.Cell(r, 1), filter.LeftColumn.QualifiedName);
-            ws.Cell(r, 2).Value = filter.Operator.ToString();
+            ws.Cell(r, 2).Value = EnumText(filter.Operator);
             SetValue(ws.Cell(r, 3), string.Join(", ", filter.Values));
             SetValue(ws.Cell(r, 4), filter.RightColumn.QualifiedName);
             SetValue(ws.Cell(r, 5), filter.SemanticMeaning);
@@ -297,36 +307,36 @@ public static class ExcelReportWriter
         ws.Columns(1, headers.Length).Width = 20;
     }
 
-    private static string Describe(FieldRef field) => field.Kind == FieldKind.Measure ? $"[{field.Name}] (measure)" : field.Name;
+    private static string Describe(FieldRef field) => field.Kind == FieldKind.Measure ? Format(Strings.Mapping_Measure, field.Name) : field.Name;
 
     private static void WriteSettings(IXLWorksheet ws, ComparisonConfig compiled)
     {
         var config = compiled.Options;
         var settings = new (string, object?)[]
         {
-            ("Tolerance mode", config.Tolerance.Mode.ToString()),
-            ("Absolute tolerance", config.Tolerance.Absolute),
-            ("Relative tolerance", config.Tolerance.Relative),
-            ("Tolerance predicate", "abs(A−B) ≤ max(absolute, relative × max(|A|, |B|))"),
-            ("Null policy", config.NullPolicy.ToString()),
-            ("Text comparison", config.TextComparison.ToString()),
-            ("Percent baseline", config.PercentBaseline.ToString()),
-            ("Key: trim whitespace", config.KeyNormalization.TrimWhitespace),
-            ("Key: case-insensitive", config.KeyNormalization.CaseInsensitive),
-            ("Key: Unicode normalization", config.KeyNormalization.Unicode.ToString()),
-            ("Key: blank equals empty text", config.KeyNormalization.BlankEqualsEmpty),
-            ("Key: date only", config.KeyNormalization.DateOnly),
-            ("Duplicate key policy", config.DuplicateKeyPolicy.ToString()),
-            ("Max rows per side", config.Limits.MaxRows),
-            ("Timeout (seconds)", config.Limits.TimeoutSeconds),
-            ("Retries", config.Limits.RetryCount),
-            ("Result rows", config.Results.Rows == ResultRows.DifferencesOnly ? "Differences only" : "Matches and differences"),
-            ("Result row limit", config.Results.MaxRows is { } max ? max : (object)"No limit"),
-            ("Query scope", $"{compiled.Keys.Count} key(s), {compiled.Values.Count} value(s), {config.Filters.Count} filter(s)"),
+            (Strings.Settings_ToleranceMode, EnumText(config.Tolerance.Mode)),
+            (Strings.Settings_AbsoluteTolerance, config.Tolerance.Absolute),
+            (Strings.Settings_RelativeTolerance, config.Tolerance.Relative),
+            (Strings.Settings_TolerancePredicate, Strings.Settings_TolerancePredicateText),
+            (Strings.Settings_NullPolicy, EnumText(config.NullPolicy)),
+            (Strings.Settings_TextComparison, EnumText(config.TextComparison)),
+            (Strings.Settings_PercentBaseline, EnumText(config.PercentBaseline)),
+            (Strings.Settings_KeyTrimWhitespace, config.KeyNormalization.TrimWhitespace),
+            (Strings.Settings_KeyCaseInsensitive, config.KeyNormalization.CaseInsensitive),
+            (Strings.Settings_KeyUnicode, EnumText(config.KeyNormalization.Unicode)),
+            (Strings.Settings_KeyBlankEqualsEmpty, config.KeyNormalization.BlankEqualsEmpty),
+            (Strings.Settings_KeyDateOnly, config.KeyNormalization.DateOnly),
+            (Strings.Settings_DuplicateKeyPolicy, EnumText(config.DuplicateKeyPolicy)),
+            (Strings.Settings_MaxRowsPerSide, config.Limits.MaxRows),
+            (Strings.Settings_Timeout, config.Limits.TimeoutSeconds),
+            (Strings.Settings_Retries, config.Limits.RetryCount),
+            (Strings.Settings_ResultRows, config.Results.Rows == ResultRows.DifferencesOnly ? Strings.Settings_ResultRowsDifferencesOnly : Strings.Settings_ResultRowsAll),
+            (Strings.Settings_ResultRowLimit, config.Results.MaxRows is { } max ? max : (object)Strings.Settings_NoLimit),
+            (Strings.Settings_QueryScope, Format(Strings.Settings_QueryScopeText, compiled.Keys.Count, compiled.Values.Count, config.Filters.Count)),
         };
 
-        ws.Cell(1, 1).Value = "Setting";
-        ws.Cell(1, 2).Value = "Value";
+        ws.Cell(1, 1).Value = Strings.Settings_Setting;
+        ws.Cell(1, 2).Value = Strings.Settings_Value;
         StyleHeader(ws.Range(1, 1, 1, 2));
         for (var i = 0; i < settings.Length; i++)
         {
@@ -340,7 +350,11 @@ public static class ExcelReportWriter
 
     private static void WriteExecutionLog(IXLWorksheet ws, ComparisonResult result, ExcelExportOptions options)
     {
-        var headers = new List<string> { "Side", "Transport", "Model", "Query SHA-256", "Duration (ms)", "Rows", "Attempts", "Truncated", "Error" };
+        var headers = new List<string>
+        {
+            Strings.Log_Side, Strings.Log_Transport, Strings.Log_Model, Strings.Log_QueryHash, Strings.Log_Duration, Strings.Log_Rows, Strings.Log_Attempts,
+            Strings.Log_Truncated, Strings.Log_Error,
+        };
         if (options.IncludeQueryText)
             headers.Add("DAX");
         for (var c = 0; c < headers.Count; c++)
@@ -367,11 +381,11 @@ public static class ExcelReportWriter
         r += 2;
         foreach (var (label, value) in new (string, object?)[]
                  {
-                     ("Completeness", result.Status.ToString()),
-                     ("Run ID", result.RunId.ToString()),
-                     ("Application version", result.AppVersion),
-                     ("Model A warnings", string.Join(" | ", result.MetadataA?.Warnings ?? [])),
-                     ("Model B warnings", string.Join(" | ", result.MetadataB?.Warnings ?? [])),
+                     (Strings.Log_Completeness, EnumText(result.Status)),
+                     (Strings.Log_RunId, result.RunId.ToString()),
+                     (Strings.Log_AppVersion, result.AppVersion),
+                     (Format(Strings.Log_ModelWarnings, "A"), string.Join(" | ", result.MetadataA?.Warnings ?? [])),
+                     (Format(Strings.Log_ModelWarnings, "B"), string.Join(" | ", result.MetadataB?.Warnings ?? [])),
                  })
         {
             ws.Cell(r, 1).Value = label;
@@ -389,13 +403,19 @@ public static class ExcelReportWriter
 
     public static string StatusText(RowStatus status) => status switch
     {
-        RowStatus.Match => "Match",
-        RowStatus.Mismatch => "Mismatch",
-        RowStatus.OnlyInA => "Only in A",
-        RowStatus.OnlyInB => "Only in B",
-        RowStatus.InvalidKey => "Invalid key",
+        RowStatus.Match => Strings.Status_Match,
+        RowStatus.Mismatch => Strings.Status_Mismatch,
+        RowStatus.OnlyInA => Strings.Status_OnlyInA,
+        RowStatus.OnlyInB => Strings.Status_OnlyInB,
+        RowStatus.InvalidKey => Strings.Status_InvalidKey,
         _ => status.ToString(),
     };
+
+    /// <summary>An enum value in the UI language: the resource "Enum_&lt;Type&gt;_&lt;Value&gt;", else its name.</summary>
+    private static string EnumText(Enum value) =>
+        Strings.ResourceManager.GetString($"Enum_{value.GetType().Name}_{value}", Strings.Culture) ?? value.ToString();
+
+    private static string Format(string format, params object?[] args) => string.Format(CultureInfo.CurrentCulture, format, args);
 
     /// <summary>
     /// Writes a value with its native Excel type. Text is always stored as a string literal (never a formula);

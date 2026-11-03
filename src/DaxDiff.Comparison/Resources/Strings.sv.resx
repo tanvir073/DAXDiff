@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Cmp_NothingToCompareYet" xml:space="preserve"><value>Inget att jämföra ännu: ge ett fält i modell A och ett fält i modell B samma synonym.</value></data>
+  <data name="Cmp_InsertFields" xml:space="preserve"><value>Infoga fält från båda modellerna.</value></data>
+  <data name="Cmp_KeyUnpairedInB" xml:space="preserve"><value>Nyckeln '{0}' har inget fält i modell B med samma synonym.</value></data>
+  <data name="Cmp_KeyUnpairedInA" xml:space="preserve"><value>Nyckeln '{0}' har inget fält i modell A med samma synonym.</value></data>
+  <data name="Cmp_UnpairedA" xml:space="preserve"><value>Fältet {0} ('{1}') i modell A har ingen motsvarighet i modell B och jämförs inte.</value></data>
+  <data name="Cmp_UnpairedB" xml:space="preserve"><value>Fältet {0} ('{1}') i modell B har ingen motsvarighet i modell A och jämförs inte.</value></data>
+  <data name="Cmp_KeyOnOneSide" xml:space="preserve"><value>'{0}' är nyckel endast i modell {1}. Markera den som nyckel i båda modellerna eller på ingen.</value></data>
+  <data name="Cmp_KeysOnly" xml:space="preserve"><value>Modell {0}: nycklar från {1} tabeller utan något jämfört värde ger alla kombinationer av deras medlemmar. Lägg till ett värdefält för att begränsa raderna till befintliga data.</value></data>
+  <data name="Cmp_DuplicateSynonym" xml:space="preserve"><value>Modell {0}: synonymen '{1}' används av {2} fält. Varje synonym måste vara unik per modell.</value></data>
+  <data name="Cmp_DuplicateField" xml:space="preserve"><value>Modell {0}: {1} är infogat mer än en gång.</value></data>
+  <data name="Cmp_NoSynonym" xml:space="preserve"><value>Modell {0}: {1} behöver en synonym.</value></data>
+  <data name="Cmp_MeasureKey" xml:space="preserve"><value>Modell {0}: måttet {1} kan inte vara nyckel. Använd kolumner som nycklar.</value></data>
+  <data name="Cmp_Missing" xml:space="preserve"><value>Modell {0}: {1} finns inte längre (bytt namn eller borttaget?). Ersätt eller ta bort det.</value></data>
+  <data name="Cmp_AggregationNotAllowed" xml:space="preserve"><value>Modell {0}: {1} kan inte använda {2} ({3}). Tillåtna: {4}.</value></data>
+  <data name="Cmp_KeyWord" xml:space="preserve"><value>nyckel</value></data>
+  <data name="Map_NothingToCompare" xml:space="preserve"><value>Inget att jämföra: ge ett fält i modell A och ett fält i modell B samma synonym.</value></data>
+  <data name="Map_NoKey" xml:space="preserve"><value>Inga nyckelfält: värdena jämförs endast som totalsummor.</value></data>
+  <data name="Map_PairNeedsSynonym" xml:space="preserve"><value>Paret {0} → {1} behöver en synonym.</value></data>
+  <data name="Map_DuplicateLabel" xml:space="preserve"><value>Etiketten '{0}' används mer än en gång.</value></data>
+  <data name="Map_DuplicateLeft" xml:space="preserve"><value>Fältet {0} i modell A är mappat mer än en gång.</value></data>
+  <data name="Map_DuplicateRight" xml:space="preserve"><value>Fältet {0} i modell B är mappat mer än en gång.</value></data>
+  <data name="Opt_NegativeTolerance" xml:space="preserve"><value>Toleranser kan inte vara negativa.</value></data>
+  <data name="Opt_MaxRows" xml:space="preserve"><value>Max antal rader måste vara större än noll.</value></data>
+  <data name="Opt_Timeout" xml:space="preserve"><value>Tidsgränsen måste vara större än noll.</value></data>
+  <data name="Opt_ResultRows" xml:space="preserve"><value>Radgränsen för resultatet måste vara större än noll.</value></data>
+  <data name="Map_ModelNote" xml:space="preserve"><value>Modell {0}: {1}</value></data>
+  <data name="Map_KeyMustBeColumn" xml:space="preserve"><value>'{0}': nyckeln {2} i modell {1} måste vara en kolumn, inte ett mått.</value></data>
+  <data name="Map_KeyAggregated" xml:space="preserve"><value>'{0}': nyckeln {2} i modell {1} kan inte aggregeras.</value></data>
+  <data name="Map_MeasureAggregated" xml:space="preserve"><value>'{0}': måttet {2} i modell {1} beräknas så som det är definierat och kan inte aggregeras igen.</value></data>
+  <data name="Map_ColumnNeedsAggregation" xml:space="preserve"><value>'{0}': kolumnen {2} i modell {1} har ingen aggregering. Välj en (till exempel Summa eller Antal) eller markera den som nyckel i båda modellerna.</value></data>
+  <data name="Map_Missing" xml:space="preserve"><value>'{0}': {1} finns inte längre i modell {2} (bytt namn eller borttaget?). Ersätt det i jämförelsen.</value></data>
+  <data name="Map_KeyTypesDiffer" xml:space="preserve"><value>'{0}': nyckeltyperna skiljer sig ({1} mot {2}); nycklarna skulle aldrig matcha. Välj kompatibla kolumner.</value></data>
+  <data name="Map_ValueTypesDiffer" xml:space="preserve"><value>'{0}': värdetyperna skiljer sig ({1} mot {2}); värdena rapporteras som typavvikelser. Kontrollera aggregeringarna.</value></data>
+  <data name="Flt_NoValues" xml:space="preserve"><value>Filter {0} har inga valda värden.</value></data>
+  <data name="Flt_Conditions" xml:space="preserve"><value>Filter {0} behöver ett eller två villkor.</value></data>
+  <data name="Flt_EnterValue" xml:space="preserve"><value>Filter {0}: ange ett värde för "{1}".</value></data>
+  <data name="Flt_TargetColumn" xml:space="preserve"><value>Filter {0}: filtret i modell {1} måste gälla en kolumn.</value></data>
+  <data name="Flt_Missing" xml:space="preserve"><value>Filter {0}: {1} finns inte i modell {2}.</value></data>
+  <data name="Flt_Value" xml:space="preserve"><value>Filter {0}, modell {1}: {2}</value></data>
+  <data name="Flt_OperatorNotAvailable" xml:space="preserve"><value>Filter {0}, modell {1}: "{2}" är inte tillgängligt för en kolumn av typen {3}.</value></data>
+  <data name="Flt_InvalidLiteral" xml:space="preserve"><value>Filtervärdet '{0}' är inte ett giltigt värde av typen {1}.</value></data>
+  <data name="Eng_DuplicateKeyReason" xml:space="preserve"><value>Dubblettnyckel efter normalisering (A: {0}, B: {1} rader)</value></data>
+  <data name="Eng_DuplicateKeysWarning" xml:space="preserve"><value>{0} nycklar förekommer flera gånger efter normalisering och jämfördes inte.</value></data>
+  <data name="Eng_ResultTrimmed" xml:space="preserve"><value>Resultatet visar {0:N0} av {1:N0} jämförda rader (jämförelsens resultatinställningar). Antalen i sammanfattningen omfattar alla rader.</value></data>
+  <data name="Eng_ShapeRows" xml:space="preserve"><value>Frågan returnerade rader med ett annat antal kolumner än de {0} som förväntades.</value></data>
+  <data name="Eng_ShapeColumns" xml:space="preserve"><value>Frågan returnerade {0} kolumner men {1} förväntades.</value></data>
+  <data name="Eng_ShapeRemedy" xml:space="preserve"><value>Kontrollera att alla mappade fält fortfarande finns och kör jämförelsen igen.</value></data>
+  <data name="Eng_OnlyInA" xml:space="preserve"><value>Endast i A</value></data>
+  <data name="Eng_OnlyInB" xml:space="preserve"><value>Endast i B</value></data>
+  <data name="Eng_KeyNotReturned" xml:space="preserve"><value>Nyckeln returnerades inte av {0} (medlemmen saknas, är bortfiltrerad eller alla mått är BLANK)</value></data>
+  <data name="Val_TextDiffers" xml:space="preserve"><value>Texten skiljer sig</value></data>
+  <data name="Val_BooleanDiffers" xml:space="preserve"><value>Sant/falskt skiljer sig</value></data>
+  <data name="Val_DateDiffers" xml:space="preserve"><value>Datum/tid skiljer sig</value></data>
+  <data name="Val_TypeDiffers" xml:space="preserve"><value>Typen skiljer sig ({0} mot {1})</value></data>
+  <data name="Val_ValuesDiffer" xml:space="preserve"><value>Värdena skiljer sig</value></data>
+  <data name="Val_ExceedsTolerance" xml:space="preserve"><value>Skillnaden överskrider toleransen</value></data>
+  <data name="Val_ValuesDifferOutsideDecimal" xml:space="preserve"><value>Värdena skiljer sig (utanför decimalintervallet)</value></data>
+  <data name="Val_BlankIn" xml:space="preserve"><value>BLANK i {0}</value></data>
+  <data name="Auto_WantedBy" xml:space="preserve"><value>{0}: önskas av {1}</value></data>
+  <data name="Auto_SameMeasureName" xml:space="preserve"><value>Samma normaliserade måttnamn</value></data>
+  <data name="Auto_SynonymMatch" xml:space="preserve"><value>Träff i synonymordlistan</value></data>
+  <data name="Auto_SameTableAndColumn" xml:space="preserve"><value>Samma normaliserade tabell och kolumn</value></data>
+  <data name="Auto_SameColumnAndType" xml:space="preserve"><value>Samma normaliserade kolumnnamn och kompatibel typ</value></data>
+  <data name="Auto_NoCandidate" xml:space="preserve"><value>Ingen kandidat hittades</value></data>
+  <data name="Auto_Ambiguous" xml:space="preserve"><value>Tvetydigt: {0} kandidater ({1})</value></data>
+  <data name="FltItem_NoValues" xml:space="preserve"><value>Filtret har inga valda värden.</value></data>
+  <data name="FltItem_Conditions" xml:space="preserve"><value>Filtret behöver ett eller två villkor.</value></data>
+  <data name="FltItem_EnterValue" xml:space="preserve"><value>Ange ett värde för "{0}".</value></data>
+  <data name="FltItem_TargetColumn" xml:space="preserve"><value>Filtret i modell {0} måste gälla en kolumn.</value></data>
+  <data name="FltItem_Missing" xml:space="preserve"><value>{0} finns inte i modell {1}.</value></data>
+  <data name="FltItem_Value" xml:space="preserve"><value>Modell {0}: {1}</value></data>
+  <data name="FltItem_OperatorNotAvailable" xml:space="preserve"><value>Modell {0}: "{1}" är inte tillgängligt för en kolumn av typen {2}.</value></data>
+  <data name="Eng_MismatchReason" xml:space="preserve"><value>Avvikelse: {0}</value></data>
+</root>

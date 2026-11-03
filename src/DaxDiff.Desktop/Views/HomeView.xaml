@@ -1,6 +1,7 @@
 <UserControl x:Class="DaxDiff.Desktop.Views.HomeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:DaxDiff.Desktop.Resources">
     <UserControl.Resources>
         <!-- Numbered step in the "How it works" strip. -->
         <Style x:Key="StepNumber" TargetType="Border">
@@ -22,10 +23,10 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel MaxWidth="1200" Margin="0,0,0,8">
             <!-- Hero -->
-            <TextBlock Text="SEMANTIC MODEL COMPARISON" Style="{StaticResource Eyebrow}" />
-            <TextBlock Text="Compare two Power BI semantic models" Style="{StaticResource PageTitle}" FontSize="36" />
+            <TextBlock Text="{x:Static res:Ui.Home_Eyebrow}" Style="{StaticResource Eyebrow}" />
+            <TextBlock Text="{x:Static res:Ui.Home_Title}" Style="{StaticResource PageTitle}" FontSize="36" />
             <TextBlock Style="{StaticResource PageHint}" FontSize="15" LineHeight="24" Margin="0,4,0,24"
-                       Text="Pick model A and model B, choose the fields you care about and see every row and value that differs. Everything you set up is saved in one .pbicomp project file." />
+                       Text="{x:Static res:Ui.Home_Intro}" />
 
             <!-- Ways in -->
             <Grid Margin="0,0,0,20">
@@ -41,10 +42,10 @@
                                 TextElement.Foreground="{DynamicResource OnAccentBrush}" Margin="0,0,0,14">
                             <Path Style="{StaticResource IconPath}" Data="M 7 0 V 14 M 0 7 H 14" Width="16" Height="16" />
                         </Border>
-                        <TextBlock DockPanel.Dock="Top" Text="New project" FontFamily="{StaticResource DisplayFont}" FontSize="24" Margin="0,0,0,8" />
+                        <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Ui.Home_NewTitle}" FontFamily="{StaticResource DisplayFont}" FontSize="24" Margin="0,0,0,8" />
                         <Button DockPanel.Dock="Bottom" Command="{Binding NewCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"
-                                Margin="0" Content="_Start new project" />
-                        <TextBlock Text="Choose where to save the project file, then connect model A and model B and add one or more comparisons."
+                                Margin="0" Content="{x:Static res:Ui.Home_NewButton}" />
+                        <TextBlock Text="{x:Static res:Ui.Home_NewText}"
                                    TextWrapping="Wrap" Foreground="{DynamicResource HeroMutedBrush}" LineHeight="21" Margin="0,0,0,18" />
                     </DockPanel>
                 </Border>
@@ -55,11 +56,11 @@
                             <Path Style="{StaticResource IconPath}"
                                   Data="M 2 18 H 18 A 2 2 0 0 0 20 16 V 6 A 2 2 0 0 0 18 4 H 10 L 8 1 H 2 A 2 2 0 0 0 0 3 V 16 A 2 2 0 0 0 2 18 Z" />
                         </Border>
-                        <TextBlock DockPanel.Dock="Top" Text="Open project" FontFamily="{StaticResource DisplayFont}" FontSize="24"
+                        <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Ui.Home_OpenTitle}" FontFamily="{StaticResource DisplayFont}" FontSize="24"
                                    Foreground="{DynamicResource TealBrush}" Margin="0,0,0,8" />
                         <Button DockPanel.Dock="Bottom" Command="{Binding OpenCommand}" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left"
-                                Margin="0" Content="_Browse files…" />
-                        <TextBlock Text="Open a .pbicomp project to rerun or edit its comparisons. You reconnect to the models after opening."
+                                Margin="0" Content="{x:Static res:Ui.Home_OpenButton}" />
+                        <TextBlock Text="{x:Static res:Ui.Home_OpenText}"
                                    TextWrapping="Wrap" Foreground="{DynamicResource MutedText}" LineHeight="21" Margin="0,0,0,18" />
                     </DockPanel>
                 </Border>
@@ -75,8 +76,8 @@
 
                 <Border Style="{StaticResource Card}" Padding="0" VerticalAlignment="Top">
                     <StackPanel>
-                        <TextBlock Text="Recent projects" Style="{StaticResource CardTitle}" Margin="24,20,24,12" />
-                        <TextBlock Text="No recent projects yet. Projects you create or open appear here." Foreground="{DynamicResource MutedText}"
+                        <TextBlock Text="{x:Static res:Ui.Home_Recent}" Style="{StaticResource CardTitle}" Margin="24,20,24,12" />
+                        <TextBlock Text="{x:Static res:Ui.Home_NoRecent}" Foreground="{DynamicResource MutedText}"
                                    TextWrapping="Wrap" Margin="24,0,24,22">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -98,9 +99,9 @@
                                                 <Path Style="{StaticResource IconPath}" Width="16" Height="18"
                                                       Data="M 10 0 H 2 A 2 2 0 0 0 0 2 V 18 A 2 2 0 0 0 2 20 H 14 A 2 2 0 0 0 16 18 V 6 Z M 10 0 V 6 H 16" />
                                             </Border>
-                                            <Button DockPanel.Dock="Right" Content="Open" Margin="12,0,0,0" VerticalAlignment="Center"
+                                            <Button DockPanel.Dock="Right" Content="{x:Static res:Ui.Home_OpenRecent}" Margin="12,0,0,0" VerticalAlignment="Center"
                                                     Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding Path}" AutomationProperties.Name="{Binding Name, StringFormat='Open {0}'}" />
+                                                    CommandParameter="{Binding Path}" AutomationProperties.Name="{Binding Name, StringFormat={x:Static res:Ui.Home_OpenRecentName}}" />
                                             <StackPanel VerticalAlignment="Center" ToolTip="{Binding Path}">
                                                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                                 <TextBlock Text="{Binding Folder}" FontSize="12.5" Foreground="{DynamicResource MutedText}"
@@ -116,15 +117,15 @@
 
                 <Border Grid.Column="2" Style="{StaticResource Card}" Padding="24,20" VerticalAlignment="Top">
                     <StackPanel>
-                        <TextBlock Text="Connection readiness" Style="{StaticResource CardTitle}" Margin="0,0,0,2" />
-                        <TextBlock Text="What each kind of source needs." Style="{StaticResource Muted}" FontSize="13" />
+                        <TextBlock Text="{x:Static res:Ui.Home_Readiness}" Style="{StaticResource CardTitle}" Margin="0,0,0,2" />
+                        <TextBlock Text="{x:Static res:Ui.Home_ReadinessHint}" Style="{StaticResource Muted}" FontSize="13" />
 
                         <DockPanel Style="{StaticResource ReadinessRow}">
                             <Path DockPanel.Dock="Left" Data="M 2 3 H 22 V 17 H 2 Z M 8 21 H 16 M 12 17 V 21" Stroke="{DynamicResource TealBrush}"
                                   StrokeThickness="2" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Top" Margin="0,2,12,0" />
                             <StackPanel>
                                 <TextBlock Text="Power BI Desktop" FontWeight="SemiBold" />
-                                <TextBlock Text="The file must be open in Power BI Desktop. DAXDiff never reads PBIX files offline." Style="{StaticResource Muted}"
+                                <TextBlock Text="{x:Static res:Ui.Home_DesktopNeeds}" Style="{StaticResource Muted}"
                                            FontSize="13" Margin="0,2,0,0" />
                             </StackPanel>
                         </DockPanel>
@@ -133,8 +134,8 @@
                             <Path DockPanel.Dock="Left" Data="M 17.5 19 H 9 A 7 7 0 1 1 15.7 10 H 17.5 A 4.5 4.5 0 1 1 17.5 19 Z" Stroke="{DynamicResource TealBrush}"
                                   StrokeThickness="2" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Top" Margin="0,2,12,0" />
                             <StackPanel>
-                                <TextBlock Text="Service over XMLA" FontWeight="SemiBold" />
-                                <TextBlock Text="Premium, PPU or Fabric capacity with XMLA read, and Build permission. Each model signs in with its own account."
+                                <TextBlock Text="{x:Static res:Ui.Home_Xmla}" FontWeight="SemiBold" />
+                                <TextBlock Text="{x:Static res:Ui.Home_XmlaNeeds}"
                                            Style="{StaticResource Muted}" FontSize="13" Margin="0,2,0,0" />
                             </StackPanel>
                         </DockPanel>
@@ -144,21 +145,21 @@
                                   Stroke="{DynamicResource TealBrush}" StrokeThickness="2" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Top"
                                   Margin="0,2,12,0" />
                             <StackPanel>
-                                <TextBlock Text="Service over REST and workspace browsing" FontWeight="SemiBold" />
-                                <TextBlock Text="Need an Entra app client ID. REST is limited to 100,000 rows per query." Style="{StaticResource Muted}"
+                                <TextBlock Text="{x:Static res:Ui.Home_Rest}" FontWeight="SemiBold" />
+                                <TextBlock Text="{x:Static res:Ui.Home_RestNeeds}" Style="{StaticResource Muted}"
                                            FontSize="13" Margin="0,2,0,6" />
                                 <Border Style="{StaticResource SuccessBadge}" Visibility="{Binding ClientIdConfigured, Converter={StaticResource BoolToVisibility}}">
-                                    <TextBlock Text="Client ID set" />
+                                    <TextBlock Text="{x:Static res:Ui.Home_ClientIdSet}" />
                                 </Border>
                                 <Border Style="{StaticResource AccentBadge}" Visibility="{Binding ClientIdConfigured, Converter={StaticResource InverseBoolToVisibility}}">
-                                    <TextBlock Text="Client ID not set (Settings)" />
+                                    <TextBlock Text="{x:Static res:Ui.Home_ClientIdNotSet}" />
                                 </Border>
                             </StackPanel>
                         </DockPanel>
 
                         <Border Style="{StaticResource Message}" Margin="0,16,0,0">
                             <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="19"
-                                       Text="Both models are queried as you. Row-level security, roles and Desktop admin access can make data differ, so results are labelled 'as observed by current caller'." />
+                                       Text="{x:Static res:Ui.Home_Identity}" />
                         </Border>
                     </StackPanel>
                 </Border>
@@ -170,16 +171,16 @@
                     <DockPanel Margin="20,18">
                         <Border Style="{StaticResource StepNumber}"><TextBlock Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
                         <StackPanel>
-                            <TextBlock Text="Connect" FontWeight="SemiBold" />
-                            <TextBlock Text="Model A and model B" Style="{StaticResource Muted}" FontSize="13" />
+                            <TextBlock Text="{x:Static res:Ui.Home_Step1}" FontWeight="SemiBold" />
+                            <TextBlock Text="{x:Static res:Ui.Home_Step1Hint}" Style="{StaticResource Muted}" FontSize="13" />
                         </StackPanel>
                     </DockPanel>
                     <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1,0,0,0">
                         <DockPanel Margin="20,18">
                             <Border Style="{StaticResource StepNumber}"><TextBlock Text="2" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
                             <StackPanel>
-                                <TextBlock Text="Choose fields" FontWeight="SemiBold" />
-                                <TextBlock Text="Keys, aggregations, synonyms" Style="{StaticResource Muted}" FontSize="13" />
+                                <TextBlock Text="{x:Static res:Ui.Home_Step2}" FontWeight="SemiBold" />
+                                <TextBlock Text="{x:Static res:Ui.Home_Step2Hint}" Style="{StaticResource Muted}" FontSize="13" />
                             </StackPanel>
                         </DockPanel>
                     </Border>
@@ -187,8 +188,8 @@
                         <DockPanel Margin="20,18">
                             <Border Style="{StaticResource StepNumber}"><TextBlock Text="3" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
                             <StackPanel>
-                                <TextBlock Text="Set rules" FontWeight="SemiBold" />
-                                <TextBlock Text="Filters and tolerances" Style="{StaticResource Muted}" FontSize="13" />
+                                <TextBlock Text="{x:Static res:Ui.Home_Step3}" FontWeight="SemiBold" />
+                                <TextBlock Text="{x:Static res:Ui.Home_Step3Hint}" Style="{StaticResource Muted}" FontSize="13" />
                             </StackPanel>
                         </DockPanel>
                     </Border>
@@ -198,8 +199,8 @@
                                 <TextBlock Text="4" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <StackPanel>
-                                <TextBlock Text="Run and review" FontWeight="SemiBold" />
-                                <TextBlock Text="Inspect and export to Excel" Style="{StaticResource Muted}" FontSize="13" />
+                                <TextBlock Text="{x:Static res:Ui.Home_Step4}" FontWeight="SemiBold" />
+                                <TextBlock Text="{x:Static res:Ui.Home_Step4Hint}" Style="{StaticResource Muted}" FontSize="13" />
                             </StackPanel>
                         </DockPanel>
                     </Border>

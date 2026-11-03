@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Media;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.Services;
 
@@ -39,7 +40,7 @@ public static class ThemeService
 
     public static IReadOnlyList<AppTheme> Themes { get; } =
     [
-        new("midnight", "Midnight", "Dark teal, the default", new(
+        new("midnight", Strings.Theme_midnight, Strings.Theme_midnight_Description, new(
             "#0a161b", "#10232a", "#0d1d23", "#e6f1f2", "#a3b9bf", "#ffffff",
             "rgba(255,255,255,0.10)", "rgba(255,255,255,0.24)", "#62808a",
             "#061014", "#e6f1f2", "rgba(230,241,242,0.72)", "rgba(255,255,255,0.14)", "rgba(255,255,255,0.06)",
@@ -48,7 +49,7 @@ public static class ThemeService
             "#e6f1f2", "#0a161b",
             "#133a45", "#ffffff", "rgba(255,255,255,0.76)",
             "#5ad69a", "#ff8f80")),
-        new("daylight", "Daylight", "Light header", new(
+        new("daylight", Strings.Theme_daylight, Strings.Theme_daylight_Description, new(
             "#f6f8f9", "#ffffff", "#ffffff", "#1b2328", "#56636a", "#1b2328",
             "rgba(27,35,40,0.10)", "rgba(27,35,40,0.22)", "#87959c",
             "#ffffff", "#1b2328", "#56636a", "rgba(27,35,40,0.14)", "#f1f4f5",
@@ -57,7 +58,7 @@ public static class ThemeService
             "#1b2328", "#ffffff",
             "#03607a", "#ffffff", "rgba(255,255,255,0.84)",
             "#147a4b", "#b42318")),
-        new("amber", "Amber", "Graphite and gold", new(
+        new("amber", Strings.Theme_amber, Strings.Theme_amber_Description, new(
             "#f7f5f0", "#ffffff", "#ffffff", "#1f1d1a", "#5f5a52", "#1f1d1a",
             "rgba(31,29,26,0.10)", "rgba(31,29,26,0.22)", "#8d867a",
             "#23211e", "#ffffff", "rgba(255,255,255,0.72)", "rgba(255,255,255,0.18)", "rgba(255,255,255,0.07)",
@@ -66,7 +67,7 @@ public static class ThemeService
             "#23211e", "#ffffff",
             "#23211e", "#ffffff", "rgba(255,255,255,0.76)",
             "#2e7d32", "#b42318")),
-        new("contrast", "High contrast", "Black and white with strong blue", new(
+        new("contrast", Strings.Theme_contrast, Strings.Theme_contrast_Description, new(
             "#ffffff", "#ffffff", "#ffffff", "#000000", "#2b2b2b", "#000000",
             "#000000", "#000000", "#000000",
             "#000000", "#ffffff", "#ffffff", "#ffffff", "#000000",
@@ -75,7 +76,7 @@ public static class ThemeService
             "#000000", "#ffffff",
             "#000000", "#ffffff", "#ffffff",
             "#006b2e", "#b00020")),
-        new("steel", "Steel", "Slate blue #778DA9", new(
+        new("steel", Strings.Theme_steel, Strings.Theme_steel_Description, new(
             "#f3f5f8", "#ffffff", "#ffffff", "#0d1b2a", "#4c5d72", "#1b263b",
             "rgba(27,38,59,0.10)", "rgba(27,38,59,0.22)", "#778da9",
             "#778da9", "#0d1b2a", "rgba(13,27,42,0.8)", "rgba(13,27,42,0.2)", "rgba(255,255,255,0.28)",
@@ -84,7 +85,7 @@ public static class ThemeService
             "#1b263b", "#ffffff",
             "#1b263b", "#ffffff", "rgba(255,255,255,0.78)",
             "#1f7a4d", "#b42318")),
-        new("deepsea", "Deep sea", "Navy blue #415A77", new(
+        new("deepsea", Strings.Theme_deepsea, Strings.Theme_deepsea_Description, new(
             "#f2f4f7", "#ffffff", "#ffffff", "#0d1b2a", "#556377", "#2c3e55",
             "rgba(44,62,85,0.10)", "rgba(44,62,85,0.22)", "#8592a3",
             "#415a77", "#ffffff", "rgba(255,255,255,0.76)", "rgba(255,255,255,0.22)", "rgba(255,255,255,0.1)",
@@ -93,7 +94,7 @@ public static class ThemeService
             "#415a77", "#ffffff",
             "#415a77", "#ffffff", "rgba(255,255,255,0.8)",
             "#1f7a4d", "#b42318")),
-        new("dusk", "Dusk", "Violet grey #4A4E69", new(
+        new("dusk", Strings.Theme_dusk, Strings.Theme_dusk_Description, new(
             "#f5f4f8", "#ffffff", "#ffffff", "#1c1c2e", "#5c5f75", "#22223b",
             "rgba(34,34,59,0.10)", "rgba(34,34,59,0.22)", "#8a8ca0",
             "#4a4e69", "#ffffff", "rgba(255,255,255,0.76)", "rgba(255,255,255,0.22)", "rgba(255,255,255,0.1)",
@@ -102,7 +103,7 @@ public static class ThemeService
             "#4a4e69", "#ffffff",
             "#4a4e69", "#ffffff", "rgba(255,255,255,0.8)",
             "#1f7a4d", "#b42318")),
-        new("ink", "Dark", "Near black #040303", new(
+        new("ink", Strings.Theme_ink, Strings.Theme_ink_Description, new(
             "#040303", "#121010", "#0b0909", "#f2efed", "#a8a29e", "#ffffff",
             "rgba(255,255,255,0.10)", "rgba(255,255,255,0.24)", "#6e6763",
             "#040303", "#f2efed", "rgba(242,239,237,0.7)", "rgba(255,255,255,0.14)", "rgba(255,255,255,0.06)",
@@ -111,7 +112,7 @@ public static class ThemeService
             "#6e6763", "#ffffff",
             "#1d1a19", "#ffffff", "rgba(255,255,255,0.74)",
             "#5ad69a", "#ff8f80")),
-        new("blush", "Blush", "Soft pink #FFA5AB", new(
+        new("blush", Strings.Theme_blush, Strings.Theme_blush_Description, new(
             "#fff8f8", "#ffffff", "#ffffff", "#2a1419", "#6e4f56", "#3b1a24",
             "rgba(59,26,36,0.10)", "rgba(59,26,36,0.22)", "#9c7c83",
             "#ffe1e3", "#3b1a24", "#6e4f56", "rgba(59,26,36,0.16)", "#ffffff",
@@ -120,7 +121,7 @@ public static class ThemeService
             "#3b1a24", "#ffffff",
             "#3b1a24", "#ffffff", "rgba(255,255,255,0.8)",
             "#1f7a4d", "#b42318")),
-        new("plum", "Plum", "Deep purple #582C4D", new(
+        new("plum", Strings.Theme_plum, Strings.Theme_plum_Description, new(
             "#faf6f9", "#ffffff", "#ffffff", "#24121f", "#6a5263", "#3f1f37",
             "rgba(88,44,77,0.12)", "rgba(88,44,77,0.24)", "#9a8293",
             "#582c4d", "#ffffff", "rgba(255,255,255,0.76)", "rgba(255,255,255,0.2)", "rgba(255,255,255,0.08)",
@@ -153,22 +154,7 @@ public static class ThemeService
     }
 
     /// <summary>Remembers the theme in the user settings file next to the sign-in settings.</summary>
-    public static void Save(string id)
-    {
-        JsonObject root;
-        try
-        {
-            root = File.Exists(AppPaths.UserSettings) ? JsonNode.Parse(File.ReadAllText(AppPaths.UserSettings)) as JsonObject ?? [] : [];
-        }
-        catch (JsonException)
-        {
-            root = [];
-        }
-
-        root["Appearance"] = new JsonObject { ["Theme"] = id };
-        Directory.CreateDirectory(AppPaths.Root);
-        File.WriteAllText(AppPaths.UserSettings, root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
-    }
+    public static void Save(string id) => UserSettings.Set("Appearance", "Theme", id);
 
     public static ResourceDictionary Build(ThemeTokens t)
     {

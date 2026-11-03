@@ -3,6 +3,8 @@ using DaxDiff.Domain;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
+using System.Globalization;
+using DaxDiff.Connectors.Resources;
 
 namespace DaxDiff.Connectors.Auth;
 
@@ -62,9 +64,8 @@ public sealed class MsalAuthService : IAuthService
     {
         if (!IsConfigured)
             throw new DaxDiffException(ErrorCategory.Configuration, "AUTH-NO-CLIENT",
-                "No Entra ID client ID is configured, so DAXDiff cannot sign in to the Power BI service itself.",
-                "Ask your administrator for the client ID of a DAXDiff app registration and enter it in Settings (see docs/setup.md). " +
-                "XMLA connections still work without it: type the workspace and model names and Test; Microsoft's sign-in appears then.");
+                Strings.Auth_NoClientId,
+                Strings.Remedy_AuthNoClientId);
 
         await _gate.WaitAsync(cancellationToken);
         try
@@ -100,15 +101,15 @@ public sealed class MsalAuthService : IAuthService
         catch (MsalException ex)
         {
             throw ex.ErrorCode == MsalError.AuthenticationCanceledError
-                ? new DaxDiffException(ErrorCategory.Authentication, "AUTH-CANCELLED", "Sign-in was cancelled.",
-                    "Sign in again to continue.", inner: ex)
+                ? new DaxDiffException(ErrorCategory.Authentication, "AUTH-CANCELLED", Strings.Auth_Cancelled,
+                    Strings.Remedy_AuthCancelled, inner: ex)
                 : new DaxDiffException(ErrorCategory.Authentication, "AUTH-" + ex.ErrorCode.ToUpperInvariant(),
-                    $"Sign-in failed: {ex.Message}",
-                    "Check the tenant and client ID in Settings, then sign in again. Your administrator may need to grant consent.", inner: ex);
+                    string.Format(CultureInfo.CurrentCulture, Strings.Auth_Failed, ex.Message),
+                    Strings.Remedy_AuthFailed, inner: ex);
         }
         catch (Exception ex) when (ex is not DaxDiffException and not OperationCanceledException)
         {
-            throw ErrorClassifier.Classify(ex, "Sign-in");
+            throw ErrorClassifier.Classify(ex, Strings.Auth_TransportLabel);
         }
         finally
         {

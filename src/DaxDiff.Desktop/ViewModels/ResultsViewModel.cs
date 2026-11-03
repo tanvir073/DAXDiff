@@ -11,6 +11,7 @@ using DaxDiff.Desktop.Services;
 using DaxDiff.Domain;
 using DaxDiff.Export;
 using Microsoft.Extensions.Logging;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.ViewModels;
 
@@ -34,7 +35,8 @@ public enum ResultColumnKind
     Text,
 }
 
-public sealed record ResultColumn(string Header, int Index, ResultColumnKind Kind);
+/// <param name="Measure">The compared value (alias) the column belongs to; null for status, key and reason columns.</param>
+public sealed record ResultColumn(string Header, int Index, ResultColumnKind Kind, string? Measure = null);
 
 /// <summary>Grid row: raw values (for correct sorting) addressed by column index.</summary>
 public sealed class ResultRowView
@@ -127,35 +129,36 @@ public sealed partial class ResultsViewModel : ObservableObject
     public string StatusBanner => Result?.Status switch
     {
         null => "",
-        RunStatus.Complete => $"{Result.ComparisonName}: Complete — every query returned in full.",
-        RunStatus.Partial => $"{Result.ComparisonName}: PARTIAL — results are incomplete. Missing differences do not prove equality.",
-        RunStatus.Cancelled => $"{Result.ComparisonName}: CANCELLED — the run did not finish.",
-        _ => $"{Result.ComparisonName}: FAILED — " + Result.FailureMessage,
+        RunStatus.Complete => Localized.Format(Strings.Results_BannerComplete, Result.ComparisonName),
+        RunStatus.Partial => Localized.Format(Strings.Results_BannerPartial, Result.ComparisonName),
+        RunStatus.Cancelled => Localized.Format(Strings.Results_BannerCancelled, Result.ComparisonName),
+        _ => Localized.Format(Strings.Results_BannerFailed, Result.ComparisonName, Result.FailureMessage),
     };
 
     public string SourceText => Result is null
         ? ""
         : $"A: {Result.SourceA.Describe()}  [{Result.SecurityContextA}]{Environment.NewLine}" +
           $"B: {Result.SourceB.Describe()}  [{Result.SecurityContextB}]{Environment.NewLine}" +
-          $"Evaluated {Result.FinishedUtc:yyyy-MM-dd HH:mm:ss} UTC · run {Result.RunId} · " +
-          $"tolerance {Result.Config.Options.Tolerance.Mode} (abs {Result.Config.Options.Tolerance.Absolute}, rel {Result.Config.Options.Tolerance.Relative}) · " +
-          $"queries {string.Join(", ", Result.Queries.Select(q => $"{q.Side}:{q.QueryHash[..12]}"))}";
+          Localized.Format(Strings.Results_SourceDetails, Result.FinishedUtc, Result.RunId,
+              EnumTextConverter.Text(Result.Config.Options.Tolerance.Mode), Result.Config.Options.Tolerance.Absolute, Result.Config.Options.Tolerance.Relative,
+              string.Join(", ", Result.Queries.Select(q => $"{q.Side}:{q.QueryHash[..12]}")));
 
     public IReadOnlyList<KeyValuePair<string, string>> Kpis => Result is null
         ? []
         :
         [
-            new("Keys", Result.Summary.TotalKeys.ToString("N0")),
-            new("Match rate", Result.Summary.MatchRate.ToString("P2")),
-            new("Matches", Result.Summary.Matches.ToString("N0")),
-            new("Mismatches", Result.Summary.Mismatches.ToString("N0")),
-            new("Only in A", Result.Summary.OnlyInA.ToString("N0")),
-            new("Only in B", Result.Summary.OnlyInB.ToString("N0")),
-            new("Invalid keys", Result.Summary.InvalidKeys.ToString("N0")),
+            // Ui labels: the KPI tiles in ResultsView colour themselves by comparing with them.
+            new(Strings.Results_KpiKeys, Result.Summary.TotalKeys.ToString("N0")),
+            new(Ui.Results_KpiMatchRate, Result.Summary.MatchRate.ToString("P2")),
+            new(Ui.Results_KpiMatches, Result.Summary.Matches.ToString("N0")),
+            new(Ui.Results_KpiMismatches, Result.Summary.Mismatches.ToString("N0")),
+            new(Ui.Results_KpiOnlyInA, Result.Summary.OnlyInA.ToString("N0")),
+            new(Ui.Results_KpiOnlyInB, Result.Summary.OnlyInB.ToString("N0")),
+            new(Strings.Results_KpiInvalidKeys, Result.Summary.InvalidKeys.ToString("N0")),
         ];
 
     public IReadOnlyList<string> MeasureStats => Result?.Summary.Measures
-        .Select(m => $"{m.Alias}: {m.Mismatches:N0} mismatch(es) of {m.Compared:N0}; totals A {m.TotalA:N2} / B {m.TotalB:N2}; max |Δ| {m.MaxAbsDelta:N4}")
+        .Select(m => Localized.Format(Strings.Results_MeasureStats, m.Alias, m.Mismatches, m.Compared, m.TotalA, m.TotalB, m.MaxAbsDelta))
         .ToList() ?? [];
 
     public string Details
@@ -163,12 +166,12 @@ public sealed partial class ResultsViewModel : ObservableObject
         get
         {
             if (SelectedRow is null || Result is null)
-                return "Select a row to see details.";
+                return Strings.Results_SelectRow;
             var row = SelectedRow.Row;
             var sb = new StringBuilder();
-            sb.AppendLine($"Status: {ExcelReportWriter.StatusText(row.Status)}");
+            sb.AppendLine(Localized.Format(Strings.Results_DetailStatus, ExcelReportWriter.StatusText(row.Status)));
             if (row.Reason is not null)
-                sb.AppendLine($"Reason: {row.Reason}");
+                sb.AppendLine(Localized.Format(Strings.Results_DetailReason, row.Reason));
             var dims = Result.Config.Keys;
             for (var i = 0; i < dims.Count; i++)
             {
@@ -179,18 +182,18 @@ public sealed partial class ResultsViewModel : ObservableObject
 
             foreach (var cell in row.Measures)
             {
-                sb.AppendLine($"{cell.Alias}: A = {Format(cell.A)}   B = {Format(cell.B)}   Δ = {Format(cell.Delta)}   Δ% = {(cell.DeltaPercent is { } p ? p.ToString("P4") : "N/A")}" +
+                sb.AppendLine($"{cell.Alias}: A = {Format(cell.A)}   B = {Format(cell.B)}   Δ = {Format(cell.Delta)}   Δ% = {(cell.DeltaPercent is { } p ? p.ToString("P4") : Strings.Results_NotApplicable)}" +
                               (cell.IsMatch ? "   ✓" : $"   ✗ {cell.Reason}"));
             }
 
-            sb.AppendLine($"Normalized key: {row.NormalizedKey}");
+            sb.AppendLine(Localized.Format(Strings.Results_DetailNormalizedKey, row.NormalizedKey));
             return sb.ToString();
         }
     }
 
     private static string Format(object? value) => value switch
     {
-        null => "(Blank)",
+        null => Strings.Blank,
         decimal d => d.ToString("#,##0.##########", CultureInfo.CurrentCulture),
         double d => d.ToString("#,##0.##########", CultureInfo.CurrentCulture),
         _ => ValueCanonicalizer.Display(value),
@@ -203,6 +206,8 @@ public sealed partial class ResultsViewModel : ObservableObject
         {
             _rows = [];
             Columns = [];
+            FailedColumns = [];
+            _shownColumns = [];
             RowsView = null;
             ColumnsChanged?.Invoke(this, EventArgs.Empty);
             return;
@@ -210,18 +215,23 @@ public sealed partial class ResultsViewModel : ObservableObject
 
         var dims = value.Config.Keys;
         var measures = value.Config.Values;
-        var columns = new List<ResultColumn> { new("Status", 0, ResultColumnKind.Status) };
+        var columns = new List<ResultColumn> { new(Strings.Results_ColumnStatus, 0, ResultColumnKind.Status) };
         foreach (var d in dims)
             columns.Add(new ResultColumn(d.Alias, columns.Count, ResultColumnKind.Key));
         foreach (var m in measures)
         {
-            columns.Add(new ResultColumn($"{m.Alias} A", columns.Count, ResultColumnKind.Value));
-            columns.Add(new ResultColumn($"{m.Alias} B", columns.Count, ResultColumnKind.Value));
-            columns.Add(new ResultColumn($"{m.Alias} Δ", columns.Count, ResultColumnKind.Delta));
-            columns.Add(new ResultColumn($"{m.Alias} Δ%", columns.Count, ResultColumnKind.Percent));
+            columns.Add(new ResultColumn($"{m.Alias} A", columns.Count, ResultColumnKind.Value, m.Alias));
+            columns.Add(new ResultColumn($"{m.Alias} B", columns.Count, ResultColumnKind.Value, m.Alias));
+            columns.Add(new ResultColumn($"{m.Alias} Δ", columns.Count, ResultColumnKind.Delta, m.Alias));
+            columns.Add(new ResultColumn($"{m.Alias} Δ%", columns.Count, ResultColumnKind.Percent, m.Alias));
         }
 
-        columns.Add(new ResultColumn("Reason", columns.Count, ResultColumnKind.Text));
+        // The summary counts every row, also those the result settings left out of the listing.
+        FailedColumns = value.Summary.Measures.Where(m => m.Mismatches > 0).Select(m => m.Alias).ToList();
+        _shownColumns = [];
+        OnPropertyChanged(nameof(ColumnPickerText));
+
+        columns.Add(new ResultColumn(Strings.Results_ColumnReason, columns.Count, ResultColumnKind.Text));
 
         _rows = value.Rows.Select(r =>
         {
@@ -252,6 +262,39 @@ public sealed partial class ResultsViewModel : ObservableObject
         ColumnsChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>Compared values with at least one mismatch, offered in the column picker.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasFailedColumns))]
+    private IReadOnlyList<string> _failedColumns = [];
+
+    public bool HasFailedColumns => FailedColumns.Count > 0;
+
+    private IReadOnlyList<string> _shownColumns = [];
+
+    /// <summary>The compared values chosen in the column picker; empty when every column is shown.</summary>
+    public IReadOnlyList<string> ShownColumns => _shownColumns;
+
+    /// <summary>
+    /// Limits the grid to the chosen compared values (their A, B, Δ and Δ% columns) plus status, key and reason
+    /// columns. An empty list shows every column.
+    /// </summary>
+    public void ShowOnlyColumns(IReadOnlyList<string> measures)
+    {
+        _shownColumns = measures;
+        OnPropertyChanged(nameof(ColumnPickerText));
+        ColumnVisibilityChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Raised when the column picker changes which columns are shown.</summary>
+    public event EventHandler? ColumnVisibilityChanged;
+
+    public bool IsColumnShown(ResultColumn column) =>
+        column.Measure is null || _shownColumns.Count == 0 || _shownColumns.Contains(column.Measure);
+
+    public string ColumnPickerText => _shownColumns.Count == 0
+        ? Localized.Format(Strings.Results_ColumnsAll, FailedColumns.Count)
+        : Localized.Format(Strings.Results_ColumnsSome, string.Join(", ", _shownColumns));
+
     partial void OnFilterChanged(ResultFilter value) => RefreshView();
 
     partial void OnSearchTextChanged(string value) => RefreshView();
@@ -265,8 +308,8 @@ public sealed partial class ResultsViewModel : ObservableObject
     private void UpdateCount() =>
         VisibleCountText = RowsView is null
             ? ""
-            : $"{RowsView.Cast<object>().Count():N0} of {_rows.Count:N0} rows" +
-              (Result?.Summary.RowsOmitted is > 0 and var omitted ? $" ({omitted:N0} more not listed by the comparison's result settings)" : "");
+            : Localized.Format(Strings.Results_VisibleCount, RowsView.Cast<object>().Count(), _rows.Count) +
+              (Result?.Summary.RowsOmitted is > 0 and var omitted ? " " + Localized.Format(Strings.Results_RowsOmitted, omitted) : "");
 
     private bool Matches(object item)
     {
@@ -299,17 +342,18 @@ public sealed partial class ResultsViewModel : ObservableObject
         if (Result is not { } result)
             return;
 
-        var path = _dialogs.SaveFile("Excel workbook (*.xlsx)|*.xlsx", $"DAXDiff_{SafeFileName(result.ComparisonName)}_{result.FinishedUtc:yyyyMMdd_HHmm}.xlsx", "Export comparison");
+        var path = _dialogs.SaveFile(Strings.Results_ExcelFilter, $"DAXDiff_{SafeFileName(result.ComparisonName)}_{result.FinishedUtc:yyyyMMdd_HHmm}.xlsx", Strings.Results_ExportDialogTitle);
         if (path is null)
             return;
 
-        var notice = $"The workbook may contain sensitive business data from both models.{Environment.NewLine}{Environment.NewLine}" +
-                     $"Destination: {path}{Environment.NewLine}" +
-                     $"All data rows: {(ExportAllData ? "included" : "omitted (differences only)")}{Environment.NewLine}" +
-                     $"DAX text: {(ExportQueryText ? "included" : "omitted (hashes only)")}{Environment.NewLine}" +
-                     (result.IsComplete ? "" : $"{Environment.NewLine}This run is {result.Status.ToString().ToUpperInvariant()}; the workbook will be labelled accordingly.{Environment.NewLine}") +
-                     $"{Environment.NewLine}Continue?";
-        if (!_dialogs.Confirm(notice, "Export – sensitivity notice"))
+        var nl = Environment.NewLine;
+        var notice = Strings.Export_Sensitive + nl + nl +
+                     Localized.Format(Strings.Export_Destination, path) + nl +
+                     Localized.Format(Strings.Export_AllDataRows, ExportAllData ? Strings.Export_Included : Strings.Export_AllDataOmitted) + nl +
+                     Localized.Format(Strings.Export_DaxText, ExportQueryText ? Strings.Export_Included : Strings.Export_DaxOmitted) + nl +
+                     (result.IsComplete ? "" : nl + Localized.Format(Strings.Export_IncompleteRun, EnumTextConverter.Text(result.Status).ToUpper(CultureInfo.CurrentCulture)) + nl) +
+                     nl + Strings.Export_Continue;
+        if (!_dialogs.Confirm(notice, Strings.Export_NoticeTitle))
             return;
 
         try
@@ -317,13 +361,13 @@ public sealed partial class ResultsViewModel : ObservableObject
             var options = new ExcelExportOptions { IncludeAllData = ExportAllData, IncludeQueryText = ExportQueryText };
             await Task.Run(() => ExcelReportWriter.Write(result, path, options));
             _logger.LogInformation("Exported run {RunId} to workbook", result.RunId);
-            if (_dialogs.Confirm($"Exported to {path}.{Environment.NewLine}Open it now?", "Export complete"))
+            if (_dialogs.Confirm(Localized.Format(Strings.Export_Done, path) + Environment.NewLine + Strings.Export_OpenNow, Strings.Export_DoneTitle))
                 Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             _dialogs.ShowError(new DaxDiffException(ErrorCategory.Export, "EXP-IO",
-                "The workbook could not be written.", "Close the file if it is open in Excel, or choose another folder.", inner: ex));
+                Strings.Export_WriteFailed, Strings.Export_WriteFailedRemedy, inner: ex));
         }
     }
 
@@ -331,7 +375,7 @@ public sealed partial class ResultsViewModel : ObservableObject
     {
         var invalid = Path.GetInvalidFileNameChars();
         var cleaned = new string(name.Select(c => invalid.Contains(c) || c == ' ' ? '_' : c).ToArray());
-        return cleaned.Length == 0 ? "Comparison" : cleaned;
+        return cleaned.Length == 0 ? Strings.Results_DefaultFileName : cleaned;
     }
 
     private sealed class CellComparer(int index, ListSortDirection direction) : System.Collections.IComparer

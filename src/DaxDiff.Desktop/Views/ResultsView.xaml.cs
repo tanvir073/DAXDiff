@@ -3,6 +3,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using DaxDiff.Desktop.ViewModels;
+using DaxDiff.Domain;
+using DaxDiff.Export;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.Views;
 
@@ -20,14 +23,73 @@ public partial class ResultsView : UserControl
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         if (_viewModel is not null)
+        {
             _viewModel.ColumnsChanged -= OnColumnsChanged;
+            _viewModel.ColumnVisibilityChanged -= OnColumnVisibilityChanged;
+        }
+
         _viewModel = DataContext as ResultsViewModel;
         if (_viewModel is not null)
+        {
             _viewModel.ColumnsChanged += OnColumnsChanged;
+            _viewModel.ColumnVisibilityChanged += OnColumnVisibilityChanged;
+        }
+
         BuildColumns();
     }
 
     private void OnColumnsChanged(object? sender, EventArgs e) => BuildColumns();
+
+    private void OnColumnVisibilityChanged(object? sender, EventArgs e) => ApplyColumnVisibility();
+
+    private void ApplyColumnVisibility()
+    {
+        if (_viewModel is null)
+            return;
+        foreach (var gridColumn in ResultsGrid.Columns)
+        {
+            if (gridColumn.GetValue(ResultColumnProperty) is ResultColumn column)
+                gridColumn.Visibility = _viewModel.IsColumnShown(column) ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
+
+    private static readonly DependencyProperty ResultColumnProperty =
+        DependencyProperty.RegisterAttached("ResultColumn", typeof(ResultColumn), typeof(ResultsView));
+
+    // The picker shows the current choice when it opens (a new result clears it).
+    private void ColumnPicker_Opened(object? sender, EventArgs e)
+    {
+        if (_viewModel is null)
+            return;
+        _syncingPicker = true;
+        try
+        {
+            ColumnPickerList.SelectedItems.Clear();
+            foreach (var measure in _viewModel.ShownColumns)
+                ColumnPickerList.SelectedItems.Add(measure);
+        }
+        finally
+        {
+            _syncingPicker = false;
+        }
+    }
+
+    private bool _syncingPicker;
+
+    private void ColumnPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_syncingPicker || _viewModel is null)
+            return;
+        // SelectedItems is in click order; keep the result's column order instead.
+        var chosen = ColumnPickerList.SelectedItems.Cast<string>().ToHashSet();
+        _viewModel.ShowOnlyColumns(_viewModel.FailedColumns.Where(chosen.Contains).ToList());
+    }
+
+    private void ColumnPicker_ShowAll(object sender, RoutedEventArgs e)
+    {
+        ColumnPickerList.UnselectAll();
+        ColumnPickerPopup.IsOpen = false;
+    }
 
     private void BuildColumns()
     {
@@ -46,7 +108,7 @@ public partial class ResultsView : UserControl
                     ResultColumnKind.Percent => "P2",
                     _ => null,
                 },
-                TargetNullValue = column.Kind is ResultColumnKind.Value or ResultColumnKind.Key ? "(Blank)" : "",
+                TargetNullValue = column.Kind is ResultColumnKind.Value or ResultColumnKind.Key ? Strings.Blank : "",
             };
 
             var gridColumn = new DataGridTextColumn
@@ -56,7 +118,9 @@ public partial class ResultsView : UserControl
                 SortMemberPath = column.Index.ToString(),
                 Width = column.Kind == ResultColumnKind.Text ? new DataGridLength(1, DataGridLengthUnitType.Star) : DataGridLength.Auto,
                 MinWidth = column.Kind == ResultColumnKind.Text ? 200 : 60,
+                Visibility = _viewModel.IsColumnShown(column) ? Visibility.Visible : Visibility.Collapsed,
             };
+            gridColumn.SetValue(ResultColumnProperty, column);
 
             if (column.Kind is ResultColumnKind.Value or ResultColumnKind.Delta or ResultColumnKind.Percent)
             {
@@ -81,9 +145,12 @@ public partial class ResultsView : UserControl
         // Theme tones (follow the selected theme): success, danger, tile (one side only) and warning.
         foreach (var (text, background, foreground) in new[]
                  {
-                     ("Match", "SuccessSoftBrush", "SuccessBrush"), ("Mismatch", "DangerSoftBrush", "DangerBrush"),
-                     ("Only in A", "AccentSoftBrush", "TileTextBrush"), ("Only in B", "AccentSoftBrush", "TileTextBrush"),
-                     ("Invalid key", "WarningSoftBrush", "WarningBrush"),
+                     // Cells[0] holds the localized status text, so compare with the same text.
+                     (ExcelReportWriter.StatusText(RowStatus.Match), "SuccessSoftBrush", "SuccessBrush"),
+                     (ExcelReportWriter.StatusText(RowStatus.Mismatch), "DangerSoftBrush", "DangerBrush"),
+                     (ExcelReportWriter.StatusText(RowStatus.OnlyInA), "AccentSoftBrush", "TileTextBrush"),
+                     (ExcelReportWriter.StatusText(RowStatus.OnlyInB), "AccentSoftBrush", "TileTextBrush"),
+                     (ExcelReportWriter.StatusText(RowStatus.InvalidKey), "WarningSoftBrush", "WarningBrush"),
                  })
         {
             var trigger = new DataTrigger { Binding = new Binding("Cells[0]"), Value = text };

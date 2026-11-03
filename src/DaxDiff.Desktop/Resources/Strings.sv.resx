@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Language_System" xml:space="preserve"><value>Samma som Windows</value></data>
+  <data name="Language_SaveFailed" xml:space="preserve"><value>Språket kunde inte sparas: {0}</value></data>
+  <data name="Main_ProjectFilter" xml:space="preserve"><value>DAXDiff-projekt (*.pbicomp)|*.pbicomp</value></data>
+  <data name="Main_RunFinished" xml:space="preserve"><value>Körningen är klar: {0}.</value></data>
+  <data name="Nav_Home" xml:space="preserve"><value>Start</value></data>
+  <data name="Nav_Home_Hint" xml:space="preserve"><value>Nytt eller befintligt projekt</value></data>
+  <data name="Nav_Sources" xml:space="preserve"><value>Källor</value></data>
+  <data name="Nav_Sources_Hint" xml:space="preserve"><value>Anslut modell A och B</value></data>
+  <data name="Nav_Comparisons" xml:space="preserve"><value>Jämförelser</value></data>
+  <data name="Nav_Comparisons_Hint" xml:space="preserve"><value>Fält, nycklar, synonymer</value></data>
+  <data name="Nav_Options" xml:space="preserve"><value>Alternativ</value></data>
+  <data name="Nav_Options_Hint" xml:space="preserve"><value>Filter och toleranser</value></data>
+  <data name="Nav_Run" xml:space="preserve"><value>Kör</value></data>
+  <data name="Nav_Run_Hint" xml:space="preserve"><value>Kör jämförelser</value></data>
+  <data name="Nav_Results" xml:space="preserve"><value>Resultat</value></data>
+  <data name="Nav_Results_Hint" xml:space="preserve"><value>Granska och exportera</value></data>
+  <data name="Nav_Settings" xml:space="preserve"><value>Inställningar</value></data>
+  <data name="Nav_Settings_Hint" xml:space="preserve"><value>Inloggning, integritet, diagnostik</value></data>
+  <data name="Main_NoProject" xml:space="preserve"><value>Inget projekt</value></data>
+  <data name="Main_UnsavedChanges" xml:space="preserve"><value>Osparade ändringar</value></data>
+  <data name="Main_AllChangesSaved" xml:space="preserve"><value>Alla ändringar sparade</value></data>
+  <data name="Main_StartHint" xml:space="preserve"><value>Skapa ett nytt projekt eller öppna ett befintligt för att börja.</value></data>
+  <data name="Main_StepConnected" xml:space="preserve"><value>{0} av 2 anslutna</value></data>
+  <data name="Main_StepNoComparisons" xml:space="preserve"><value>Inga än</value></data>
+  <data name="Main_StepOneComparison" xml:space="preserve"><value>1 jämförelse</value></data>
+  <data name="Main_StepComparisons" xml:space="preserve"><value>{0} jämförelser</value></data>
+  <data name="Main_StepResults" xml:space="preserve"><value>Resultat: {0}</value></data>
+  <data name="Main_NewProjectFileName" xml:space="preserve"><value>Nytt projekt</value></data>
+  <data name="Main_NewProjectDialogTitle" xml:space="preserve"><value>Skapa ett nytt projekt</value></data>
+  <data name="Comparisons_DefaultName" xml:space="preserve"><value>Jämförelse {0}</value></data>
+  <data name="Main_ProjectCreated" xml:space="preserve"><value>Projektet har skapats i {0}. Välj de två modellerna och definiera sedan jämförelser.</value></data>
+  <data name="Main_OpenProjectDialogTitle" xml:space="preserve"><value>Öppna projekt</value></data>
+  <data name="Main_ProjectReadFailed" xml:space="preserve"><value>Projektfilen kunde inte läsas.</value></data>
+  <data name="Main_ProjectReadFailedRemedy" xml:space="preserve"><value>Kontrollera sökvägen och behörigheterna.</value></data>
+  <data name="Main_ProjectUpgraded" xml:space="preserve"><value>Projektet har uppgraderats från ett äldre format. Spara det för att behålla det nya formatet. Anslut båda modellerna igen för att validera jämförelserna.</value></data>
+  <data name="Main_ProjectOpened" xml:space="preserve"><value>Projektet har öppnats. Anslut båda modellerna igen; jämförelserna valideras mot aktuella metadata.</value></data>
+  <data name="Main_ProjectSaved" xml:space="preserve"><value>Projektet har sparats (källor och sparade jämförelser; inga inloggningsuppgifter, token eller resultat).</value></data>
+  <data name="Main_UnsavedComparisonsIntro" xml:space="preserve"><value>De här jämförelserna har osparade ändringar:</value></data>
+  <data name="Main_UnsavedComparisonsQuestion" xml:space="preserve"><value>Vill du spara dem också? (Nej behåller deras senast sparade versioner i projektet.)</value></data>
+  <data name="Main_UnsavedComparisonsTitle" xml:space="preserve"><value>Osparade jämförelser</value></data>
+  <data name="Main_SavedTo" xml:space="preserve"><value>Sparat i {0}. Körningar använder den sparade versionen av varje jämförelse.</value></data>
+  <data name="Main_SaveProjectAsDialogTitle" xml:space="preserve"><value>Spara projekt som</value></data>
+  <data name="Main_ProjectSavedAs" xml:space="preserve"><value>Projektet har sparats som {0}.</value></data>
+  <data name="Main_ProjectClosed" xml:space="preserve"><value>Projektet har stängts.</value></data>
+  <data name="Main_ProjectSaveFailed" xml:space="preserve"><value>Projektet kunde inte sparas.</value></data>
+  <data name="Main_ProjectSaveFailedRemedy" xml:space="preserve"><value>Välj en mapp som du kan skriva till.</value></data>
+  <data name="Main_DiscardDetail" xml:space="preserve"><value>Inklusive osparade ändringar i: {0}.</value></data>
+  <data name="Main_SaveChangesQuestion" xml:space="preserve"><value>Vill du spara ändringarna i projektet '{0}'?</value></data>
+  <data name="Main_SidesSwapped" xml:space="preserve"><value>Sidorna har bytts, inklusive alla jämförelsers fält och filter. Testa båda anslutningarna igen.</value></data>
+  <data name="Main_LaunchedFromDesktop" xml:space="preserve"><value>Startad från Power BI Desktop ({0}). Skapa eller öppna ett projekt; modell A kopplas till den sessionen.</value></data>
+  <data name="Source_Title" xml:space="preserve"><value>Modell {0}</value></data>
+  <data name="Source_SessionsNone" xml:space="preserve"><value>Inga öppna Power BI Desktop-modeller hittades. Öppna PBIX-filen i Power BI Desktop och sök sedan igen.</value></data>
+  <data name="Source_SessionsOne" xml:space="preserve"><value>En öppen modell hittades. Kontrollera att det är rätt fil och testa sedan anslutningen.</value></data>
+  <data name="Source_SessionsMany" xml:space="preserve"><value>{0} öppna modeller hittades. Välj rätt modell utifrån filnamn och port.</value></data>
+  <data name="Source_PbixFilter" xml:space="preserve"><value>Power BI-filer (*.pbix;*.pbip)|*.pbix;*.pbip|Alla filer (*.*)|*.*</value></data>
+  <data name="Source_PbixDialogTitle" xml:space="preserve"><value>Välj PBIX-filen som ska jämföras</value></data>
+  <data name="Source_OpenInDesktopHint" xml:space="preserve"><value>DAXDiff frågar modellen medan den är öppen i Power BI Desktop. Välj 'Öppna i Power BI Desktop', vänta tills den har lästs in och välj sedan 'Identifiera sessioner'.</value></data>
+  <data name="Source_ChoosePbixFirst" xml:space="preserve"><value>Välj en PBIX-fil först.</value></data>
+  <data name="Source_OpenInDesktopFailed" xml:space="preserve"><value>Filen kunde inte öppnas med Power BI Desktop.</value></data>
+  <data name="Source_OpenInDesktopFailedRemedy" xml:space="preserve"><value>Kontrollera att Power BI Desktop är installerat och kopplat till .pbix-filer.</value></data>
+  <data name="Source_LaunchedSession" xml:space="preserve"><value>Startad från Power BI Desktop</value></data>
+  <data name="Source_AttachedExternal" xml:space="preserve"><value>Kopplad från Externa verktyg i Power BI Desktop ({0}). Testa anslutningen för att läsa in metadata.</value></data>
+  <data name="Source_ServiceHintSignIn" xml:space="preserve"><value>Varje modell loggar in separat, så A och B kan finnas i samma eller olika klientorganisationer, med samma eller olika användare.</value></data>
+  <data name="Source_ServiceHintNoClientId" xml:space="preserve"><value>Inget Entra-klient-ID är konfigurerat (Inställningar), så DAXDiff kan inte logga in för att bläddra bland arbetsytor eller använda REST. XMLA fungerar utan det: ange ditt konto, arbetsytan (eller dess anslutningslänk) och modellen och välj sedan Testa anslutning. Microsofts inloggning använder det kontot och frågar efter det om det inte redan är inloggat.</value></data>
+  <data name="Source_NotSignedIn" xml:space="preserve"><value>Inte inloggad</value></data>
+  <data name="Source_SignedInAs" xml:space="preserve"><value>Inloggad som {0}</value></data>
+  <data name="Source_TenantSuffix" xml:space="preserve"><value> (klientorganisation {0})</value></data>
+  <data name="Source_SetupDocHint" xml:space="preserve"><value>Stegen för appregistreringen finns i docs/setup.md.</value></data>
+  <data name="Source_SignInDialogTitle" xml:space="preserve"><value>Logga in på Power BI</value></data>
+  <data name="Source_SigningIn" xml:space="preserve"><value>Loggar in…</value></data>
+  <data name="Source_SignedInWorkspaces" xml:space="preserve"><value>Inloggad som {0}. Tillgängliga arbetsytor: {1}.</value></data>
+  <data name="Source_SignedOut" xml:space="preserve"><value>Utloggad.</value></data>
+  <data name="Source_LoadingWorkspaces" xml:space="preserve"><value>Läser in arbetsytor…</value></data>
+  <data name="Source_WorkspacesAvailable" xml:space="preserve"><value>Tillgängliga arbetsytor: {0}.</value></data>
+  <data name="Source_NoCapacity" xml:space="preserve"><value>Arbetsytan finns inte på Premium-, PPU- eller Fabric-kapacitet, så XMLA är troligen inte tillgängligt. Överväg REST i stället.</value></data>
+  <data name="Source_LoadingModels" xml:space="preserve"><value>Läser in semantiska modeller…</value></data>
+  <data name="Source_ModelsInWorkspace" xml:space="preserve"><value>Semantiska modeller i {1}: {0}.</value></data>
+  <data name="Source_UsesRls" xml:space="preserve"><value>Modellen använder säkerhet på radnivå (RLS): resultaten speglar dina rollmedlemskap.</value></data>
+  <data name="Source_NotConnected" xml:space="preserve"><value>Inte ansluten.</value></data>
+  <data name="Source_NoMetadata" xml:space="preserve"><value>Inga metadata inlästa.</value></data>
+  <data name="Source_MetadataSummary" xml:space="preserve"><value>{0} tabeller, {1} kolumner, {2} mått</value></data>
+  <data name="Source_LastRefresh" xml:space="preserve"><value>; senast uppdaterad {0:yyyy-MM-dd HH:mm} UTC</value></data>
+  <data name="Source_NotConfigured" xml:space="preserve"><value>Inte konfigurerad</value></data>
+  <data name="Source_Restored" xml:space="preserve"><value>Den sparade källan har återställts. Logga in och testa anslutningen för att läsa in metadata igen.</value></data>
+  <data name="Source_SelectSessionFirst" xml:space="preserve"><value>Välj först en öppen Power BI Desktop-session (Identifiera sessioner).</value></data>
+  <data name="Source_SelectModelFirst" xml:space="preserve"><value>Ange eller välj först en arbetsyta och en semantisk modell.</value></data>
+  <data name="Source_Connecting" xml:space="preserve"><value>Ansluter…</value></data>
+  <data name="Source_LoadingMetadata" xml:space="preserve"><value>Ansluten. Läser in metadata…</value></data>
+  <data name="Source_ConnectedVia" xml:space="preserve"><value>Ansluten via {0}.</value></data>
+  <data name="Comparisons_CopyName" xml:space="preserve"><value>{0} kopia</value></data>
+  <data name="Comparisons_DeleteQuestion" xml:space="preserve"><value>Vill du ta bort jämförelsen '{0}'?</value></data>
+  <data name="Comparisons_SelectInTreeFirst" xml:space="preserve"><value>Välj först en tabell eller ett fält i trädet för modell {0}.</value></data>
+  <data name="Comparisons_FieldAlreadyIn" xml:space="preserve"><value>Fältet finns redan i jämförelsen.</value></data>
+  <data name="Comparisons_ColumnsAlreadyIn" xml:space="preserve"><value>Alla de kolumnerna finns redan i jämförelsen.</value></data>
+  <data name="Comparisons_SelectInGridFirst" xml:space="preserve"><value>Välj först ett eller flera fält i rutnätet för modell {0} (Ctrl+klicka eller Skift+klicka för att välja flera).</value></data>
+  <data name="Comparisons_ConnectTargetFirst" xml:space="preserve"><value>Anslut först modell {0} (sidan Källor) så att dess tabeller och kolumner är kända.</value></data>
+  <data name="Comparisons_FieldsAdded" xml:space="preserve"><value>Fält som lades till i modell {1}: {0}.</value></data>
+  <data name="Comparisons_FieldsAlreadyThere" xml:space="preserve"><value>{0} fanns redan.</value></data>
+  <data name="Comparisons_NotFoundInModel" xml:space="preserve"><value>Hittades inte i modell {0} (ingen tabell och kolumn med samma namn):</value></data>
+  <data name="Comparisons_AddSameTitle" xml:space="preserve"><value>Lägg till samma kolumner</value></data>
+  <data name="Comparisons_NoNewMatches" xml:space="preserve"><value>Inga nya matchningar hittades. Synonymer matchas med likvärdiga namn och synonymordlistan.</value></data>
+  <data name="Comparisons_SynonymsSet" xml:space="preserve"><value>Synonymer som angavs i modell B: {0}</value></data>
+  <data name="Comparisons_SynonymPair" xml:space="preserve"><value>{0} → '{1}' (paras med {2})</value></data>
+  <data name="Comparisons_AmbiguousSetByHand" xml:space="preserve"><value>Tvetydiga, ange dessa manuellt:</value></data>
+  <data name="Comparisons_MatchSynonymsTitle" xml:space="preserve"><value>Matcha synonymer</value></data>
+  <data name="Comparisons_ConnectBothFirst" xml:space="preserve"><value>Anslut först båda modellerna (sidan Källor).</value></data>
+  <data name="Comparisons_NoEquivalent" xml:space="preserve"><value>{0}: ingen motsvarighet hittades</value></data>
+  <data name="Comparisons_AddedAs" xml:space="preserve"><value>{0} som '{1}'</value></data>
+  <data name="Comparisons_NoFieldsAdded" xml:space="preserve"><value>Inga fält lades till i modell B.</value></data>
+  <data name="Comparisons_AddedFields" xml:space="preserve"><value>Fält som lades till i modell B: {0}</value></data>
+  <data name="Comparisons_NotMatchedInsertByHand" xml:space="preserve"><value>Inte matchade, infoga dessa manuellt:</value></data>
+  <data name="Comparisons_AddMatchingTitle" xml:space="preserve"><value>Lägg till matchande fält i modell B</value></data>
+  <data name="Editor_UnsavedChanges" xml:space="preserve"><value>Osparade ändringar – körningar använder den senast sparade versionen</value></data>
+  <data name="Editor_NotSavedYet" xml:space="preserve"><value>Inte sparad än – spara för att kunna köra den</value></data>
+  <data name="Editor_Saved" xml:space="preserve"><value>Sparad</value></data>
+  <data name="Editor_NotSavedRun" xml:space="preserve"><value>Inte sparad än – spara den på sidan Jämförelser för att kunna köra den</value></data>
+  <data name="Editor_SavedVersionErrors" xml:space="preserve"><value>Fel i den sparade versionen: {0}</value></data>
+  <data name="Editor_KeysValues" xml:space="preserve"><value>Nycklar: {0}, värden: {1}</value></data>
+  <data name="Editor_NewerChangesSuffix" xml:space="preserve"><value> · nyare ändringar är inte sparade</value></data>
+  <data name="Editor_ErrorsToFix" xml:space="preserve"><value>Fel att åtgärda: {0}</value></data>
+  <data name="Editor_KeysValuesCompared" xml:space="preserve"><value>Jämförs: {0} nycklar, {1} värden</value></data>
+  <data name="Editor_UnnamedComparison" xml:space="preserve"><value>Namnlös jämförelse</value></data>
+  <data name="Editor_NoCounterpart" xml:space="preserve"><value>Inget fält i modell {0} heter '{1}': jämförs inte</value></data>
+  <data name="Field_MeasureType" xml:space="preserve"><value>Mått · {0}</value></data>
+  <data name="Tree_Hidden" xml:space="preserve"><value>{0} (dold)</value></data>
+  <data name="Tree_HiddenSuffix" xml:space="preserve"><value> · dold</value></data>
+  <data name="Tree_AccessibleMeasure" xml:space="preserve"><value>Måttet {0} i {1}, {2}</value></data>
+  <data name="Tree_AccessibleColumn" xml:space="preserve"><value>Kolumnen {0} i {1}, {2}</value></data>
+  <data name="Options_NoFilters" xml:space="preserve"><value>Inga filter.</value></data>
+  <data name="Options_FiltersSummary" xml:space="preserve"><value>Filter ({0}): {1}</value></data>
+  <data name="Options_CannotGenerateQuery" xml:space="preserve"><value>Det går inte att skapa en fråga än: {0}</value></data>
+  <data name="Options_ConnectBothFirst" xml:space="preserve"><value>Anslut båda modellerna först.</value></data>
+  <data name="Options_FixErrorsFirst" xml:space="preserve"><value>Åtgärda först felen i jämförelsen:</value></data>
+  <data name="Options_Estimating" xml:space="preserve"><value>Uppskattar…</value></data>
+  <data name="Options_Estimate" xml:space="preserve"><value>Uppskattat antal nycklar – A: {0:N0}, B: {1:N0}.</value></data>
+  <data name="Options_EstimateExceedsCap" xml:space="preserve"><value>Överskrider radtaket ({0:N0}): körningen skulle bli ofullständig. Lägg till filter eller höj taket.</value></data>
+  <data name="Options_EstimateFailed" xml:space="preserve"><value>Uppskattningen misslyckades.</value></data>
+  <data name="Run_Waiting" xml:space="preserve"><value>Väntar</value></data>
+  <data name="Run_NotConnected" xml:space="preserve"><value>inte ansluten</value></data>
+  <data name="Run_TickOne" xml:space="preserve"><value>Markera minst en sparad jämförelse att köra. Jämförelser sparas med 'Spara jämförelse' på sidan Jämförelser.</value></data>
+  <data name="Run_ConnectBothFirst" xml:space="preserve"><value>Anslut och testa först båda modellerna i steget Källor.</value></data>
+  <data name="Run_CurrentOf" xml:space="preserve"><value>{0} ({1} av {2})</value></data>
+  <data name="Run_Queued" xml:space="preserve"><value>I kö</value></data>
+  <data name="Run_Cancelled" xml:space="preserve"><value>Avbruten</value></data>
+  <data name="Run_Finished" xml:space="preserve"><value>Klar</value></data>
+  <data name="Results_BannerComplete" xml:space="preserve"><value>{0}: Fullständig — alla frågor returnerades i sin helhet.</value></data>
+  <data name="Results_BannerPartial" xml:space="preserve"><value>{0}: OFULLSTÄNDIG — resultaten är inte kompletta. Att skillnader saknas bevisar inte att modellerna är lika.</value></data>
+  <data name="Results_BannerCancelled" xml:space="preserve"><value>{0}: AVBRUTEN — körningen slutfördes inte.</value></data>
+  <data name="Results_BannerFailed" xml:space="preserve"><value>{0}: MISSLYCKADES — {1}</value></data>
+  <data name="Results_SourceDetails" xml:space="preserve"><value>Utvärderad {0:yyyy-MM-dd HH:mm:ss} UTC · körning {1} · tolerans {2} (abs {3}, rel {4}) · frågor {5}</value></data>
+  <data name="Results_KpiKeys" xml:space="preserve"><value>Nycklar</value></data>
+  <data name="Results_KpiInvalidKeys" xml:space="preserve"><value>Ogiltiga nycklar</value></data>
+  <data name="Results_MeasureStats" xml:space="preserve"><value>{0}: {1:N0} avvikelser av {2:N0}; summor A {3:N2} / B {4:N2}; max |Δ| {5:N4}</value></data>
+  <data name="Results_SelectRow" xml:space="preserve"><value>Välj en rad för att se detaljer.</value></data>
+  <data name="Results_DetailStatus" xml:space="preserve"><value>Status: {0}</value></data>
+  <data name="Results_DetailReason" xml:space="preserve"><value>Orsak: {0}</value></data>
+  <data name="Results_NotApplicable" xml:space="preserve"><value>Ej tillämpligt</value></data>
+  <data name="Results_DetailNormalizedKey" xml:space="preserve"><value>Normaliserad nyckel: {0}</value></data>
+  <data name="Blank" xml:space="preserve"><value>(Tom)</value></data>
+  <data name="Results_ColumnStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="Results_ColumnReason" xml:space="preserve"><value>Orsak</value></data>
+  <data name="Results_VisibleCount" xml:space="preserve"><value>{0:N0} av {1:N0} rader</value></data>
+  <data name="Results_RowsOmitted" xml:space="preserve"><value>({0:N0} till visas inte på grund av jämförelsens resultatinställningar)</value></data>
+  <data name="Results_ExcelFilter" xml:space="preserve"><value>Excel-arbetsbok (*.xlsx)|*.xlsx</value></data>
+  <data name="Results_ExportDialogTitle" xml:space="preserve"><value>Exportera jämförelse</value></data>
+  <data name="Export_Sensitive" xml:space="preserve"><value>Arbetsboken kan innehålla känsliga affärsdata från båda modellerna.</value></data>
+  <data name="Export_Destination" xml:space="preserve"><value>Mål: {0}</value></data>
+  <data name="Export_AllDataRows" xml:space="preserve"><value>Alla datarader: {0}</value></data>
+  <data name="Export_DaxText" xml:space="preserve"><value>DAX-text: {0}</value></data>
+  <data name="Export_Included" xml:space="preserve"><value>tas med</value></data>
+  <data name="Export_AllDataOmitted" xml:space="preserve"><value>utelämnas (endast skillnader)</value></data>
+  <data name="Export_DaxOmitted" xml:space="preserve"><value>utelämnas (endast hashvärden)</value></data>
+  <data name="Export_IncompleteRun" xml:space="preserve"><value>Körningen är {0}; arbetsboken märks därefter.</value></data>
+  <data name="Export_Continue" xml:space="preserve"><value>Vill du fortsätta?</value></data>
+  <data name="Export_NoticeTitle" xml:space="preserve"><value>Export – känsliga uppgifter</value></data>
+  <data name="Export_Done" xml:space="preserve"><value>Exporterad till {0}.</value></data>
+  <data name="Export_OpenNow" xml:space="preserve"><value>Vill du öppna den nu?</value></data>
+  <data name="Export_DoneTitle" xml:space="preserve"><value>Exporten är klar</value></data>
+  <data name="Export_WriteFailed" xml:space="preserve"><value>Arbetsboken kunde inte skrivas.</value></data>
+  <data name="Export_WriteFailedRemedy" xml:space="preserve"><value>Stäng filen om den är öppen i Excel, eller välj en annan mapp.</value></data>
+  <data name="Results_DefaultFileName" xml:space="preserve"><value>Jämförelse</value></data>
+  <data name="Filter_SelectedCount" xml:space="preserve"><value>{0:N0} valda</value></data>
+  <data name="Filter_ChooseColumn" xml:space="preserve"><value>Välj en kolumn</value></data>
+  <data name="Filter_ChooseColumnA" xml:space="preserve"><value>Välj kolumnen i modell A.</value></data>
+  <data name="Filter_ChooseColumnB" xml:space="preserve"><value>Välj kolumnen i modell B som samma filter ska gälla.</value></data>
+  <data name="Filter_NoSecondCondition" xml:space="preserve"><value>(inget andra villkor)</value></data>
+  <data name="Filter_NotConnected" xml:space="preserve"><value>Modellerna är inte anslutna, så värden kan inte listas. Skriv värden nedan och välj Lägg till.</value></data>
+  <data name="Filter_LoadingValues" xml:space="preserve"><value>Läser in värden…</value></data>
+  <data name="Filter_ShowingFirst" xml:space="preserve"><value>Visar de första {0:N0} värdena i varje modell. Sök för att hitta andra.</value></data>
+  <data name="Filter_DistinctValuesAB" xml:space="preserve"><value>Unika värden i modell A och B: {0:N0}.</value></data>
+  <data name="Filter_DistinctValuesA" xml:space="preserve"><value>Unika värden i modell A: {0:N0}.</value></data>
+  <data name="Filter_LoadValuesFailed" xml:space="preserve"><value>Värdena kunde inte läsas in: {0}</value></data>
+  <data name="Filter_WindowTitle" xml:space="preserve"><value>Filter – {0}</value></data>
+  <data name="Filter_Problem" xml:space="preserve"><value>Filter {0} ({1}): {2}</value></data>
+  <data name="Settings_ThemeSaveFailed" xml:space="preserve"><value>Temat används men kunde inte sparas till nästa gång: {0}</value></data>
+  <data name="Settings_SignInConfigured" xml:space="preserve"><value>Konfigurerat. Varje källa loggar in separat på sidan Källor (egen klientorganisation och eget konto).</value></data>
+  <data name="Settings_SignInNotConfigured" xml:space="preserve"><value>Inget klient-ID: XMLA använder den inbyggda inloggningen; det går inte att bläddra bland arbetsytor eller använda REST.</value></data>
+  <data name="Settings_Privacy" xml:space="preserve"><value>DAXDiff körs lokalt och skickar ingen telemetri. Frågor är skrivskyddade och körs med din egen identitet. Inloggningstoken sparas bara i din Windows-krypterade tokencache och skrivs aldrig till projekt, loggar eller exporter. Loggar innehåller inga måttvärden, nyckelvärden eller DAX-text; frågor identifieras med en SHA-256-hash.</value></data>
+  <data name="Settings_ClientIdInvalid" xml:space="preserve"><value>Klient-ID:t måste vara ett GUID (program-ID:t för en offentlig klientappregistrering i Entra).</value></data>
+  <data name="Settings_SavedRestart" xml:space="preserve"><value>Sparat. Starta om DAXDiff för att inloggningsinställningarna ska gälla.</value></data>
+  <data name="Settings_SignedOutAll" xml:space="preserve"><value>Utloggad från alla konton och tokencachen har rensats. Logga in igen på sidan Källor.</value></data>
+  <data name="Settings_ResetQuestion" xml:space="preserve"><value>Vill du ta bort den aktuella jämförelsen (källor, mappningar, alternativ och resultat)?</value></data>
+  <data name="Dialog_DiagnosticCode" xml:space="preserve"><value>Diagnoskod: {0}</value></data>
+  <data name="Dialog_ProblemTitle" xml:space="preserve"><value>DAXDiff – problem</value></data>
+  <data name="Dialog_Open" xml:space="preserve"><value>Öppna</value></data>
+  <data name="Dialog_Save" xml:space="preserve"><value>Spara</value></data>
+  <data name="Theme_midnight" xml:space="preserve"><value>Midnatt</value></data>
+  <data name="Theme_midnight_Description" xml:space="preserve"><value>Mörk blågrön, standard</value></data>
+  <data name="Theme_daylight" xml:space="preserve"><value>Dagsljus</value></data>
+  <data name="Theme_daylight_Description" xml:space="preserve"><value>Ljust sidhuvud</value></data>
+  <data name="Theme_amber" xml:space="preserve"><value>Bärnsten</value></data>
+  <data name="Theme_amber_Description" xml:space="preserve"><value>Grafit och guld</value></data>
+  <data name="Theme_contrast" xml:space="preserve"><value>Hög kontrast</value></data>
+  <data name="Theme_contrast_Description" xml:space="preserve"><value>Svart och vitt med stark blå</value></data>
+  <data name="Theme_steel" xml:space="preserve"><value>Stål</value></data>
+  <data name="Theme_steel_Description" xml:space="preserve"><value>Skifferblå #778DA9</value></data>
+  <data name="Theme_deepsea" xml:space="preserve"><value>Djuphav</value></data>
+  <data name="Theme_deepsea_Description" xml:space="preserve"><value>Marinblå #415A77</value></data>
+  <data name="Theme_dusk" xml:space="preserve"><value>Skymning</value></data>
+  <data name="Theme_dusk_Description" xml:space="preserve"><value>Violettgrå #4A4E69</value></data>
+  <data name="Theme_ink" xml:space="preserve"><value>Mörk</value></data>
+  <data name="Theme_ink_Description" xml:space="preserve"><value>Nästan svart #040303</value></data>
+  <data name="Theme_blush" xml:space="preserve"><value>Rosa</value></data>
+  <data name="Theme_blush_Description" xml:space="preserve"><value>Mjukt rosa #FFA5AB</value></data>
+  <data name="Theme_plum" xml:space="preserve"><value>Plommon</value></data>
+  <data name="Theme_plum_Description" xml:space="preserve"><value>Djupt lila #582C4D</value></data>
+  <data name="Filter_FixFirst" xml:space="preserve"><value>Åtgärda de här filtren först, eller ta bort dem:</value></data>
+  <data name="Filter_FixFirstTitle" xml:space="preserve"><value>Filter</value></data>
+  <data name="Enum_Aggregation_None" xml:space="preserve"><value>Ingen</value></data>
+  <data name="Enum_Aggregation_Sum" xml:space="preserve"><value>Summa</value></data>
+  <data name="Enum_Aggregation_Average" xml:space="preserve"><value>Medelvärde</value></data>
+  <data name="Enum_Aggregation_Min" xml:space="preserve"><value>Min</value></data>
+  <data name="Enum_Aggregation_Max" xml:space="preserve"><value>Max</value></data>
+  <data name="Enum_Aggregation_Count" xml:space="preserve"><value>Antal</value></data>
+  <data name="Enum_Aggregation_DistinctCount" xml:space="preserve"><value>Antal unika</value></data>
+  <data name="Enum_Aggregation_Concatenate" xml:space="preserve"><value>Sammanfoga</value></data>
+  <data name="Enum_ToleranceMode_Exact" xml:space="preserve"><value>Exakt</value></data>
+  <data name="Enum_ToleranceMode_Tolerance" xml:space="preserve"><value>Tolerans</value></data>
+  <data name="Enum_NullPolicy_Strict" xml:space="preserve"><value>Strikt</value></data>
+  <data name="Enum_NullPolicy_BlankEqualsZero" xml:space="preserve"><value>BLANK är lika med noll</value></data>
+  <data name="Enum_TextComparison_Ordinal" xml:space="preserve"><value>Ordningstal (skiftlägeskänslig)</value></data>
+  <data name="Enum_TextComparison_OrdinalIgnoreCase" xml:space="preserve"><value>Ordningstal, ignorera skiftläge</value></data>
+  <data name="Enum_PercentBaseline_A" xml:space="preserve"><value>Modell A</value></data>
+  <data name="Enum_PercentBaseline_B" xml:space="preserve"><value>Modell B</value></data>
+  <data name="Enum_UnicodeNormalization_None" xml:space="preserve"><value>Ingen</value></data>
+  <data name="Enum_UnicodeNormalization_FormC" xml:space="preserve"><value>Form C (NFC)</value></data>
+  <data name="Enum_UnicodeNormalization_FormKC" xml:space="preserve"><value>Form KC (NFKC)</value></data>
+  <data name="Enum_DuplicateKeyPolicy_Fail" xml:space="preserve"><value>Låt körningen misslyckas</value></data>
+  <data name="Enum_DuplicateKeyPolicy_Diagnose" xml:space="preserve"><value>Diagnostisera (rapportera och uteslut)</value></data>
+  <data name="Enum_ResultFilter_All" xml:space="preserve"><value>Alla</value></data>
+  <data name="Enum_ResultFilter_Match" xml:space="preserve"><value>Lika</value></data>
+  <data name="Enum_ResultFilter_Mismatch" xml:space="preserve"><value>Avvikelse</value></data>
+  <data name="Enum_ResultFilter_OnlyInA" xml:space="preserve"><value>Endast i A</value></data>
+  <data name="Enum_ResultFilter_OnlyInB" xml:space="preserve"><value>Endast i B</value></data>
+  <data name="Enum_ResultFilter_InvalidKey" xml:space="preserve"><value>Ogiltig nyckel</value></data>
+  <data name="Enum_RowStatus_Match" xml:space="preserve"><value>Lika</value></data>
+  <data name="Enum_RowStatus_Mismatch" xml:space="preserve"><value>Avvikelse</value></data>
+  <data name="Enum_RowStatus_OnlyInA" xml:space="preserve"><value>Endast i A</value></data>
+  <data name="Enum_RowStatus_OnlyInB" xml:space="preserve"><value>Endast i B</value></data>
+  <data name="Enum_RowStatus_InvalidKey" xml:space="preserve"><value>Ogiltig nyckel</value></data>
+  <data name="Enum_SourceKind_DesktopSession" xml:space="preserve"><value>Power BI Desktop</value></data>
+  <data name="Enum_SourceKind_ServiceXmla" xml:space="preserve"><value>Power BI-tjänsten (XMLA)</value></data>
+  <data name="Enum_SourceKind_ServiceRest" xml:space="preserve"><value>Power BI-tjänsten (REST)</value></data>
+  <data name="Enum_ConnectionState_NotConnected" xml:space="preserve"><value>Inte ansluten</value></data>
+  <data name="Enum_ConnectionState_Working" xml:space="preserve"><value>Arbetar</value></data>
+  <data name="Enum_ConnectionState_Connected" xml:space="preserve"><value>Ansluten</value></data>
+  <data name="Enum_ConnectionState_Failed" xml:space="preserve"><value>Misslyckades</value></data>
+  <data name="Enum_RunStatus_Complete" xml:space="preserve"><value>Fullständig</value></data>
+  <data name="Enum_RunStatus_Partial" xml:space="preserve"><value>Ofullständig</value></data>
+  <data name="Enum_RunStatus_Failed" xml:space="preserve"><value>Misslyckades</value></data>
+  <data name="Enum_RunStatus_Cancelled" xml:space="preserve"><value>Avbruten</value></data>
+  <data name="Enum_ResultRows_All" xml:space="preserve"><value>Lika och skillnader</value></data>
+  <data name="Enum_ResultRows_DifferencesOnly" xml:space="preserve"><value>Endast skillnader</value></data>
+  <data name="Enum_DataKind_Unknown" xml:space="preserve"><value>Okänd</value></data>
+  <data name="Enum_DataKind_Text" xml:space="preserve"><value>Text</value></data>
+  <data name="Enum_DataKind_Integer" xml:space="preserve"><value>Heltal</value></data>
+  <data name="Enum_DataKind_Decimal" xml:space="preserve"><value>Decimaltal</value></data>
+  <data name="Enum_DataKind_Double" xml:space="preserve"><value>Flyttal</value></data>
+  <data name="Enum_DataKind_Boolean" xml:space="preserve"><value>Sant/falskt</value></data>
+  <data name="Enum_DataKind_DateTime" xml:space="preserve"><value>Datum/tid</value></data>
+  <data name="Enum_FieldKind_Column" xml:space="preserve"><value>Kolumn</value></data>
+  <data name="Enum_FieldKind_Measure" xml:space="preserve"><value>Mått</value></data>
+  <data name="Enum_FieldRole_Key" xml:space="preserve"><value>Nyckel</value></data>
+  <data name="Enum_FieldRole_Value" xml:space="preserve"><value>Värde</value></data>
+  <data name="Enum_MetadataSupport_None" xml:space="preserve"><value>Ingen</value></data>
+  <data name="Enum_MetadataSupport_Partial" xml:space="preserve"><value>Delvis</value></data>
+  <data name="Enum_MetadataSupport_Full" xml:space="preserve"><value>Fullständig</value></data>
+  <data name="Common_Yes" xml:space="preserve"><value>Ja</value></data>
+  <data name="Common_No" xml:space="preserve"><value>Nej</value></data>
+  <data name="Language_RestartTitle" xml:space="preserve"><value>Byt språk</value></data>
+  <data name="Language_RestartQuestion" xml:space="preserve"><value>Språket är sparat. Vill du starta om DAXDiff nu för att byta till det?
+
+Ditt öppna projekt öppnas igen efter omstarten; anslut modellerna igen där. Välj Nej för att byta nästa gång du startar DAXDiff.</value></data>
+  <data name="Language_RestartFailed" xml:space="preserve"><value>DAXDiff kunde inte starta om sig själv: {0}
+Stäng DAXDiff och starta det igen för att byta språk.</value></data>
+  <data name="Language_RestartNoPath" xml:space="preserve"><value>sökvägen till det program som körs är okänd.</value></data>
+  <data name="Results_ColumnsAll" xml:space="preserve"><value>Alla kolumner ({0} med avvikelser)</value></data>
+  <data name="Results_ColumnsSome" xml:space="preserve"><value>Endast: {0}</value></data>
+</root>

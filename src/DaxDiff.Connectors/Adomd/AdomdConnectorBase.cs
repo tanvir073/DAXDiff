@@ -1,6 +1,8 @@
 using DaxDiff.Domain;
 using Microsoft.AnalysisServices.AdomdClient;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using DaxDiff.Connectors.Resources;
 
 namespace DaxDiff.Connectors.Adomd;
 
@@ -129,7 +131,7 @@ public abstract class AdomdConnectorBase : IModelConnector
             ColumnNames = names,
             Rows = rows,
             IsTruncated = truncated,
-            TruncationReason = truncated ? $"Result exceeded the row cap of {options.MaxRows:N0}." : null,
+            TruncationReason = truncated ? string.Format(CultureInfo.CurrentCulture, Strings.Truncated_RowCap, options.MaxRows) : null,
         };
     }
 

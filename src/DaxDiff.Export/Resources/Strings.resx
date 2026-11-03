@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Workbook_Title" xml:space="preserve"><value>DAXDiff comparison</value></data>
+  <data name="Workbook_Comments" xml:space="preserve"><value>Run {0} – {1}</value></data>
+  <data name="Sheet_Summary" xml:space="preserve"><value>Summary</value></data>
+  <data name="Sheet_Differences" xml:space="preserve"><value>Differences</value></data>
+  <data name="Sheet_AllData" xml:space="preserve"><value>All Data</value></data>
+  <data name="Sheet_FieldMapping" xml:space="preserve"><value>Field Mapping</value></data>
+  <data name="Sheet_Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Sheet_ExecutionLog" xml:space="preserve"><value>Execution Log</value></data>
+  <data name="Sheet_Continued" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="AllData_Omitted" xml:space="preserve"><value>All compared rows were omitted from this workbook by export settings (data minimization).</value></data>
+  <data name="AllData_TotalKeys" xml:space="preserve"><value>Total compared keys: {0:N0}. Re-export with 'Include all data' to add them.</value></data>
+  <data name="Summary_Title" xml:space="preserve"><value>DAXDiff comparison summary</value></data>
+  <data name="Summary_BannerPartial" xml:space="preserve"><value>PARTIAL RESULT – the comparison is incomplete. Do not treat missing differences as equality.</value></data>
+  <data name="Summary_BannerCancelled" xml:space="preserve"><value>CANCELLED – this run was cancelled before completion. Results are not complete.</value></data>
+  <data name="Summary_BannerFailed" xml:space="preserve"><value>FAILED – the comparison did not complete. </value></data>
+  <data name="Summary_Comparison" xml:space="preserve"><value>Comparison</value></data>
+  <data name="Summary_RunId" xml:space="preserve"><value>Run ID</value></data>
+  <data name="Summary_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Summary_Started" xml:space="preserve"><value>Started (UTC)</value></data>
+  <data name="Summary_Finished" xml:space="preserve"><value>Finished (UTC)</value></data>
+  <data name="Summary_Model" xml:space="preserve"><value>Model {0}</value></data>
+  <data name="Summary_ModelSourceType" xml:space="preserve"><value>Model {0} source type</value></data>
+  <data name="Summary_ModelIdentity" xml:space="preserve"><value>Model {0} identity</value></data>
+  <data name="Summary_ModelLastRefresh" xml:space="preserve"><value>Model {0} last refresh (UTC)</value></data>
+  <data name="Summary_ScopeNotice" xml:space="preserve"><value>Scope notice</value></data>
+  <data name="Summary_ScopeNoticeText" xml:space="preserve"><value>Results are as observed by the current caller on each side; row-level and object-level security may hide data.</value></data>
+  <data name="Summary_RowsRetrieved" xml:space="preserve"><value>Rows retrieved {0}</value></data>
+  <data name="Summary_TotalKeys" xml:space="preserve"><value>Total keys</value></data>
+  <data name="Summary_Matches" xml:space="preserve"><value>Matches</value></data>
+  <data name="Summary_ValueMismatches" xml:space="preserve"><value>Value mismatches</value></data>
+  <data name="Summary_OnlyInA" xml:space="preserve"><value>Only in A</value></data>
+  <data name="Summary_OnlyInB" xml:space="preserve"><value>Only in B</value></data>
+  <data name="Summary_InvalidKeys" xml:space="preserve"><value>Invalid / duplicate keys</value></data>
+  <data name="Summary_DifferenceRowsExported" xml:space="preserve"><value>Difference rows exported</value></data>
+  <data name="Summary_RowsNotListed" xml:space="preserve"><value>Rows not listed (result settings)</value></data>
+  <data name="Summary_DifferenceSheets" xml:space="preserve"><value>Difference sheets</value></data>
+  <data name="Summary_MatchRate" xml:space="preserve"><value>Match rate</value></data>
+  <data name="Summary_HeaderValue" xml:space="preserve"><value>Value</value></data>
+  <data name="Summary_HeaderComparedKeys" xml:space="preserve"><value>Compared keys</value></data>
+  <data name="Summary_HeaderMismatches" xml:space="preserve"><value>Mismatches</value></data>
+  <data name="Summary_HeaderTotal" xml:space="preserve"><value>Total {0}</value></data>
+  <data name="Summary_HeaderTotalDifference" xml:space="preserve"><value>Total A − B</value></data>
+  <data name="Summary_HeaderMaxDelta" xml:space="preserve"><value>Max |Δ|</value></data>
+  <data name="Summary_Warnings" xml:space="preserve"><value>Warnings</value></data>
+  <data name="Rows_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Rows_Reason" xml:space="preserve"><value>Reason</value></data>
+  <data name="Rows_NormalizedKey" xml:space="preserve"><value>Normalized key</value></data>
+  <data name="Mapping_Role" xml:space="preserve"><value>Role</value></data>
+  <data name="Mapping_Synonym" xml:space="preserve"><value>Synonym</value></data>
+  <data name="Mapping_Table" xml:space="preserve"><value>{0} table</value></data>
+  <data name="Mapping_Field" xml:space="preserve"><value>{0} field</value></data>
+  <data name="Mapping_Aggregation" xml:space="preserve"><value>{0} aggregation</value></data>
+  <data name="Mapping_Type" xml:space="preserve"><value>{0} type</value></data>
+  <data name="Mapping_ActiveFilters" xml:space="preserve"><value>Active filters</value></data>
+  <data name="Mapping_NoFilters" xml:space="preserve"><value>None</value></data>
+  <data name="Mapping_Measure" xml:space="preserve"><value>[{0}] (measure)</value></data>
+  <data name="Settings_Setting" xml:space="preserve"><value>Setting</value></data>
+  <data name="Settings_Value" xml:space="preserve"><value>Value</value></data>
+  <data name="Settings_ToleranceMode" xml:space="preserve"><value>Tolerance mode</value></data>
+  <data name="Settings_AbsoluteTolerance" xml:space="preserve"><value>Absolute tolerance</value></data>
+  <data name="Settings_RelativeTolerance" xml:space="preserve"><value>Relative tolerance</value></data>
+  <data name="Settings_TolerancePredicate" xml:space="preserve"><value>Tolerance predicate</value></data>
+  <data name="Settings_TolerancePredicateText" xml:space="preserve"><value>abs(A−B) ≤ max(absolute, relative × max(|A|, |B|))</value></data>
+  <data name="Settings_NullPolicy" xml:space="preserve"><value>Null policy</value></data>
+  <data name="Settings_TextComparison" xml:space="preserve"><value>Text comparison</value></data>
+  <data name="Settings_PercentBaseline" xml:space="preserve"><value>Percent baseline</value></data>
+  <data name="Settings_KeyTrimWhitespace" xml:space="preserve"><value>Key: trim whitespace</value></data>
+  <data name="Settings_KeyCaseInsensitive" xml:space="preserve"><value>Key: case-insensitive</value></data>
+  <data name="Settings_KeyUnicode" xml:space="preserve"><value>Key: Unicode normalization</value></data>
+  <data name="Settings_KeyBlankEqualsEmpty" xml:space="preserve"><value>Key: blank equals empty text</value></data>
+  <data name="Settings_KeyDateOnly" xml:space="preserve"><value>Key: date only</value></data>
+  <data name="Settings_DuplicateKeyPolicy" xml:space="preserve"><value>Duplicate key policy</value></data>
+  <data name="Settings_MaxRowsPerSide" xml:space="preserve"><value>Max rows per side</value></data>
+  <data name="Settings_Timeout" xml:space="preserve"><value>Timeout (seconds)</value></data>
+  <data name="Settings_Retries" xml:space="preserve"><value>Retries</value></data>
+  <data name="Settings_ResultRows" xml:space="preserve"><value>Result rows</value></data>
+  <data name="Settings_ResultRowsDifferencesOnly" xml:space="preserve"><value>Differences only</value></data>
+  <data name="Settings_ResultRowsAll" xml:space="preserve"><value>Matches and differences</value></data>
+  <data name="Settings_ResultRowLimit" xml:space="preserve"><value>Result row limit</value></data>
+  <data name="Settings_NoLimit" xml:space="preserve"><value>No limit</value></data>
+  <data name="Settings_QueryScope" xml:space="preserve"><value>Query scope</value></data>
+  <data name="Settings_QueryScopeText" xml:space="preserve"><value>{0} key(s), {1} value(s), {2} filter(s)</value></data>
+  <data name="Log_Side" xml:space="preserve"><value>Side</value></data>
+  <data name="Log_Transport" xml:space="preserve"><value>Transport</value></data>
+  <data name="Log_Model" xml:space="preserve"><value>Model</value></data>
+  <data name="Log_QueryHash" xml:space="preserve"><value>Query SHA-256</value></data>
+  <data name="Log_Duration" xml:space="preserve"><value>Duration (ms)</value></data>
+  <data name="Log_Rows" xml:space="preserve"><value>Rows</value></data>
+  <data name="Log_Attempts" xml:space="preserve"><value>Attempts</value></data>
+  <data name="Log_Truncated" xml:space="preserve"><value>Truncated</value></data>
+  <data name="Log_Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Log_Completeness" xml:space="preserve"><value>Completeness</value></data>
+  <data name="Log_RunId" xml:space="preserve"><value>Run ID</value></data>
+  <data name="Log_AppVersion" xml:space="preserve"><value>Application version</value></data>
+  <data name="Log_ModelWarnings" xml:space="preserve"><value>Model {0} warnings</value></data>
+  <data name="Status_Match" xml:space="preserve"><value>Match</value></data>
+  <data name="Status_Mismatch" xml:space="preserve"><value>Mismatch</value></data>
+  <data name="Status_OnlyInA" xml:space="preserve"><value>Only in A</value></data>
+  <data name="Status_OnlyInB" xml:space="preserve"><value>Only in B</value></data>
+  <data name="Status_InvalidKey" xml:space="preserve"><value>Invalid key</value></data>
+  <data name="Enum_RunStatus_Complete" xml:space="preserve"><value>Complete</value></data>
+  <data name="Enum_RunStatus_Partial" xml:space="preserve"><value>Partial</value></data>
+  <data name="Enum_RunStatus_Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="Enum_RunStatus_Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Enum_SourceKind_DesktopSession" xml:space="preserve"><value>DesktopSession</value></data>
+  <data name="Enum_SourceKind_ServiceXmla" xml:space="preserve"><value>ServiceXmla</value></data>
+  <data name="Enum_SourceKind_ServiceRest" xml:space="preserve"><value>ServiceRest</value></data>
+  <data name="Enum_FieldRole_Key" xml:space="preserve"><value>Key</value></data>
+  <data name="Enum_FieldRole_Value" xml:space="preserve"><value>Value</value></data>
+  <data name="Enum_Aggregation_None" xml:space="preserve"><value>None</value></data>
+  <data name="Enum_Aggregation_Sum" xml:space="preserve"><value>Sum</value></data>
+  <data name="Enum_Aggregation_Average" xml:space="preserve"><value>Average</value></data>
+  <data name="Enum_Aggregation_Min" xml:space="preserve"><value>Min</value></data>
+  <data name="Enum_Aggregation_Max" xml:space="preserve"><value>Max</value></data>
+  <data name="Enum_Aggregation_Count" xml:space="preserve"><value>Count</value></data>
+  <data name="Enum_Aggregation_DistinctCount" xml:space="preserve"><value>DistinctCount</value></data>
+  <data name="Enum_Aggregation_Concatenate" xml:space="preserve"><value>Concatenate</value></data>
+  <data name="Enum_DataKind_Unknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="Enum_DataKind_Text" xml:space="preserve"><value>Text</value></data>
+  <data name="Enum_DataKind_Integer" xml:space="preserve"><value>Integer</value></data>
+  <data name="Enum_DataKind_Decimal" xml:space="preserve"><value>Decimal</value></data>
+  <data name="Enum_DataKind_Double" xml:space="preserve"><value>Double</value></data>
+  <data name="Enum_DataKind_Boolean" xml:space="preserve"><value>Boolean</value></data>
+  <data name="Enum_DataKind_DateTime" xml:space="preserve"><value>DateTime</value></data>
+  <data name="Enum_ToleranceMode_Exact" xml:space="preserve"><value>Exact</value></data>
+  <data name="Enum_ToleranceMode_Tolerance" xml:space="preserve"><value>Tolerance</value></data>
+  <data name="Enum_NullPolicy_Strict" xml:space="preserve"><value>Strict</value></data>
+  <data name="Enum_NullPolicy_BlankEqualsZero" xml:space="preserve"><value>BlankEqualsZero</value></data>
+  <data name="Enum_TextComparison_Ordinal" xml:space="preserve"><value>Ordinal</value></data>
+  <data name="Enum_TextComparison_OrdinalIgnoreCase" xml:space="preserve"><value>OrdinalIgnoreCase</value></data>
+  <data name="Enum_UnicodeNormalization_None" xml:space="preserve"><value>None</value></data>
+  <data name="Enum_DuplicateKeyPolicy_Fail" xml:space="preserve"><value>Fail</value></data>
+  <data name="Enum_DuplicateKeyPolicy_Diagnose" xml:space="preserve"><value>Diagnose</value></data>
+  <data name="Enum_FilterOperator_In" xml:space="preserve"><value>In</value></data>
+  <data name="Enum_FilterOperator_NotIn" xml:space="preserve"><value>NotIn</value></data>
+</root>

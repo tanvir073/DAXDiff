@@ -6,6 +6,20 @@ using DaxDiff.Desktop.ViewModels;
 
 namespace DaxDiff.Desktop;
 
+/// <summary>
+/// Shows an enum value in the UI language: the Strings resource "Enum_&lt;Type&gt;_&lt;Value&gt;", else the value's name.
+/// </summary>
+public sealed class EnumTextConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) =>
+        value is Enum e ? Text(e) : value;
+
+    public static string Text(Enum value) =>
+        Resources.Strings.ResourceManager.GetString($"Enum_{value.GetType().Name}_{value}") ?? value.ToString();
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
+}
+
 public sealed class InverseBoolConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value is not true;

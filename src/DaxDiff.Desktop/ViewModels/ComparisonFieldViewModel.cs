@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using DaxDiff.Domain;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.ViewModels;
 
@@ -22,7 +23,9 @@ public sealed partial class ComparisonFieldViewModel : ObservableObject
     public DataKind DataKind { get; }
     public bool IsMeasure => Field.Kind == FieldKind.Measure;
     public string FieldText => IsMeasure ? $"Σ {Field.Table}.[{Field.Name}]" : $"{Field.Table}[{Field.Name}]";
-    public string TypeText => IsMeasure ? $"Measure · {DataKind}" : DataKind.ToString();
+    public string TypeText => IsMeasure
+        ? Localized.Format(Strings.Field_MeasureType, EnumTextConverter.Text(DataKind))
+        : EnumTextConverter.Text(DataKind);
 
     /// <summary>Measures are evaluated as defined, so they cannot be keys.</summary>
     public bool CanBeKey => !IsMeasure;

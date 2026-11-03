@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using DaxDiff.Domain;
+using DaxDiff.Comparison.Resources;
 
 namespace DaxDiff.Comparison;
 
@@ -223,6 +224,6 @@ public static class DaxQueryBuilder
                 return StringLiteral(value);
         }
 
-        throw new FormatException($"Filter value '{value}' is not a valid {kind} literal.");
+        throw new FormatException(string.Format(CultureInfo.CurrentCulture, Strings.Flt_InvalidLiteral, value, kind));
     }
 }

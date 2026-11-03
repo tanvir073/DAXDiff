@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Truncated_RowCap" xml:space="preserve"><value>Result exceeded the row cap of {0:N0}.</value></data>
+  <data name="SignedInUser" xml:space="preserve"><value>Signed-in user</value></data>
+  <data name="Desk_NoSession" xml:space="preserve"><value>'{0}' is not attached to a running Power BI Desktop session.</value></data>
+  <data name="Remedy_DeskNoSession" xml:space="preserve"><value>Open the PBIX in Power BI Desktop, then choose 'Detect sessions' and select it (or launch DAXDiff from External Tools).</value></data>
+  <data name="Desk_TransportName" xml:space="preserve"><value>Power BI Desktop (local Analysis Services)</value></data>
+  <data name="Desk_SecurityContextShort" xml:space="preserve"><value>Local Desktop session</value></data>
+  <data name="Desk_NoteKeepOpen" xml:space="preserve"><value>The PBIX must stay open in Power BI Desktop for the duration of the run.</value></data>
+  <data name="Desk_NoteNoRls" xml:space="preserve"><value>Desktop sessions run with model-administrator rights: row-level security roles are not applied.</value></data>
+  <data name="Desk_SecurityContext" xml:space="preserve"><value>{0} via local Desktop session (model admin; RLS not applied)</value></data>
+  <data name="Desk_SessionName" xml:space="preserve"><value>{0} (port {1})</value></data>
+  <data name="Desk_UnnamedSession" xml:space="preserve"><value>Power BI Desktop session (port {0})</value></data>
+  <data name="Xmla_NoTarget" xml:space="preserve"><value>Select a workspace and semantic model first.</value></data>
+  <data name="Remedy_XmlaNoTarget" xml:space="preserve"><value>Choose the workspace and model in the Sources step.</value></data>
+  <data name="Xmla_TransportName" xml:space="preserve"><value>Power BI Service – XMLA endpoint</value></data>
+  <data name="Xmla_NoteCapacity" xml:space="preserve"><value>Requires Premium, PPU or Fabric capacity with XMLA read enabled.</value></data>
+  <data name="Xmla_NoteRls" xml:space="preserve"><value>Results reflect the signed-in user's permissions; RLS/OLS apply to Viewer-level access, while workspace Admins, Members and Contributors bypass RLS.</value></data>
+  <data name="Xmla_SecurityContext" xml:space="preserve"><value>{0} via XMLA (as observed by current caller)</value></data>
+  <data name="Xmla_InTenant" xml:space="preserve"><value>{0} in tenant {1}</value></data>
+  <data name="Xmla_NoteNoClientId" xml:space="preserve"><value>No client ID configured: ADOMD's built-in interactive sign-in is used.</value></data>
+  <data name="Auth_NoClientId" xml:space="preserve"><value>No Entra ID client ID is configured, so DAXDiff cannot sign in to the Power BI service itself.</value></data>
+  <data name="Remedy_AuthNoClientId" xml:space="preserve"><value>Ask your administrator for the client ID of a DAXDiff app registration and enter it in Settings (see docs/setup.md). XMLA connections still work without it: type the workspace and model names and Test; Microsoft's sign-in appears then.</value></data>
+  <data name="Auth_Cancelled" xml:space="preserve"><value>Sign-in was cancelled.</value></data>
+  <data name="Remedy_AuthCancelled" xml:space="preserve"><value>Sign in again to continue.</value></data>
+  <data name="Auth_Failed" xml:space="preserve"><value>Sign-in failed: {0}</value></data>
+  <data name="Remedy_AuthFailed" xml:space="preserve"><value>Check the tenant and client ID in Settings, then sign in again. Your administrator may need to grant consent.</value></data>
+  <data name="Auth_TransportLabel" xml:space="preserve"><value>Sign-in</value></data>
+</root>

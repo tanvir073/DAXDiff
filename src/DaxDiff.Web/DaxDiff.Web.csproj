@@ -26,6 +26,8 @@
       inline scripts. Static hosts such as GitHub Pages set their own short cache lifetimes.
     -->
     <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <!-- The web UI is English only, so leave out the libraries' Swedish text (it would mix with English pages). -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

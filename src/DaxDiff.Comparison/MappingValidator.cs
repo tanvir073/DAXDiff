@@ -1,4 +1,6 @@
 using DaxDiff.Domain;
+using System.Globalization;
+using DaxDiff.Comparison.Resources;
 
 namespace DaxDiff.Comparison;
 
@@ -10,6 +12,9 @@ public enum IssueSeverity
 
 public sealed record ValidationIssue(IssueSeverity Severity, string Code, string Message, string? Alias = null)
 {
+    /// <summary>The model the issue is about when it concerns one side only, so the UI can show it next to that side's field.</summary>
+    public Side? Side { get; init; }
+
     public override string ToString() => $"{Severity}: {Message}";
 }
 
@@ -24,14 +29,14 @@ public static class MappingValidator
         var issues = new List<ValidationIssue>();
 
         if (config.FieldPairs.Count == 0)
-            issues.Add(Error("MAP-EMPTY", "Nothing to compare: give a model A field and a model B field the same synonym."));
+            issues.Add(Error("MAP-EMPTY", Strings.Map_NothingToCompare));
         else if (config.Keys.Count == 0)
-            issues.Add(Warning("MAP-NO-KEY", "No key fields: values are compared as grand totals only."));
+            issues.Add(Warning("MAP-NO-KEY", Strings.Map_NoKey));
 
         foreach (var pair in config.FieldPairs)
         {
             if (string.IsNullOrWhiteSpace(pair.Alias))
-                issues.Add(Error("MAP-ALIAS", $"Pair {pair.Left} → {pair.Right} needs a synonym.", pair.Alias));
+                issues.Add(Error("MAP-ALIAS", Format(Strings.Map_PairNeedsSynonym, pair.Left, pair.Right), pair.Alias));
 
             CheckRole(issues, pair, pair.Left, pair.LeftAggregation, Side.A);
             CheckRole(issues, pair, pair.Right, pair.RightAggregation, Side.B);
@@ -45,32 +50,32 @@ public static class MappingValidator
             }
         }
 
-        CheckDuplicates(issues, config.FieldPairs, p => p.Alias.Trim().ToUpperInvariant(), p => p.Alias, "MAP-DUP-ALIAS", "Label '{0}' is used more than once.");
+        CheckDuplicates(issues, config.FieldPairs, p => p.Alias.Trim().ToUpperInvariant(), p => p.Alias, "MAP-DUP-ALIAS", Strings.Map_DuplicateLabel);
         foreach (var role in new[] { FieldRole.Key, FieldRole.Value })
         {
             var pairs = config.FieldPairs.Where(p => p.Role == role).ToList();
-            CheckDuplicates(issues, pairs, p => Key(p.Left), p => p.Left.ToString(), "MAP-DUP-LEFT", "Model A field {0} is mapped more than once.");
-            CheckDuplicates(issues, pairs, p => Key(p.Right), p => p.Right.ToString(), "MAP-DUP-RIGHT", "Model B field {0} is mapped more than once.");
+            CheckDuplicates(issues, pairs, p => Key(p.Left), p => p.Left.ToString(), "MAP-DUP-LEFT", Strings.Map_DuplicateLeft);
+            CheckDuplicates(issues, pairs, p => Key(p.Right), p => p.Right.ToString(), "MAP-DUP-RIGHT", Strings.Map_DuplicateRight);
         }
 
         for (var i = 0; i < config.Options.Filters.Count; i++)
             ValidateFilter(issues, config.Options.Filters[i], i + 1, a, b);
 
         if (config.Options.Tolerance.Absolute < 0 || config.Options.Tolerance.Relative < 0)
-            issues.Add(Error("OPT-TOL", "Tolerances cannot be negative."));
+            issues.Add(Error("OPT-TOL", Strings.Opt_NegativeTolerance));
         if (config.Options.Limits.MaxRows <= 0)
-            issues.Add(Error("OPT-ROWS", "Maximum rows must be greater than zero."));
+            issues.Add(Error("OPT-ROWS", Strings.Opt_MaxRows));
         if (config.Options.Limits.TimeoutSeconds <= 0)
-            issues.Add(Error("OPT-TIMEOUT", "Timeout must be greater than zero."));
+            issues.Add(Error("OPT-TIMEOUT", Strings.Opt_Timeout));
         if (config.Options.Results.MaxRows is <= 0)
-            issues.Add(Error("OPT-RESULT-ROWS", "The result row limit must be greater than zero."));
+            issues.Add(Error("OPT-RESULT-ROWS", Strings.Opt_ResultRows));
 
         foreach (var (meta, side) in new[] { (a, Side.A), (b, Side.B) })
         {
             if (meta is null)
                 continue;
             foreach (var warning in meta.Warnings)
-                issues.Add(Warning("MODEL-NOTE", $"Model {side}: {warning}"));
+                issues.Add(Warning("MODEL-NOTE", Format(Strings.Map_ModelNote, side, warning)) with { Side = side });
         }
 
         return issues;
@@ -86,24 +91,24 @@ public static class MappingValidator
         if (pair.Role == FieldRole.Key)
         {
             if (field.Kind != FieldKind.Column)
-                issues.Add(Error("MAP-ROLE", $"'{pair.Alias}': model {side} key {field} must be a column, not a measure.", pair.Alias));
+                issues.Add(Error("MAP-ROLE", Format(Strings.Map_KeyMustBeColumn, pair.Alias, side, field), pair.Alias) with { Side = side });
             else if (aggregation != Aggregation.None)
-                issues.Add(Error("MAP-AGG", $"'{pair.Alias}': model {side} key {field} cannot be aggregated.", pair.Alias));
+                issues.Add(Error("MAP-AGG", Format(Strings.Map_KeyAggregated, pair.Alias, side, field), pair.Alias) with { Side = side });
         }
         else if (field.Kind == FieldKind.Measure && aggregation != Aggregation.None)
         {
-            issues.Add(Error("MAP-AGG", $"'{pair.Alias}': model {side} measure {field} is evaluated as defined and cannot be aggregated again.", pair.Alias));
+            issues.Add(Error("MAP-AGG", Format(Strings.Map_MeasureAggregated, pair.Alias, side, field), pair.Alias) with { Side = side });
         }
         else if (field.Kind == FieldKind.Column && aggregation == Aggregation.None)
         {
-            issues.Add(Error("MAP-AGG", $"'{pair.Alias}': model {side} column {field} has no aggregation. Choose one (for example Sum or Count), or mark it as a key on both sides.", pair.Alias));
+            issues.Add(Error("MAP-AGG", Format(Strings.Map_ColumnNeedsAggregation, pair.Alias, side, field), pair.Alias) with { Side = side });
         }
     }
 
     private static void CheckExists(List<ValidationIssue> issues, FieldRef field, ModelMetadata? meta, Side side, string alias)
     {
         if (meta is not null && !meta.Contains(field))
-            issues.Add(Error("MAP-MISSING", $"'{alias}': {field} no longer exists in model {side} (renamed or deleted?). Replace it in the comparison.", alias));
+            issues.Add(Error("MAP-MISSING", Format(Strings.Map_Missing, alias, field, side), alias) with { Side = side });
     }
 
     private static void CheckTypes(List<ValidationIssue> issues, FieldPair pair, DataKind left, DataKind right)
@@ -112,16 +117,16 @@ public static class MappingValidator
             return;
 
         if (pair.Role == FieldRole.Key)
-            issues.Add(Error("MAP-TYPE", $"'{pair.Alias}': key types differ ({left} vs {right}); keys would never match. Choose compatible columns.", pair.Alias));
+            issues.Add(Error("MAP-TYPE", Format(Strings.Map_KeyTypesDiffer, pair.Alias, left, right), pair.Alias));
         else
-            issues.Add(Warning("MAP-TYPE", $"'{pair.Alias}': value types differ ({left} vs {right}); values will be reported as type mismatches. Check the aggregations.", pair.Alias));
+            issues.Add(Warning("MAP-TYPE", Format(Strings.Map_ValueTypesDiffer, pair.Alias, left, right), pair.Alias));
     }
 
     private static void CheckDuplicates<T>(
         List<ValidationIssue> issues, IEnumerable<T> items, Func<T, string> key, Func<T, string> display, string code, string format)
     {
         foreach (var group in items.GroupBy(key).Where(g => g.Count() > 1))
-            issues.Add(Error(code, string.Format(format, display(group.First()))));
+            issues.Add(Error(code, Format(format, display(group.First()))));
     }
 
     /// <summary>Checks one filter: columns exist on both sides and every value or condition is valid for the column type (FR-020).</summary>
@@ -132,23 +137,35 @@ public static class MappingValidator
         return issues;
     }
 
-    private static void ValidateFilter(List<ValidationIssue> issues, FilterPair filter, int number, ModelMetadata? a, ModelMetadata? b)
+    /// <summary>Checks the filter being edited in the filter pop-up; messages say "this filter" instead of a number.</summary>
+    public static IReadOnlyList<ValidationIssue> ValidateFilter(FilterPair filter, ModelMetadata? a, ModelMetadata? b)
     {
+        var issues = new List<ValidationIssue>();
+        ValidateFilter(issues, filter, null, a, b);
+        return issues;
+    }
+
+    private static void ValidateFilter(List<ValidationIssue> issues, FilterPair filter, int? number, ModelMetadata? a, ModelMetadata? b)
+    {
+        // Messages name the filter by number, except in the pop-up where only one filter is being edited.
+        string Text(string numbered, string single, params object?[] args) =>
+            number is { } n ? Format(numbered, [n, .. args]) : Format(single, args);
+
         if (filter.Kind == FilterKind.Basic && filter.Values.Count == 0 && !filter.IncludeBlank)
-            issues.Add(Error("FLT-EMPTY", $"Filter {number} has no values selected."));
+            issues.Add(Error("FLT-EMPTY", Text(Strings.Flt_NoValues, Strings.FltItem_NoValues)));
         if (filter.Kind == FilterKind.Advanced && filter.Conditions.Count is 0 or > 2)
-            issues.Add(Error("FLT-CONDITIONS", $"Filter {number} needs one or two conditions."));
+            issues.Add(Error("FLT-CONDITIONS", Text(Strings.Flt_Conditions, Strings.FltItem_Conditions)));
         if (filter.Kind == FilterKind.Advanced)
         {
             foreach (var condition in filter.Conditions.Where(c => FilterPair.NeedsValue(c.Operator) && c.Value.Length == 0))
-                issues.Add(Error("FLT-VALUE", $"Filter {number}: enter a value for \"{FilterPair.OperatorText(condition.Operator)}\"."));
+                issues.Add(Error("FLT-VALUE", Text(Strings.Flt_EnterValue, Strings.FltItem_EnterValue, FilterPair.OperatorText(condition.Operator))));
         }
 
         foreach (var (column, meta, side) in new[] { (filter.LeftColumn, a, Side.A), (filter.RightColumn, b, Side.B) })
         {
             if (column.Kind != FieldKind.Column)
             {
-                issues.Add(Error("FLT-KIND", $"Filter {number}: model {side} filter must target a column."));
+                issues.Add(Error("FLT-KIND", Text(Strings.Flt_TargetColumn, Strings.FltItem_TargetColumn, side)) with { Side = side });
                 continue;
             }
 
@@ -156,7 +173,7 @@ public static class MappingValidator
                 continue;
             if (!meta.Contains(column))
             {
-                issues.Add(Error("FLT-MISSING", $"Filter {number}: {column} does not exist in model {side}."));
+                issues.Add(Error("FLT-MISSING", Text(Strings.Flt_Missing, Strings.FltItem_Missing, column, side)) with { Side = side });
                 continue;
             }
 
@@ -174,7 +191,7 @@ public static class MappingValidator
                 }
                 catch (FormatException ex)
                 {
-                    issues.Add(Error("FLT-VALUE", $"Filter {number}, model {side}: {ex.Message}"));
+                    issues.Add(Error("FLT-VALUE", Text(Strings.Flt_Value, Strings.FltItem_Value, side, ex.Message)) with { Side = side });
                 }
             }
 
@@ -182,10 +199,12 @@ public static class MappingValidator
             {
                 var allowed = FilterPair.OperatorsFor(kind);
                 foreach (var condition in filter.Conditions.Where(c => !allowed.Contains(c.Operator)))
-                    issues.Add(Error("FLT-OPERATOR", $"Filter {number}, model {side}: \"{FilterPair.OperatorText(condition.Operator)}\" is not available for a {kind} column."));
+                    issues.Add(Error("FLT-OPERATOR", Text(Strings.Flt_OperatorNotAvailable, Strings.FltItem_OperatorNotAvailable, side, FilterPair.OperatorText(condition.Operator), kind)) with { Side = side });
             }
         }
     }
+
+    private static string Format(string format, params object?[] args) => string.Format(CultureInfo.CurrentCulture, format, args);
 
     private static ValidationIssue Error(string code, string message, string? alias = null) => new(IssueSeverity.Error, code, message, alias);
 

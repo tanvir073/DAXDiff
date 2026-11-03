@@ -3,6 +3,8 @@ using System.Management;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using DaxDiff.Connectors.Resources;
 
 namespace DaxDiff.Connectors.Desktop;
 
@@ -24,8 +26,10 @@ public sealed record DesktopSession(
         {
             var title = WindowTitle?.Replace(" - Power BI Desktop", "", StringComparison.OrdinalIgnoreCase).Trim();
             if (!string.IsNullOrEmpty(PbixPath))
-                return $"{Path.GetFileNameWithoutExtension(PbixPath)} (port {Port})";
-            return string.IsNullOrEmpty(title) ? $"Power BI Desktop session (port {Port})" : $"{title} (port {Port})";
+                return string.Format(CultureInfo.CurrentCulture, Strings.Desk_SessionName, Path.GetFileNameWithoutExtension(PbixPath), Port);
+            return string.IsNullOrEmpty(title)
+                ? string.Format(CultureInfo.CurrentCulture, Strings.Desk_UnnamedSession, Port)
+                : string.Format(CultureInfo.CurrentCulture, Strings.Desk_SessionName, title, Port);
         }
     }
 }

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using DaxDiff.Comparison;
 using DaxDiff.Connectors;
 using DaxDiff.Domain;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.ViewModels;
 
@@ -31,7 +32,7 @@ public sealed partial class FilterValueItem : ObservableObject
     /// <summary>The value as an invariant typed literal; null is BLANK.</summary>
     public string? Value { get; }
 
-    public string Display => Value ?? "(Blank)";
+    public string Display => Value ?? Strings.Blank;
 
     [ObservableProperty]
     private bool _isSelected;
@@ -152,9 +153,9 @@ public sealed partial class FilterItemViewModel : ObservableObject
 
     public DataKind LeftKind => LeftColumn is null ? DataKind.Unknown : _context.MetadataA?.KindOf(LeftColumn) ?? DataKind.Unknown;
 
-    public string SelectedCountText => $"{_selected.Count + (_blankSelected ? 1 : 0):N0} selected";
+    public string SelectedCountText => Localized.Format(Strings.Filter_SelectedCount, _selected.Count + (_blankSelected ? 1 : 0));
 
-    public string Summary => ToFilter()?.Describe() ?? "Choose a column";
+    public string Summary => ToFilter()?.Describe() ?? Strings.Filter_ChooseColumn;
 
     /// <summary>Problems with this filter as it stands; empty when it is valid.</summary>
     public string Issues
@@ -162,9 +163,8 @@ public sealed partial class FilterItemViewModel : ObservableObject
         get
         {
             if (LeftColumn is null || RightColumn is null)
-                return LeftColumn is null ? "Choose the model A column." : "Choose the model B column to apply the same filter to.";
-            var issues = MappingValidator.ValidateFilter(ToFilter()!, 1, _context.MetadataA, _context.MetadataB)
-                .Select(i => i.Message.Replace("Filter 1, model", "Model").Replace("Filter 1: ", "").Replace("Filter 1 ", "This filter "));
+                return LeftColumn is null ? Strings.Filter_ChooseColumnA : Strings.Filter_ChooseColumnB;
+            var issues = MappingValidator.ValidateFilter(ToFilter()!, _context.MetadataA, _context.MetadataB).Select(i => i.Message);
             return string.Join(Environment.NewLine, issues);
         }
     }
@@ -224,7 +224,7 @@ public sealed partial class FilterItemViewModel : ObservableObject
     private void RefreshOperators()
     {
         Condition1Options = FilterPair.OperatorsFor(LeftKind).Select(o => new OperatorOption(o, FilterPair.OperatorText(o))).ToList();
-        Condition2Options = [new OperatorOption(null, "(no second condition)"), .. Condition1Options];
+        Condition2Options = [new OperatorOption(null, Strings.Filter_NoSecondCondition), .. Condition1Options];
         Condition1 = Option(Condition1?.Operator) ?? Condition1Options.FirstOrDefault();
         Condition2 = Option(Condition2?.Operator) ?? Condition2Options[0];
     }
@@ -253,12 +253,12 @@ public sealed partial class FilterItemViewModel : ObservableObject
             if (sources.Count == 0)
             {
                 RebuildValueList([]);
-                ValuesStatus = "Models are not connected, so values cannot be listed. Type values below and Add.";
+                ValuesStatus = Strings.Filter_NotConnected;
                 return;
             }
 
             IsLoading = true;
-            ValuesStatus = "Loading values…";
+            ValuesStatus = Strings.Filter_LoadingValues;
             var values = new SortedSet<string>(StringComparer.Ordinal);
             var hasBlank = false;
             var more = false;
@@ -281,15 +281,15 @@ public sealed partial class FilterItemViewModel : ObservableObject
                 return;
             RebuildValueList(values, hasBlank || string.IsNullOrWhiteSpace(SearchText));
             ValuesStatus = more
-                ? $"Showing the first {MaxValues:N0} values of each model. Search to find others."
-                : $"{values.Count + (hasBlank ? 1 : 0):N0} distinct value(s) in {(sources.Count == 2 ? "models A and B" : "model A")}.";
+                ? Localized.Format(Strings.Filter_ShowingFirst, MaxValues)
+                : Localized.Format(sources.Count == 2 ? Strings.Filter_DistinctValuesAB : Strings.Filter_DistinctValuesA, values.Count + (hasBlank ? 1 : 0));
         }
         catch (OperationCanceledException)
         {
         }
         catch (Exception ex)
         {
-            ValuesStatus = "Could not load values: " + (ex is DaxDiffException d ? d.Message : ex.Message);
+            ValuesStatus = Localized.Format(Strings.Filter_LoadValuesFailed, ex is DaxDiffException d ? d.Message : ex.Message);
         }
         finally
         {
@@ -376,7 +376,7 @@ public sealed partial class FilterEditorViewModel : ObservableObject
     public FilterEditorViewModel(string comparisonName, FilterEditorContext context, IEnumerable<FilterPair> filters)
     {
         _context = context;
-        Title = $"Filters – {comparisonName}";
+        Title = Localized.Format(Strings.Filter_WindowTitle, comparisonName);
         foreach (var filter in filters)
             Filters.Add(new FilterItemViewModel(context, filter));
         Selected = Filters.FirstOrDefault();
@@ -425,7 +425,7 @@ public sealed partial class FilterEditorViewModel : ObservableObject
         var problems = Filters
             .Select((f, i) => (f, i))
             .Where(x => x.f.Issues.Length > 0)
-            .Select(x => $"Filter {x.i + 1} ({x.f.Summary}): {x.f.Issues}")
+            .Select(x => Localized.Format(Strings.Filter_Problem, x.i + 1, x.f.Summary, x.f.Issues))
             .ToList();
         return (Filters.Select(f => f.ToFilter()).OfType<FilterPair>().ToList(), string.Join(Environment.NewLine, problems));
     }

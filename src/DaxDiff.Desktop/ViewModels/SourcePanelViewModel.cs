@@ -11,6 +11,7 @@ using DaxDiff.Connectors.Service;
 using DaxDiff.Desktop.Services;
 using DaxDiff.Domain;
 using Microsoft.Extensions.Logging;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.ViewModels;
 
@@ -55,7 +56,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     }
 
     public Side Side { get; }
-    public string Title => $"Model {Side}";
+    public string Title => Localized.Format(Strings.Source_Title, Side);
 
     /// <summary>Raised when metadata was (re)loaded or cleared.</summary>
     public event EventHandler? MetadataChanged;
@@ -97,9 +98,9 @@ public sealed partial class SourcePanelViewModel : ObservableObject
                           ?? (Sessions.Count == 1 ? Sessions[0] : null);
         StatusText = Sessions.Count switch
         {
-            0 => "No running Power BI Desktop models found. Open the PBIX in Power BI Desktop, then detect again.",
-            1 => "One running model found. Verify it is the right file, then Test.",
-            _ => $"{Sessions.Count} running models found. Pick the right one by file name and port.",
+            0 => Strings.Source_SessionsNone,
+            1 => Strings.Source_SessionsOne,
+            _ => Localized.Format(Strings.Source_SessionsMany, Sessions.Count),
         };
     }
 
@@ -117,11 +118,11 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     [RelayCommand]
     private void BrowsePbix()
     {
-        var path = _dialogs.OpenFile("Power BI files (*.pbix;*.pbip)|*.pbix;*.pbip|All files (*.*)|*.*", "Choose the PBIX to compare");
+        var path = _dialogs.OpenFile(Strings.Source_PbixFilter, Strings.Source_PbixDialogTitle);
         if (path is null)
             return;
         PbixPath = path;
-        StatusText = "DAXDiff queries the model while it is open in Power BI Desktop. Choose 'Open in Power BI Desktop', wait for it to load, then 'Detect sessions'.";
+        StatusText = Strings.Source_OpenInDesktopHint;
     }
 
     [RelayCommand]
@@ -129,7 +130,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     {
         if (string.IsNullOrEmpty(PbixPath) || !File.Exists(PbixPath))
         {
-            _dialogs.ShowInfo("Choose a PBIX file first.");
+            _dialogs.ShowInfo(Strings.Source_ChoosePbixFirst);
             return;
         }
 
@@ -140,7 +141,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         catch (Exception ex)
         {
             _dialogs.ShowError(new DaxDiffException(ErrorCategory.Configuration, "DESK-OPEN",
-                "Could not open the file with Power BI Desktop.", "Make sure Power BI Desktop is installed and associated with .pbix files.", Side, inner: ex));
+                Strings.Source_OpenInDesktopFailed, Strings.Source_OpenInDesktopFailedRemedy, Side, inner: ex));
         }
     }
 
@@ -153,13 +154,13 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         var match = Sessions.FirstOrDefault(s => s.Port == port);
         if (match is null)
         {
-            match = new DesktopSession(0, port, "", null, "Launched from Power BI Desktop", null);
+            match = new DesktopSession(0, port, "", null, Strings.Source_LaunchedSession, null);
             Sessions.Insert(0, match);
         }
 
         SelectedSession = match;
         _externalDatabase = database;
-        StatusText = $"Attached from Power BI Desktop External Tools ({server}). Test the connection to load metadata.";
+        StatusText = Localized.Format(Strings.Source_AttachedExternal, server);
     }
 
     // ---- Service -----------------------------------------------------------------------------
@@ -174,10 +175,8 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     public bool CanBrowseService => Auth.IsConfigured;
 
     public string ServiceHint => Auth.IsConfigured
-        ? "Each model signs in separately, so A and B can be in the same tenant or in different tenants, as the same or different users."
-        : "No Entra client ID is configured (Settings), so DAXDiff cannot sign in to browse workspaces or use REST. " +
-          "XMLA works without it: enter your account, the workspace (or its connection link) and the model, then Test connection. " +
-          "Microsoft's sign-in uses that account, and asks for it when it is not signed in yet.";
+        ? Strings.Source_ServiceHintSignIn
+        : Strings.Source_ServiceHintNoClientId;
 
     /// <summary>
     /// Tenant of this source: a domain (contoso.com) or tenant ID, or "organizations" for the signed-in user's own
@@ -219,10 +218,13 @@ public sealed partial class SourcePanelViewModel : ObservableObject
 
     public bool IsSignedIn => SignedInAs is not null;
 
-    public string SignInStatusText => SignedInAs is null ? "Not signed in" : $"Signed in as {SignedInAs}";
+    public string SignInStatusText => SignedInAs is null ? Strings.Source_NotSignedIn : Localized.Format(Strings.Source_SignedInAs, SignedInAs);
 
     private string SignedInText(AuthToken token) =>
-        $"{token.Account}{(AuthOptions.IsHomeTenant(Tenant) ? "" : $" (tenant {Tenant})")}";
+        token.Account + TenantSuffix();
+
+    /// <summary>" (tenant …)" after the account when the source signs in to another tenant than the user's own.</summary>
+    private string TenantSuffix() => AuthOptions.IsHomeTenant(Tenant) ? "" : Localized.Format(Strings.Source_TenantSuffix, Tenant);
 
     [ObservableProperty]
     private string _workspaceSearch = "";
@@ -259,17 +261,17 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     {
         if (!Auth.IsConfigured)
         {
-            _dialogs.ShowInfo(ServiceHint + Environment.NewLine + Environment.NewLine + "See docs/setup.md for the app registration steps.", "Sign in to Power BI");
+            _dialogs.ShowInfo(ServiceHint + Environment.NewLine + Environment.NewLine + Strings.Source_SetupDocHint, Strings.Source_SignInDialogTitle);
             return;
         }
 
-        await GuardAsync("Signing in…", async () =>
+        await GuardAsync(Strings.Source_SigningIn, async () =>
         {
             Disconnect();
             var token = await Auth.SignInAsync(CancellationToken.None);
             SignedInAs = SignedInText(token);
             await LoadWorkspacesAsync();
-            StatusText = $"Signed in as {SignedInAs}. {Workspaces.Count} workspace(s) available.";
+            StatusText = Localized.Format(Strings.Source_SignedInWorkspaces, SignedInAs, Workspaces.Count);
         }, setConnected: false);
     }
 
@@ -281,7 +283,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         SignedInAs = null;
         Workspaces.Clear();
         Datasets.Clear();
-        StatusText = "Signed out.";
+        StatusText = Strings.Source_SignedOut;
     }
 
     [RelayCommand]
@@ -289,10 +291,10 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     {
         if (!Auth.IsConfigured)
             return;
-        await GuardAsync("Loading workspaces…", async () =>
+        await GuardAsync(Strings.Source_LoadingWorkspaces, async () =>
         {
             await LoadWorkspacesAsync();
-            StatusText = $"{Workspaces.Count} workspace(s) available.";
+            StatusText = Localized.Format(Strings.Source_WorkspacesAvailable, Workspaces.Count);
         }, setConnected: false);
     }
 
@@ -315,14 +317,14 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         WorkspaceName = value.Name;
         _workspaceId = value.Id;
         if (!value.IsOnDedicatedCapacity && Kind == SourceKind.ServiceXmla)
-            StatusText = "This workspace is not on Premium/PPU/Fabric capacity, so XMLA is likely unavailable. Consider the REST transport.";
+            StatusText = Strings.Source_NoCapacity;
 
-        await GuardAsync("Loading semantic models…", async () =>
+        await GuardAsync(Strings.Source_LoadingModels, async () =>
         {
             foreach (var dataset in await _session.Discovery.GetDatasetsAsync(value.Id, CancellationToken.None))
                 Datasets.Add(dataset);
             SelectedDataset = Datasets.FirstOrDefault(d => d.Id == _datasetId || d.Name == DatasetName);
-            StatusText = $"{Datasets.Count} semantic model(s) in {value.Name}.";
+            StatusText = Localized.Format(Strings.Source_ModelsInWorkspace, Datasets.Count, value.Name);
         }, setConnected: false);
     }
 
@@ -333,7 +335,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         DatasetName = value.Name;
         _datasetId = value.Id;
         if (value.IsEffectiveIdentityRequired)
-            StatusText = "This model uses row-level security: results will reflect your role membership.";
+            StatusText = Strings.Source_UsesRls;
     }
 
     // ---- Connection --------------------------------------------------------------------------
@@ -342,10 +344,14 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     private ConnectionState _state;
 
     [ObservableProperty]
-    private string _statusText = "Not connected.";
+    private string _statusText = Strings.Source_NotConnected;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanQueryText))]
     private ConnectorCapabilities? _capabilities;
+
+    /// <summary>"Yes"/"No" in the UI language for the capabilities panel.</summary>
+    public string CanQueryText => Capabilities is null ? "" : Capabilities.CanQuery ? Strings.Common_Yes : Strings.Common_No;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MetadataSummary))]
@@ -357,12 +363,12 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     public IModelConnector? Connector { get; private set; }
 
     public string MetadataSummary => Metadata is null
-        ? "No metadata loaded."
-        : $"{Metadata.Tables.Count} tables, {Metadata.AllColumns.Count()} columns, {Metadata.Measures.Count} measures" +
-          (Metadata.LastRefreshUtc is { } r ? $"; last refresh {r:yyyy-MM-dd HH:mm} UTC" : "");
+        ? Strings.Source_NoMetadata
+        : Localized.Format(Strings.Source_MetadataSummary, Metadata.Tables.Count, Metadata.AllColumns.Count(), Metadata.Measures.Count) +
+          (Metadata.LastRefreshUtc is { } r ? Localized.Format(Strings.Source_LastRefresh, r) : "");
 
     /// <summary>Always-visible source identity (FR-001).</summary>
-    public string Identity => BuildReference()?.Describe() ?? "Not configured";
+    public string Identity => BuildReference()?.Describe() ?? Strings.Source_NotConfigured;
 
     public ModelReference? BuildReference()
     {
@@ -417,7 +423,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         if (Kind == SourceKind.DesktopSession)
             DetectSessions();
         else
-            StatusText = "Saved source restored. Sign in and Test to reload metadata.";
+            StatusText = Strings.Source_Restored;
     }
 
     partial void OnKindChanged(SourceKind value) => Disconnect();
@@ -435,27 +441,27 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         if (reference is null || (Kind == SourceKind.DesktopSession && SelectedSession is null))
         {
             _dialogs.ShowInfo(Kind == SourceKind.DesktopSession
-                ? "Select a running Power BI Desktop session first (Detect sessions)."
-                : "Enter or select a workspace and semantic model first.");
+                ? Strings.Source_SelectSessionFirst
+                : Strings.Source_SelectModelFirst);
             return;
         }
 
-        await GuardAsync("Connecting…", async () =>
+        await GuardAsync(Strings.Source_Connecting, async () =>
         {
             await DisposeConnectorAsync();
             var connector = _factory.Create(reference, _session);
             Connector = connector;
             await connector.ConnectAsync(CancellationToken.None);
-            StatusText = "Connected. Loading metadata…";
+            StatusText = Strings.Source_LoadingMetadata;
             var metadata = await connector.DiscoverMetadataAsync(CancellationToken.None);
             if (Kind != SourceKind.DesktopSession && _workspaceId is not null && _datasetId is not null && Auth.IsConfigured)
                 metadata = metadata with { LastRefreshUtc = metadata.LastRefreshUtc ?? await _session.Discovery.GetLastRefreshAsync(_workspaceId, _datasetId, CancellationToken.None) };
             if (Auth.SignedInAccount is not null)
-                SignedInAs = Auth.SignedInAccount + (AuthOptions.IsHomeTenant(Tenant) ? "" : $" (tenant {Tenant})");
+                SignedInAs = Auth.SignedInAccount + TenantSuffix();
             Metadata = metadata;
             Capabilities = connector.Capabilities;
             SecurityContext = connector.SecurityContext;
-            StatusText = $"Connected via {connector.Capabilities.TransportName}.";
+            StatusText = Localized.Format(Strings.Source_ConnectedVia, connector.Capabilities.TransportName);
             _logger.LogInformation("Model {Side} connected via {Transport}", Side, connector.Capabilities.TransportName);
             MetadataChanged?.Invoke(this, EventArgs.Empty);
         });
@@ -476,7 +482,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         Capabilities = null;
         SecurityContext = null;
         State = ConnectionState.NotConnected;
-        StatusText = "Not connected.";
+        StatusText = Strings.Source_NotConnected;
         OnPropertyChanged(nameof(Identity));
     }
 

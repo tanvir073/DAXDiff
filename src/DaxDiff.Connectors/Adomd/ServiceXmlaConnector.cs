@@ -3,6 +3,8 @@ using DaxDiff.Domain;
 using Microsoft.AnalysisServices;
 using Microsoft.AnalysisServices.AdomdClient;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using DaxDiff.Connectors.Resources;
 
 namespace DaxDiff.Connectors.Adomd;
 
@@ -23,24 +25,26 @@ public sealed class ServiceXmlaConnector : AdomdConnectorBase
         _options = options;
         if (string.IsNullOrWhiteSpace(reference.WorkspaceName) || string.IsNullOrWhiteSpace(reference.DatasetName))
             throw new DaxDiffException(ErrorCategory.Configuration, "XMLA-NO-TARGET",
-                "Select a workspace and semantic model first.", "Choose the workspace and model in the Sources step.");
+                Strings.Xmla_NoTarget, Strings.Remedy_XmlaNoTarget);
     }
 
     public override ConnectorCapabilities Capabilities { get; protected set; } = new()
     {
-        TransportName = "Power BI Service – XMLA endpoint",
+        TransportName = Strings.Xmla_TransportName,
         CanQuery = true,
         Metadata = MetadataSupport.Full,
-        SecurityContext = "Signed-in user",
+        SecurityContext = Strings.SignedInUser,
         Notes =
         [
-            "Requires Premium, PPU or Fabric capacity with XMLA read enabled.",
-            "Results reflect the signed-in user's permissions; RLS/OLS apply to Viewer-level access, while workspace Admins, Members and Contributors bypass RLS.",
+            Strings.Xmla_NoteCapacity,
+            Strings.Xmla_NoteRls,
         ],
     };
 
     public override string SecurityContext =>
-        $"{_account ?? _auth.SignedInAccount ?? "Signed-in user"}{(AuthOptions.IsHomeTenant(Reference.TenantId) ? "" : $" in tenant {Reference.TenantId}")} via XMLA (as observed by current caller)";
+        string.Format(CultureInfo.CurrentCulture, Strings.Xmla_SecurityContext, AuthOptions.IsHomeTenant(Reference.TenantId)
+            ? _account ?? _auth.SignedInAccount ?? Strings.SignedInUser
+            : string.Format(CultureInfo.CurrentCulture, Strings.Xmla_InTenant, _account ?? _auth.SignedInAccount ?? Strings.SignedInUser, Reference.TenantId));
 
     protected override string TransportName => "Power BI XMLA";
 
@@ -98,7 +102,7 @@ public sealed class ServiceXmlaConnector : AdomdConnectorBase
         {
             Capabilities = Capabilities with
             {
-                Notes = [.. Capabilities.Notes, "No client ID configured: ADOMD's built-in interactive sign-in is used."],
+                Notes = [.. Capabilities.Notes, Strings.Xmla_NoteNoClientId],
             };
         }
 

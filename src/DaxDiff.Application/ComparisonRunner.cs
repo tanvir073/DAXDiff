@@ -7,6 +7,7 @@ using DaxDiff.Comparison;
 using DaxDiff.Connectors;
 using DaxDiff.Domain;
 using Microsoft.Extensions.Logging;
+using DaxDiff.Application.Resources;
 
 namespace DaxDiff.Application;
 
@@ -84,7 +85,7 @@ public sealed class ComparisonRunner
         {
             var message = string.Join(Environment.NewLine, issues.Where(i => i.Severity == IssueSeverity.Error).Select(i => i.Message));
             _logger.LogWarning("Run {RunId} blocked by {Count} validation errors", runId, issues.Count(i => i.Severity == IssueSeverity.Error));
-            return Finish(RunStatus.Failed, "The configuration is invalid:" + Environment.NewLine + message);
+            return Finish(RunStatus.Failed, Strings.Run_InvalidConfiguration + Environment.NewLine + message);
         }
 
         string daxA, daxB;
@@ -95,10 +96,10 @@ public sealed class ComparisonRunner
         }
         catch (Exception ex) when (ex is FormatException or ArgumentException)
         {
-            return Finish(RunStatus.Failed, "Could not generate queries: " + ex.Message);
+            return Finish(RunStatus.Failed, string.Format(CultureInfo.CurrentCulture, Strings.Run_QueryGenerationFailed, ex.Message));
         }
 
-        progress?.Report(new RunProgress(null, "Querying both models"));
+        progress?.Report(new RunProgress(null, Strings.Run_QueryingBoth));
         var taskA = ExecuteAsync(Side.A, request.ConnectorA, daxA, config.Options.Limits, progress, cancellationToken);
         var taskB = ExecuteAsync(Side.B, request.ConnectorB, daxB, config.Options.Limits, progress, cancellationToken);
         var outcomes = await Task.WhenAll(taskA, taskB);
@@ -107,14 +108,14 @@ public sealed class ComparisonRunner
         if (cancellationToken.IsCancellationRequested || outcomes.Any(o => o.Cancelled))
         {
             _logger.LogInformation("Run {RunId} cancelled", runId);
-            return Finish(RunStatus.Cancelled, "The run was cancelled by the user.", audits: audits);
+            return Finish(RunStatus.Cancelled, Strings.Run_CancelledByUser, audits: audits);
         }
 
         var failures = outcomes.Where(o => o.Error is not null).Select(o => o.Error!).ToList();
         if (failures.Count > 0)
             return Finish(RunStatus.Failed, string.Join(Environment.NewLine + Environment.NewLine, failures.Select(f => f.ToUserText())), audits: audits);
 
-        progress?.Report(new RunProgress(null, "Comparing results"));
+        progress?.Report(new RunProgress(null, Strings.Run_Comparing));
         EngineOutput output;
         try
         {
@@ -131,15 +132,14 @@ public sealed class ComparisonRunner
         if (output.HasDuplicateKeys && config.Options.DuplicateKeyPolicy == DuplicateKeyPolicy.Fail)
         {
             status = RunStatus.Failed;
-            failure = $"{output.Summary.InvalidKeys} key(s) are duplicated after normalization. Review the Invalid key rows, " +
-                      "adjust key normalization or add dimensions, or switch the duplicate policy to Diagnose.";
+            failure = string.Format(CultureInfo.CurrentCulture, Strings.Run_DuplicateKeysFailure, output.Summary.InvalidKeys);
         }
         else if (outcomes.Any(o => o.Result!.IsTruncated) || output.HasDuplicateKeys)
         {
             status = RunStatus.Partial;
         }
 
-        progress?.Report(new RunProgress(null, "Finished", Done: true));
+        progress?.Report(new RunProgress(null, Strings.Run_Finished, Done: true));
         _logger.LogInformation("Run {RunId} finished with status {Status}: {Keys} keys, {Mismatches} mismatches",
             runId, status, output.Summary.TotalKeys, output.Summary.Mismatches);
         return Finish(status, failure, output, audits, warnings);
@@ -182,27 +182,27 @@ public sealed class ComparisonRunner
         while (true)
         {
             attempts++;
-            progress?.Report(new RunProgress(side, attempts == 1 ? "Running query" : $"Retrying (attempt {attempts})"));
+            progress?.Report(new RunProgress(side, attempts == 1 ? Strings.Run_RunningQuery : string.Format(CultureInfo.CurrentCulture, Strings.Run_Retrying, attempts)));
             using var attemptCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             attemptCts.CancelAfter(timeout + TimeSpan.FromSeconds(5));
             try
             {
                 var result = await connector.ExecuteDaxAsync(dax, new QueryOptions(limits.MaxRows, timeout), attemptCts.Token);
-                progress?.Report(new RunProgress(side, $"Retrieved {result.Rows.Count:N0} rows{(result.IsTruncated ? " (truncated)" : "")}", Done: true));
+                progress?.Report(new RunProgress(side, string.Format(CultureInfo.CurrentCulture, Strings.Run_RetrievedRows, result.Rows.Count) + (result.IsTruncated ? Strings.Run_TruncatedSuffix : ""), Done: true));
                 _logger.LogInformation("Side {Side} query {Hash} returned {Rows} rows in {Ms} ms (truncated: {Truncated})",
                     side, Hash(dax)[..12], result.Rows.Count, stopwatch.ElapsedMilliseconds, result.IsTruncated);
                 return new SideOutcome(Audit(result, null), result, null, false);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                progress?.Report(new RunProgress(side, "Cancelled", Done: true));
-                return new SideOutcome(Audit(null, "Cancelled"), null, null, true);
+                progress?.Report(new RunProgress(side, Strings.Run_Cancelled, Done: true));
+                return new SideOutcome(Audit(null, Strings.Run_Cancelled), null, null, true);
             }
             catch (Exception ex)
             {
                 var error = ex is OperationCanceledException
-                    ? new DaxDiffException(ErrorCategory.Timeout, "QRY-TIMEOUT", $"The query did not finish within {limits.TimeoutSeconds} seconds.",
-                        "Increase the timeout, add filters or reduce the grain.", side, isTransient: true)
+                    ? new DaxDiffException(ErrorCategory.Timeout, "QRY-TIMEOUT", string.Format(CultureInfo.CurrentCulture, Strings.Run_Timeout, limits.TimeoutSeconds),
+                        Strings.Run_TimeoutRemedy, side, isTransient: true)
                     : ErrorClassifier.Classify(ex, connector.Capabilities.TransportName).WithSide(side);
 
                 if (error.IsTransient && attempts <= limits.RetryCount)
@@ -214,14 +214,14 @@ public sealed class ComparisonRunner
                     }
                     catch (OperationCanceledException)
                     {
-                        return new SideOutcome(Audit(null, "Cancelled"), null, null, true);
+                        return new SideOutcome(Audit(null, Strings.Run_Cancelled), null, null, true);
                     }
 
                     continue;
                 }
 
                 _logger.LogWarning("Side {Side} failed with {Code}", side, error.DiagnosticCode);
-                progress?.Report(new RunProgress(side, "Failed", Done: true));
+                progress?.Report(new RunProgress(side, Strings.Run_Failed, Done: true));
                 return new SideOutcome(Audit(null, $"{error.DiagnosticCode}: {error.Message}"), null, error, false);
             }
         }
@@ -231,30 +231,28 @@ public sealed class ComparisonRunner
     {
         var warnings = new List<string>
         {
-            "Results are as observed by the current caller on each side. Row-level or object-level security can make rows " +
-            "appear missing; missing keys are not necessarily global model differences.",
+            Strings.Run_SecurityScope,
         };
 
         foreach (var (outcome, side) in outcomes.Zip([Side.A, Side.B]))
         {
             if (outcome.Result?.IsTruncated == true)
-                warnings.Add($"Model {side} result is incomplete: {outcome.Result.TruncationReason} The run is Partial and must not be read as full equality.");
+                warnings.Add(string.Format(CultureInfo.CurrentCulture, Strings.Run_SideIncomplete, side, outcome.Result.TruncationReason));
         }
 
         if (request.ConnectorA.Reference.Kind != request.ConnectorB.Reference.Kind ||
             request.ConnectorA.Reference.Kind == SourceKind.DesktopSession)
         {
-            warnings.Add($"Security contexts differ or bypass RLS — A: {request.ConnectorA.SecurityContext}; B: {request.ConnectorB.SecurityContext}.");
+            warnings.Add(string.Format(CultureInfo.CurrentCulture, Strings.Run_SecurityContexts, request.ConnectorA.SecurityContext, request.ConnectorB.SecurityContext));
         }
 
         if (request.MetadataA?.LastRefreshUtc is { } ra && request.MetadataB?.LastRefreshUtc is { } rb && ra != rb)
         {
-            warnings.Add(string.Create(CultureInfo.InvariantCulture,
-                $"Models were last refreshed at different times (A: {ra:yyyy-MM-dd HH:mm} UTC, B: {rb:yyyy-MM-dd HH:mm} UTC); data snapshots may be inconsistent."));
+            warnings.Add(string.Format(CultureInfo.InvariantCulture, Strings.Run_RefreshTimes, ra, rb));
         }
 
         if (output.Summary.OnlyInA + output.Summary.OnlyInB > 0)
-            warnings.Add("Keys missing on one side can mean the member is absent, filtered, hidden by security, or that every measure is BLANK for that key.");
+            warnings.Add(Strings.Run_MissingKeys);
 
         warnings.AddRange(output.Warnings);
         warnings.AddRange(issues.Where(i => i.Severity == IssueSeverity.Warning).Select(i => i.Message));

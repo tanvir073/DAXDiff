@@ -49,6 +49,8 @@ public partial class App : System.Windows.Application
         _host = builder.Build();
 
         DispatcherUnhandledException += OnUnhandledException;
+        // Before any window or view model reads localized text.
+        LanguageService.Apply(builder.Configuration["Appearance:Language"]);
         ThemeService.Apply(builder.Configuration["Appearance:Theme"]);
 
         var main = _host.Services.GetRequiredService<MainViewModel>();

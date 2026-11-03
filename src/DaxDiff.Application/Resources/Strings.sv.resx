@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Run_InvalidConfiguration" xml:space="preserve"><value>Konfigurationen är ogiltig:</value></data>
+  <data name="Run_QueryGenerationFailed" xml:space="preserve"><value>Frågorna kunde inte skapas: {0}</value></data>
+  <data name="Run_QueryingBoth" xml:space="preserve"><value>Frågar båda modellerna</value></data>
+  <data name="Run_CancelledByUser" xml:space="preserve"><value>Körningen avbröts av användaren.</value></data>
+  <data name="Run_Comparing" xml:space="preserve"><value>Jämför resultat</value></data>
+  <data name="Run_DuplicateKeysFailure" xml:space="preserve"><value>{0} nycklar förekommer flera gånger efter normalisering. Granska raderna med ogiltig nyckel, justera nyckelnormaliseringen eller lägg till dimensioner, eller byt dubblettpolicyn till Diagnostisera.</value></data>
+  <data name="Run_Finished" xml:space="preserve"><value>Klar</value></data>
+  <data name="Run_RunningQuery" xml:space="preserve"><value>Kör fråga</value></data>
+  <data name="Run_Retrying" xml:space="preserve"><value>Försöker igen (försök {0})</value></data>
+  <data name="Run_RetrievedRows" xml:space="preserve"><value>Hämtade {0:N0} rader</value></data>
+  <data name="Run_TruncatedSuffix" xml:space="preserve"><value> (avkortat)</value></data>
+  <data name="Run_Cancelled" xml:space="preserve"><value>Avbruten</value></data>
+  <data name="Run_Failed" xml:space="preserve"><value>Misslyckades</value></data>
+  <data name="Run_Timeout" xml:space="preserve"><value>Frågan blev inte klar inom {0} sekunder.</value></data>
+  <data name="Run_TimeoutRemedy" xml:space="preserve"><value>Öka tidsgränsen, lägg till filter eller minska detaljnivån.</value></data>
+  <data name="Run_SecurityScope" xml:space="preserve"><value>Resultaten är så som den aktuella användaren ser dem i varje modell. Säkerhet på rad- eller objektnivå kan få rader att verka saknas; saknade nycklar är inte nödvändigtvis skillnader i hela modellen.</value></data>
+  <data name="Run_SideIncomplete" xml:space="preserve"><value>Resultatet för modell {0} är ofullständigt: {1} Körningen är ofullständig och får inte tolkas som full likhet.</value></data>
+  <data name="Run_SecurityContexts" xml:space="preserve"><value>Säkerhetskontexterna skiljer sig eller kringgår RLS – A: {0}; B: {1}.</value></data>
+  <data name="Run_RefreshTimes" xml:space="preserve"><value>Modellerna uppdaterades senast vid olika tidpunkter (A: {0:yyyy-MM-dd HH:mm} UTC, B: {1:yyyy-MM-dd HH:mm} UTC); dataögonblicken kan vara inkonsekventa.</value></data>
+  <data name="Run_MissingKeys" xml:space="preserve"><value>Nycklar som saknas i en av modellerna kan betyda att medlemmen saknas, är filtrerad eller dold av säkerhet, eller att alla mått är BLANK för den nyckeln.</value></data>
+  <data name="Prj_NotJson" xml:space="preserve"><value>Projektfilen är inte giltig JSON.</value></data>
+  <data name="Prj_Malformed" xml:space="preserve"><value>Projektfilen är tom eller felaktigt formaterad.</value></data>
+  <data name="Prj_Newer" xml:space="preserve"><value>Projektet sparades av en nyare version av DAXDiff (schema {0}).</value></data>
+  <data name="Prj_NewerRemedy" xml:space="preserve"><value>Uppdatera DAXDiff för att öppna det.</value></data>
+  <data name="Prj_Empty" xml:space="preserve"><value>Projektfilen är tom.</value></data>
+  <data name="Prj_Unreadable" xml:space="preserve"><value>Projektfilen kunde inte läsas: {0}</value></data>
+  <data name="Prj_InvalidRemedy" xml:space="preserve"><value>Välj en giltig .pbicomp-fil.</value></data>
+</root>

@@ -10,6 +10,7 @@ using DaxDiff.Connectors.Service;
 using DaxDiff.Desktop.Services;
 using DaxDiff.Domain;
 using Microsoft.Extensions.Logging;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.ViewModels;
 
@@ -52,7 +53,7 @@ public sealed partial class NavItem : ObservableObject
 /// </summary>
 public sealed partial class MainViewModel : ObservableObject
 {
-    private const string ProjectFilter = "DAXDiff project (*.pbicomp)|*.pbicomp";
+    private static string ProjectFilter => Strings.Main_ProjectFilter;
 
     private readonly IDialogService _dialogs;
     private readonly RecentProjects _recent;
@@ -91,7 +92,7 @@ public sealed partial class MainViewModel : ObservableObject
         Options = new OptionsPageViewModel(Comparisons);
         Run = new RunViewModel(SourceA, SourceB, Comparisons, runner, dialogs);
         Results = new ResultsViewModel(dialogs, loggerFactory.CreateLogger<ResultsViewModel>());
-        Settings = new SettingsViewModel(authOptions, sessionA.Auth, dialogs) { ResetSession = () => CloseProject() };
+        Settings = new SettingsViewModel(authOptions, sessionA.Auth, dialogs) { ResetSession = () => CloseProject(), RestartRequested = Restart };
         Home = new HomeViewModel(this, recent, Guid.TryParse(authOptions.ClientId, out _));
 
         Comparisons.Changed += (_, _) => OnProjectEdited();
@@ -107,18 +108,19 @@ public sealed partial class MainViewModel : ObservableObject
         Run.Finished += (_, _) =>
         {
             Navigate(Results);
-            StatusMessage = $"Run finished: {string.Join(", ", Results.Results.Select(r => $"{r.ComparisonName} {r.Status}"))}.";
+            StatusMessage = Localized.Format(Strings.Main_RunFinished,
+                string.Join(", ", Results.Results.Select(r => $"{r.ComparisonName} {EnumTextConverter.Text(r.Status)}")));
         };
 
         NavItems =
         [
-            new NavItem("Home", "New or open a project", Home, requiresProject: false),
-            new NavItem("Sources", "Connect model A and B", Sources, requiresProject: true, step: 1),
-            new NavItem("Comparisons", "Fields, keys, synonyms", Comparisons, requiresProject: true, step: 2),
-            new NavItem("Options", "Filters and tolerances", Options, requiresProject: true, step: 3),
-            new NavItem("Run", "Execute comparisons", Run, requiresProject: true, step: 4),
-            new NavItem("Results", "Inspect and export", Results, requiresProject: true, step: 5),
-            new NavItem("Settings", "Sign-in, privacy, diagnostics", Settings, requiresProject: false),
+            new NavItem(Strings.Nav_Home, Strings.Nav_Home_Hint, Home, requiresProject: false),
+            new NavItem(Strings.Nav_Sources, Strings.Nav_Sources_Hint, Sources, requiresProject: true, step: 1),
+            new NavItem(Strings.Nav_Comparisons, Strings.Nav_Comparisons_Hint, Comparisons, requiresProject: true, step: 2),
+            new NavItem(Strings.Nav_Options, Strings.Nav_Options_Hint, Options, requiresProject: true, step: 3),
+            new NavItem(Strings.Nav_Run, Strings.Nav_Run_Hint, Run, requiresProject: true, step: 4),
+            new NavItem(Strings.Nav_Results, Strings.Nav_Results_Hint, Results, requiresProject: true, step: 5),
+            new NavItem(Strings.Nav_Settings, Strings.Nav_Settings_Hint, Settings, requiresProject: false),
         ];
         _currentPage = Home;
         _selectedNav = NavItems[0];
@@ -157,16 +159,16 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(WindowTitle))]
-    private string _projectName = "No project";
+    private string _projectName = Strings.Main_NoProject;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(WindowTitle), nameof(SaveStateText))]
     private bool _isDirty;
 
-    public string SaveStateText => IsDirty ? "Unsaved changes" : "All changes saved";
+    public string SaveStateText => IsDirty ? Strings.Main_UnsavedChanges : Strings.Main_AllChangesSaved;
 
     [ObservableProperty]
-    private string _statusMessage = "Create a new project or open an existing one to start.";
+    private string _statusMessage = Strings.Main_StartHint;
 
     [ObservableProperty]
     private int _errorCount;
@@ -208,11 +210,16 @@ public sealed partial class MainViewModel : ObservableObject
     private void UpdateStepStatus()
     {
         var connected = (SourceA.State == ConnectionState.Connected ? 1 : 0) + (SourceB.State == ConnectionState.Connected ? 1 : 0);
-        NavItems[1].Status = HasProject ? $"{connected} of 2 connected" : NavItems[1].Hint;
+        NavItems[1].Status = HasProject ? Localized.Format(Strings.Main_StepConnected, connected) : NavItems[1].Hint;
         NavItems[2].Status = HasProject
-            ? Comparisons.Comparisons.Count switch { 0 => "None yet", 1 => "1 comparison", var n => $"{n} comparisons" }
+            ? Comparisons.Comparisons.Count switch
+            {
+                0 => Strings.Main_StepNoComparisons,
+                1 => Strings.Main_StepOneComparison,
+                var n => Localized.Format(Strings.Main_StepComparisons, n),
+            }
             : NavItems[2].Hint;
-        NavItems[5].Status = Results.HasResult ? $"{Results.Results.Count} result(s)" : NavItems[5].Hint;
+        NavItems[5].Status = Results.HasResult ? Localized.Format(Strings.Main_StepResults, Results.Results.Count) : NavItems[5].Hint;
     }
 
     // ---- Project lifecycle ----------------------------------------------------------------------
@@ -234,13 +241,13 @@ public sealed partial class MainViewModel : ObservableObject
     {
         if (!ConfirmDiscardChanges())
             return;
-        var path = _dialogs.SaveFile(ProjectFilter, "New project" + ProjectFile.Extension, "Create a new project");
+        var path = _dialogs.SaveFile(ProjectFilter, Strings.Main_NewProjectFileName + ProjectFile.Extension, Strings.Main_NewProjectDialogTitle);
         if (path is null)
             return;
 
         ResetState();
         ProjectName = Path.GetFileNameWithoutExtension(path);
-        Comparisons.Load([new ComparisonDefinition { Name = "Comparison 1" }]);
+        Comparisons.Load([new ComparisonDefinition { Name = Localized.Format(Strings.Comparisons_DefaultName, 1) }]);
         if (!TrySave(path))
         {
             ResetState();
@@ -251,7 +258,7 @@ public sealed partial class MainViewModel : ObservableObject
         Home.SetRecent(_recent.Add(path));
         ApplyPendingAttach();
         Navigate(Sources);
-        StatusMessage = $"Project created at {path}. Choose the two models, then define comparisons.";
+        StatusMessage = Localized.Format(Strings.Main_ProjectCreated, path);
     }
 
     [RelayCommand]
@@ -259,7 +266,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         if (!ConfirmDiscardChanges())
             return;
-        var path = _dialogs.OpenFile(ProjectFilter, "Open project");
+        var path = _dialogs.OpenFile(ProjectFilter, Strings.Main_OpenProjectDialogTitle);
         if (path is not null)
             await LoadProjectAsync(path);
     }
@@ -284,7 +291,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
         catch (IOException ex)
         {
-            _dialogs.ShowError(new DaxDiffException(ErrorCategory.Configuration, "PRJ-IO", "The project file could not be read.", "Check the file path and permissions.", inner: ex));
+            _dialogs.ShowError(new DaxDiffException(ErrorCategory.Configuration, "PRJ-IO", Strings.Main_ProjectReadFailed, Strings.Main_ProjectReadFailedRemedy, inner: ex));
             return;
         }
 
@@ -301,8 +308,8 @@ public sealed partial class MainViewModel : ObservableObject
         ApplyPendingAttach();
         Navigate(Sources);
         StatusMessage = project.SchemaVersion < ProjectFile.CurrentSchemaVersion
-            ? "Project upgraded from an older format; save it to keep the new format. Reconnect both models to validate the comparisons."
-            : "Project opened. Reconnect both models; comparisons are validated against fresh metadata.";
+            ? Strings.Main_ProjectUpgraded
+            : Strings.Main_ProjectOpened;
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
@@ -311,7 +318,7 @@ public sealed partial class MainViewModel : ObservableObject
         if (ProjectPath is null || !ResolveUnsavedComparisons())
             return;
         if (TrySave(ProjectPath))
-            StatusMessage = "Project saved (sources and saved comparisons; no credentials, tokens or results).";
+            StatusMessage = Strings.Main_ProjectSaved;
     }
 
     /// <summary>
@@ -324,8 +331,8 @@ public sealed partial class MainViewModel : ObservableObject
         if (unsaved.Count == 0)
             return true;
         var answer = _dialogs.AskYesNoCancel(
-            $"These comparisons have unsaved changes:{Environment.NewLine}  {string.Join(Environment.NewLine + "  ", unsaved.Select(c => c.Name))}" +
-            $"{Environment.NewLine}{Environment.NewLine}Save them too? (No keeps their last saved versions in the project.)", "Unsaved comparisons");
+            $"{Strings.Main_UnsavedComparisonsIntro}{Environment.NewLine}  {string.Join(Environment.NewLine + "  ", unsaved.Select(c => c.Name))}" +
+            $"{Environment.NewLine}{Environment.NewLine}{Strings.Main_UnsavedComparisonsQuestion}", Strings.Main_UnsavedComparisonsTitle);
         if (answer is null)
             return false;
         if (answer == true)
@@ -337,19 +344,19 @@ public sealed partial class MainViewModel : ObservableObject
     private void PersistComparisons()
     {
         if (ProjectPath is not null && TrySave(ProjectPath))
-            StatusMessage = $"Saved to {Path.GetFileName(ProjectPath)}. Runs use the saved version of each comparison.";
+            StatusMessage = Localized.Format(Strings.Main_SavedTo, Path.GetFileName(ProjectPath));
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
     private void SaveProjectAs()
     {
-        var path = _dialogs.SaveFile(ProjectFilter, ProjectName + ProjectFile.Extension, "Save project as");
+        var path = _dialogs.SaveFile(ProjectFilter, ProjectName + ProjectFile.Extension, Strings.Main_SaveProjectAsDialogTitle);
         if (path is null || !ResolveUnsavedComparisons() || !TrySave(path, Path.GetFileNameWithoutExtension(path)))
             return;
         ProjectPath = path;
         ProjectName = Path.GetFileNameWithoutExtension(path);
         Home.SetRecent(_recent.Add(path));
-        StatusMessage = $"Project saved as {path}.";
+        StatusMessage = Localized.Format(Strings.Main_ProjectSavedAs, path);
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
@@ -359,11 +366,33 @@ public sealed partial class MainViewModel : ObservableObject
             return;
         ResetState();
         Navigate(Home);
-        StatusMessage = "Project closed.";
+        StatusMessage = Strings.Main_ProjectClosed;
     }
 
     /// <summary>Called when the window closes: offers to save unsaved changes. False cancels the close.</summary>
-    public bool ConfirmClose() => ConfirmDiscardChanges();
+    public bool ConfirmClose() => _restarting || ConfirmDiscardChanges();
+
+    private bool _restarting;
+
+    /// <summary>
+    /// Starts a new instance that reopens the current project, then closes this one (used to switch language).
+    /// Connections and results are not carried over: the new instance reconnects when the project opens.
+    /// </summary>
+    private void Restart()
+    {
+        if (!ConfirmDiscardChanges())
+            return;
+        string[] args = HasProject && File.Exists(ProjectPath) ? [ProjectPath!] : [];
+        if (AppRestarter.TryStart(args) is { } error)
+        {
+            _dialogs.ShowInfo(Localized.Format(Strings.Language_RestartFailed, error));
+            return;
+        }
+
+        _restarting = true;
+        // Let the settings change finish before the window closes.
+        System.Windows.Application.Current.Dispatcher.BeginInvoke(() => System.Windows.Application.Current.Shutdown());
+    }
 
     private bool TrySave(string path, string? name = null)
     {
@@ -377,7 +406,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            _dialogs.ShowError(new DaxDiffException(ErrorCategory.Configuration, "PRJ-IO", "The project could not be saved.", "Choose a folder you can write to.", inner: ex));
+            _dialogs.ShowError(new DaxDiffException(ErrorCategory.Configuration, "PRJ-IO", Strings.Main_ProjectSaveFailed, Strings.Main_ProjectSaveFailedRemedy, inner: ex));
             return false;
         }
     }
@@ -388,8 +417,10 @@ public sealed partial class MainViewModel : ObservableObject
         if (!HasProject || !IsDirty)
             return true;
         var drafts = Comparisons.UnsavedComparisons;
-        var detail = drafts.Count == 0 ? "" : $"{Environment.NewLine}{Environment.NewLine}Includes unsaved changes to: {string.Join(", ", drafts.Select(c => c.Name))}.";
-        switch (_dialogs.AskYesNoCancel($"Save changes to the project '{ProjectName}'?{detail}", "Unsaved changes"))
+        var detail = drafts.Count == 0
+            ? ""
+            : Environment.NewLine + Environment.NewLine + Localized.Format(Strings.Main_DiscardDetail, string.Join(", ", drafts.Select(c => c.Name)));
+        switch (_dialogs.AskYesNoCancel(Localized.Format(Strings.Main_SaveChangesQuestion, ProjectName) + detail, Strings.Main_UnsavedChanges))
         {
             case true:
                 Comparisons.CommitAll();
@@ -404,7 +435,7 @@ public sealed partial class MainViewModel : ObservableObject
     private void ResetState()
     {
         ProjectPath = null;
-        ProjectName = "No project";
+        ProjectName = Strings.Main_NoProject;
         SourceA.Apply(null);
         SourceB.Apply(null);
         Comparisons.Load([]);
@@ -441,7 +472,7 @@ public sealed partial class MainViewModel : ObservableObject
         SourceA.Apply(b);
         SourceB.Apply(a);
         Comparisons.SwapSides();
-        StatusMessage = "Sides swapped, including every comparison's fields and filters. Test both connections again.";
+        StatusMessage = Strings.Main_SidesSwapped;
     }
 
     // ---- External Tools launch ------------------------------------------------------------------
@@ -456,7 +487,7 @@ public sealed partial class MainViewModel : ObservableObject
         else if (args.Server is not null)
         {
             _pendingAttach = args;
-            StatusMessage = $"Launched from Power BI Desktop ({args.Server}). Create or open a project; model A will be attached to that session.";
+            StatusMessage = Localized.Format(Strings.Main_LaunchedFromDesktop, args.Server);
         }
     }
 

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Workbook_Title" xml:space="preserve"><value>DAXDiff-jämförelse</value></data>
+  <data name="Workbook_Comments" xml:space="preserve"><value>Körning {0} – {1}</value></data>
+  <data name="Sheet_Summary" xml:space="preserve"><value>Sammanfattning</value></data>
+  <data name="Sheet_Differences" xml:space="preserve"><value>Skillnader</value></data>
+  <data name="Sheet_AllData" xml:space="preserve"><value>Alla data</value></data>
+  <data name="Sheet_FieldMapping" xml:space="preserve"><value>Fältmappning</value></data>
+  <data name="Sheet_Settings" xml:space="preserve"><value>Inställningar</value></data>
+  <data name="Sheet_ExecutionLog" xml:space="preserve"><value>Körningslogg</value></data>
+  <data name="Sheet_Continued" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="AllData_Omitted" xml:space="preserve"><value>Alla jämförda rader utelämnades från arbetsboken enligt exportinställningarna (dataminimering).</value></data>
+  <data name="AllData_TotalKeys" xml:space="preserve"><value>Antal jämförda nycklar: {0:N0}. Exportera igen med 'Ta med alla data' för att lägga till dem.</value></data>
+  <data name="Summary_Title" xml:space="preserve"><value>Sammanfattning av DAXDiff-jämförelse</value></data>
+  <data name="Summary_BannerPartial" xml:space="preserve"><value>OFULLSTÄNDIGT RESULTAT – jämförelsen är inte komplett. Saknade skillnader betyder inte att modellerna är lika.</value></data>
+  <data name="Summary_BannerCancelled" xml:space="preserve"><value>AVBRUTEN – körningen avbröts innan den var klar. Resultatet är inte komplett.</value></data>
+  <data name="Summary_BannerFailed" xml:space="preserve"><value>MISSLYCKADES – jämförelsen slutfördes inte. </value></data>
+  <data name="Summary_Comparison" xml:space="preserve"><value>Jämförelse</value></data>
+  <data name="Summary_RunId" xml:space="preserve"><value>Körnings-ID</value></data>
+  <data name="Summary_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Summary_Started" xml:space="preserve"><value>Startad (UTC)</value></data>
+  <data name="Summary_Finished" xml:space="preserve"><value>Klar (UTC)</value></data>
+  <data name="Summary_Model" xml:space="preserve"><value>Modell {0}</value></data>
+  <data name="Summary_ModelSourceType" xml:space="preserve"><value>Modell {0}, källtyp</value></data>
+  <data name="Summary_ModelIdentity" xml:space="preserve"><value>Modell {0}, identitet</value></data>
+  <data name="Summary_ModelLastRefresh" xml:space="preserve"><value>Modell {0}, senaste uppdatering (UTC)</value></data>
+  <data name="Summary_ScopeNotice" xml:space="preserve"><value>Omfattning</value></data>
+  <data name="Summary_ScopeNoticeText" xml:space="preserve"><value>Resultatet är det som den aktuella användaren ser i varje modell; säkerhet på radnivå (RLS) och objektnivå kan dölja data.</value></data>
+  <data name="Summary_RowsRetrieved" xml:space="preserve"><value>Hämtade rader {0}</value></data>
+  <data name="Summary_TotalKeys" xml:space="preserve"><value>Antal nycklar</value></data>
+  <data name="Summary_Matches" xml:space="preserve"><value>Lika</value></data>
+  <data name="Summary_ValueMismatches" xml:space="preserve"><value>Värdeavvikelser</value></data>
+  <data name="Summary_OnlyInA" xml:space="preserve"><value>Endast i A</value></data>
+  <data name="Summary_OnlyInB" xml:space="preserve"><value>Endast i B</value></data>
+  <data name="Summary_InvalidKeys" xml:space="preserve"><value>Ogiltiga nycklar / dubblettnycklar</value></data>
+  <data name="Summary_DifferenceRowsExported" xml:space="preserve"><value>Exporterade rader med skillnader</value></data>
+  <data name="Summary_RowsNotListed" xml:space="preserve"><value>Rader som inte listas (resultatinställningar)</value></data>
+  <data name="Summary_DifferenceSheets" xml:space="preserve"><value>Blad med skillnader</value></data>
+  <data name="Summary_MatchRate" xml:space="preserve"><value>Andel lika</value></data>
+  <data name="Summary_HeaderValue" xml:space="preserve"><value>Värde</value></data>
+  <data name="Summary_HeaderComparedKeys" xml:space="preserve"><value>Jämförda nycklar</value></data>
+  <data name="Summary_HeaderMismatches" xml:space="preserve"><value>Avvikelser</value></data>
+  <data name="Summary_HeaderTotal" xml:space="preserve"><value>Totalt {0}</value></data>
+  <data name="Summary_HeaderTotalDifference" xml:space="preserve"><value>Totalt A − B</value></data>
+  <data name="Summary_HeaderMaxDelta" xml:space="preserve"><value>Max |Δ|</value></data>
+  <data name="Summary_Warnings" xml:space="preserve"><value>Varningar</value></data>
+  <data name="Rows_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Rows_Reason" xml:space="preserve"><value>Orsak</value></data>
+  <data name="Rows_NormalizedKey" xml:space="preserve"><value>Normaliserad nyckel</value></data>
+  <data name="Mapping_Role" xml:space="preserve"><value>Roll</value></data>
+  <data name="Mapping_Synonym" xml:space="preserve"><value>Synonym</value></data>
+  <data name="Mapping_Table" xml:space="preserve"><value>{0} tabell</value></data>
+  <data name="Mapping_Field" xml:space="preserve"><value>{0} fält</value></data>
+  <data name="Mapping_Aggregation" xml:space="preserve"><value>{0} aggregering</value></data>
+  <data name="Mapping_Type" xml:space="preserve"><value>{0} typ</value></data>
+  <data name="Mapping_ActiveFilters" xml:space="preserve"><value>Aktiva filter</value></data>
+  <data name="Mapping_NoFilters" xml:space="preserve"><value>Inga</value></data>
+  <data name="Mapping_Measure" xml:space="preserve"><value>[{0}] (mått)</value></data>
+  <data name="Settings_Setting" xml:space="preserve"><value>Inställning</value></data>
+  <data name="Settings_Value" xml:space="preserve"><value>Värde</value></data>
+  <data name="Settings_ToleranceMode" xml:space="preserve"><value>Toleransläge</value></data>
+  <data name="Settings_AbsoluteTolerance" xml:space="preserve"><value>Absolut tolerans</value></data>
+  <data name="Settings_RelativeTolerance" xml:space="preserve"><value>Relativ tolerans</value></data>
+  <data name="Settings_TolerancePredicate" xml:space="preserve"><value>Toleransvillkor</value></data>
+  <data name="Settings_TolerancePredicateText" xml:space="preserve"><value>abs(A−B) ≤ max(absolut, relativ × max(|A|, |B|))</value></data>
+  <data name="Settings_NullPolicy" xml:space="preserve"><value>Hantering av BLANK</value></data>
+  <data name="Settings_TextComparison" xml:space="preserve"><value>Textjämförelse</value></data>
+  <data name="Settings_PercentBaseline" xml:space="preserve"><value>Bas för procentuell skillnad</value></data>
+  <data name="Settings_KeyTrimWhitespace" xml:space="preserve"><value>Nyckel: ta bort inledande och avslutande blanksteg</value></data>
+  <data name="Settings_KeyCaseInsensitive" xml:space="preserve"><value>Nyckel: skiftlägesokänslig</value></data>
+  <data name="Settings_KeyUnicode" xml:space="preserve"><value>Nyckel: Unicode-normalisering</value></data>
+  <data name="Settings_KeyBlankEqualsEmpty" xml:space="preserve"><value>Nyckel: BLANK är lika med tom text</value></data>
+  <data name="Settings_KeyDateOnly" xml:space="preserve"><value>Nyckel: endast datum</value></data>
+  <data name="Settings_DuplicateKeyPolicy" xml:space="preserve"><value>Hantering av dubblettnycklar</value></data>
+  <data name="Settings_MaxRowsPerSide" xml:space="preserve"><value>Max antal rader per modell</value></data>
+  <data name="Settings_Timeout" xml:space="preserve"><value>Tidsgräns (sekunder)</value></data>
+  <data name="Settings_Retries" xml:space="preserve"><value>Nya försök</value></data>
+  <data name="Settings_ResultRows" xml:space="preserve"><value>Resultatrader</value></data>
+  <data name="Settings_ResultRowsDifferencesOnly" xml:space="preserve"><value>Endast skillnader</value></data>
+  <data name="Settings_ResultRowsAll" xml:space="preserve"><value>Lika och skillnader</value></data>
+  <data name="Settings_ResultRowLimit" xml:space="preserve"><value>Radgräns för resultat</value></data>
+  <data name="Settings_NoLimit" xml:space="preserve"><value>Ingen gräns</value></data>
+  <data name="Settings_QueryScope" xml:space="preserve"><value>Frågans omfattning</value></data>
+  <data name="Settings_QueryScopeText" xml:space="preserve"><value>{0} nyckel/nycklar, {1} värde(n), {2} filter</value></data>
+  <data name="Log_Side" xml:space="preserve"><value>Sida</value></data>
+  <data name="Log_Transport" xml:space="preserve"><value>Transport</value></data>
+  <data name="Log_Model" xml:space="preserve"><value>Modell</value></data>
+  <data name="Log_QueryHash" xml:space="preserve"><value>Fråga SHA-256</value></data>
+  <data name="Log_Duration" xml:space="preserve"><value>Tid (ms)</value></data>
+  <data name="Log_Rows" xml:space="preserve"><value>Rader</value></data>
+  <data name="Log_Attempts" xml:space="preserve"><value>Försök</value></data>
+  <data name="Log_Truncated" xml:space="preserve"><value>Avkortad</value></data>
+  <data name="Log_Error" xml:space="preserve"><value>Fel</value></data>
+  <data name="Log_Completeness" xml:space="preserve"><value>Fullständighet</value></data>
+  <data name="Log_RunId" xml:space="preserve"><value>Körnings-ID</value></data>
+  <data name="Log_AppVersion" xml:space="preserve"><value>Programversion</value></data>
+  <data name="Log_ModelWarnings" xml:space="preserve"><value>Modell {0}, varningar</value></data>
+  <data name="Status_Match" xml:space="preserve"><value>Lika</value></data>
+  <data name="Status_Mismatch" xml:space="preserve"><value>Avvikelse</value></data>
+  <data name="Status_OnlyInA" xml:space="preserve"><value>Endast i A</value></data>
+  <data name="Status_OnlyInB" xml:space="preserve"><value>Endast i B</value></data>
+  <data name="Status_InvalidKey" xml:space="preserve"><value>Ogiltig nyckel</value></data>
+  <data name="Enum_RunStatus_Complete" xml:space="preserve"><value>Fullständig</value></data>
+  <data name="Enum_RunStatus_Partial" xml:space="preserve"><value>Ofullständig</value></data>
+  <data name="Enum_RunStatus_Failed" xml:space="preserve"><value>Misslyckades</value></data>
+  <data name="Enum_RunStatus_Cancelled" xml:space="preserve"><value>Avbruten</value></data>
+  <data name="Enum_SourceKind_DesktopSession" xml:space="preserve"><value>Power BI Desktop-session</value></data>
+  <data name="Enum_SourceKind_ServiceXmla" xml:space="preserve"><value>Power BI-tjänsten (XMLA)</value></data>
+  <data name="Enum_SourceKind_ServiceRest" xml:space="preserve"><value>Power BI-tjänsten (REST)</value></data>
+  <data name="Enum_FieldRole_Key" xml:space="preserve"><value>Nyckel</value></data>
+  <data name="Enum_FieldRole_Value" xml:space="preserve"><value>Värde</value></data>
+  <data name="Enum_Aggregation_None" xml:space="preserve"><value>Ingen</value></data>
+  <data name="Enum_Aggregation_Sum" xml:space="preserve"><value>Summa</value></data>
+  <data name="Enum_Aggregation_Average" xml:space="preserve"><value>Medelvärde</value></data>
+  <data name="Enum_Aggregation_Min" xml:space="preserve"><value>Min</value></data>
+  <data name="Enum_Aggregation_Max" xml:space="preserve"><value>Max</value></data>
+  <data name="Enum_Aggregation_Count" xml:space="preserve"><value>Antal</value></data>
+  <data name="Enum_Aggregation_DistinctCount" xml:space="preserve"><value>Antal unika</value></data>
+  <data name="Enum_Aggregation_Concatenate" xml:space="preserve"><value>Sammanfoga</value></data>
+  <data name="Enum_DataKind_Unknown" xml:space="preserve"><value>Okänd</value></data>
+  <data name="Enum_DataKind_Text" xml:space="preserve"><value>Text</value></data>
+  <data name="Enum_DataKind_Integer" xml:space="preserve"><value>Heltal</value></data>
+  <data name="Enum_DataKind_Decimal" xml:space="preserve"><value>Decimaltal</value></data>
+  <data name="Enum_DataKind_Double" xml:space="preserve"><value>Flyttal</value></data>
+  <data name="Enum_DataKind_Boolean" xml:space="preserve"><value>Sant/falskt</value></data>
+  <data name="Enum_DataKind_DateTime" xml:space="preserve"><value>Datum och tid</value></data>
+  <data name="Enum_ToleranceMode_Exact" xml:space="preserve"><value>Exakt</value></data>
+  <data name="Enum_ToleranceMode_Tolerance" xml:space="preserve"><value>Tolerans</value></data>
+  <data name="Enum_NullPolicy_Strict" xml:space="preserve"><value>Strikt</value></data>
+  <data name="Enum_NullPolicy_BlankEqualsZero" xml:space="preserve"><value>BLANK är lika med noll</value></data>
+  <data name="Enum_TextComparison_Ordinal" xml:space="preserve"><value>Exakt (skiftlägeskänslig)</value></data>
+  <data name="Enum_TextComparison_OrdinalIgnoreCase" xml:space="preserve"><value>Skiftlägesokänslig</value></data>
+  <data name="Enum_UnicodeNormalization_None" xml:space="preserve"><value>Ingen</value></data>
+  <data name="Enum_DuplicateKeyPolicy_Fail" xml:space="preserve"><value>Misslyckas</value></data>
+  <data name="Enum_DuplicateKeyPolicy_Diagnose" xml:space="preserve"><value>Diagnostisera</value></data>
+  <data name="Enum_FilterOperator_In" xml:space="preserve"><value>Ingår i</value></data>
+  <data name="Enum_FilterOperator_NotIn" xml:space="preserve"><value>Ingår inte i</value></data>
+</root>

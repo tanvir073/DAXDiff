@@ -33,6 +33,16 @@
     <!-- Numberskills design system fonts (SIL Open Font License), static instances of the variable fonts. -->
     <Resource Include="Fonts\*.ttf" />
     <Resource Include="Assets\DAXDiff.ico" />
+    <!-- XAML text (Resources/Ui*.resx). Public, because XAML reads it with x:Static. Strings is set up in Directory.Build.targets. -->
+    <EmbeddedResource Update="Resources\Ui.resx">
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>DaxDiff.Desktop.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Ui</StronglyTypedClassName>
+      <StronglyTypedFileName>$(IntermediateOutputPath)Ui.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedManifestPrefix>DaxDiff.Desktop.Resources</StronglyTypedManifestPrefix>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Strings.resx" PublicClass="true" />
   </ItemGroup>
 
 </Project>

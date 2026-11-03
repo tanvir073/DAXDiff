@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Error_Timeout" xml:space="preserve"><value>{0}: frågan överskred tidsgränsen.</value></data>
+  <data name="Remedy_Timeout" xml:space="preserve"><value>Öka tidsgränsen, lägg till filter eller minska detaljnivån.</value></data>
+  <data name="Error_XmlaDisabled" xml:space="preserve"><value>XMLA-slutpunkten är inte tillgänglig för den här arbetsytan.</value></data>
+  <data name="Remedy_XmlaDisabled" xml:space="preserve"><value>Be en Fabric- eller Power BI-administratör att aktivera XMLA-läsning på kapaciteten och bekräfta att arbetsytan finns på Premium-, PPU- eller Fabric-kapacitet, eller använd REST-anslutningen.</value></data>
+  <data name="Error_Capacity" xml:space="preserve"><value>Den här arbetsytan stöder inte XMLA-anslutningar (ingen Premium-, PPU- eller Fabric-kapacitet).</value></data>
+  <data name="Remedy_Capacity" xml:space="preserve"><value>Använd REST-anslutningen för den här modellen eller flytta arbetsytan till en kapacitet som stöds.</value></data>
+  <data name="Error_WorkspaceNotFound" xml:space="preserve"><value>{0}: arbetsytan hittades inte för det inloggade kontot.</value></data>
+  <data name="Remedy_WorkspaceNotFound" xml:space="preserve"><value>Klistra in arbetsytans anslutningslänk (Power BI: Inställningar för arbetsyta → Licensinformation → Anslutningslänk) i fältet för arbetsyta. Kontrollera att klientorganisationen är arbetsytans klientorganisation, att kontot är medlem i arbetsytan (utan klient-ID använder XMLA ditt Windows-konto om du inte anger ett i fältet Konto) och att arbetsytan finns på Premium-, PPU- eller Fabric-kapacitet (XMLA kräver det).</value></data>
+  <data name="Error_Permission" xml:space="preserve"><value>Åtkomst till den här modellen nekades.</value></data>
+  <data name="Remedy_Permission" xml:space="preserve"><value>Be modellens ägare om behörigheten Skapa (eller Läsa) för den semantiska modellen och om åtkomst till arbetsytan.</value></data>
+  <data name="Error_SignInExpired" xml:space="preserve"><value>Din inloggning har gått ut eller är ogiltig.</value></data>
+  <data name="Remedy_SignInAgain" xml:space="preserve"><value>Logga ut och logga in igen.</value></data>
+  <data name="Error_Network" xml:space="preserve"><value>{0}: det gick inte att nå servern.</value></data>
+  <data name="Remedy_Network" xml:space="preserve"><value>Kontrollera att Power BI Desktop fortfarande körs (lokala modeller) eller din nätverks- eller VPN-anslutning (modeller i tjänsten) och försök sedan igen.</value></data>
+  <data name="Error_InvalidQuery" xml:space="preserve"><value>Modellen avvisade frågan: {0}</value></data>
+  <data name="Remedy_InvalidQuery" xml:space="preserve"><value>Uppdatera metadata; en mappad tabell, kolumn eller ett mappat mått kan ha bytt namn eller tagits bort.</value></data>
+  <data name="Remedy_Unexpected" xml:space="preserve"><value>Försök igen. Om problemet kvarstår exporterar du diagnostik från Inställningar och kontaktar support.</value></data>
+  <data name="Rest_Unauthorized" xml:space="preserve"><value>Power BI-tjänsten avvisade din inloggning.</value></data>
+  <data name="Rest_Forbidden" xml:space="preserve"><value>Power BI-tjänsten nekade åtkomst.</value></data>
+  <data name="Remedy_RestForbidden" xml:space="preserve"><value>Du behöver behörigheten Skapa för den semantiska modellen, och klientorganisationsinställningen 'Dataset Execute Queries REST API' måste vara aktiverad.</value></data>
+  <data name="Rest_NotFound" xml:space="preserve"><value>Arbetsytan eller den semantiska modellen hittades inte.</value></data>
+  <data name="Remedy_RestNotFound" xml:space="preserve"><value>Uppdatera listan över arbetsytor och välj modellen igen.</value></data>
+  <data name="Rest_Throttled" xml:space="preserve"><value>Power BI-tjänsten begränsar antalet begäranden.</value></data>
+  <data name="Remedy_RestThrottled" xml:space="preserve"><value>Vänta en minut och försök igen.</value></data>
+  <data name="Rest_QueryRejected" xml:space="preserve"><value>Tjänsten avvisade frågan: {0}</value></data>
+  <data name="Remedy_RestBadRequest" xml:space="preserve"><value>Uppdatera metadata och kontrollera mappade fält.</value></data>
+  <data name="Rest_ServerError" xml:space="preserve"><value>Power BI-tjänsten returnerade ett serverfel.</value></data>
+  <data name="Remedy_RetryLater" xml:space="preserve"><value>Försök igen senare.</value></data>
+  <data name="Rest_UnexpectedResponse" xml:space="preserve"><value>Oväntat svar från tjänsten: {0}</value></data>
+  <data name="Remedy_Retry" xml:space="preserve"><value>Försök igen.</value></data>
+  <data name="Rest_NoTarget" xml:space="preserve"><value>REST-anslutningen behöver arbetsytans och den semantiska modellens ID.</value></data>
+  <data name="Remedy_RestNoTarget" xml:space="preserve"><value>Logga in och välj modellen bland arbetsytorna.</value></data>
+  <data name="Rest_TransportName" xml:space="preserve"><value>Power BI-tjänsten – Execute Queries REST API</value></data>
+  <data name="SignedInUser" xml:space="preserve"><value>Inloggad användare</value></data>
+  <data name="Rest_NoteLimits" xml:space="preserve"><value>Per fråga: högst 100 000 rader eller 1 000 000 värden och 15 MB. Större resultat rapporteras som ofullständiga.</value></data>
+  <data name="Rest_NotePermission" xml:space="preserve"><value>Kräver behörigheten Skapa och klientorganisationsinställningen 'Dataset Execute Queries REST API'.</value></data>
+  <data name="Rest_NoteMetadata" xml:space="preserve"><value>Metadata hämtas med INFO.VIEW-funktioner och kan vara ofullständig.</value></data>
+  <data name="Rest_SecurityContext" xml:space="preserve"><value>{0} via REST (så som den aktuella användaren ser det)</value></data>
+  <data name="Rest_MetadataWarning" xml:space="preserve"><value>Metadata hämtades över REST med INFO.VIEW-funktioner och kan vara ofullständig.</value></data>
+  <data name="Rest_Timeout" xml:space="preserve"><value>REST-frågan överskred tidsgränsen.</value></data>
+  <data name="Truncated_RowCap" xml:space="preserve"><value>Resultatet överskred radgränsen på {0:N0}.</value></data>
+  <data name="Truncated_RestRowLimit" xml:space="preserve"><value>REST API:ets radgräns (100 000) nåddes; resultatet kan vara ofullständigt.</value></data>
+  <data name="Truncated_RestValueLimit" xml:space="preserve"><value>REST API:ets värdegräns (1 000 000) nåddes; resultatet kan vara ofullständigt.</value></data>
+  <data name="Rest_LimitExceeded" xml:space="preserve"><value>Frågeresultatet överskrider REST API:ets gränser (100 000 rader, 1 000 000 värden eller 15 MB).</value></data>
+  <data name="Remedy_RestLimitExceeded" xml:space="preserve"><value>Lägg till filter eller minska detaljnivån, eller använd XMLA-anslutningen.</value></data>
+  <data name="Remedy_RestQuery" xml:space="preserve"><value>Uppdatera metadata och kontrollera de mappade fälten.</value></data>
+  <data name="Meta_MdschemaLimited" xml:space="preserve"><value>Metadata kom från de begränsade MDSCHEMA-raduppsättningarna: dolda flaggor, relationer och vissa datatyper saknas.</value></data>
+  <data name="Meta_CalculationGroups" xml:space="preserve"><value>Det finns beräkningsgrupper ({0}); de kan ändra måttens resultat.</value></data>
+  <data name="Meta_InactiveRelationships" xml:space="preserve"><value>{0} inaktiva relationer; mått som använder USERELATIONSHIP kan skilja sig från standardvägen.</value></data>
+  <data name="Meta_ManyToManyRelationships" xml:space="preserve"><value>{0} många-till-många-relationer; totaler kanske inte är additiva.</value></data>
+  <data name="Meta_BidirectionalRelationships" xml:space="preserve"><value>{0} dubbelriktade relationer.</value></data>
+</root>

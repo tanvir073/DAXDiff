@@ -1,3 +1,5 @@
+using System.Globalization;
+using DaxDiff.Domain.Resources;
 namespace DaxDiff.Domain;
 
 /// <summary>Which side of the comparison a source, query or error belongs to.</summary>
@@ -57,9 +59,9 @@ public sealed record ModelReference
 
     public string Describe() => Kind switch
     {
-        SourceKind.DesktopSession => $"Desktop: {DisplayName} ({DesktopServer ?? "not attached"})",
-        SourceKind.ServiceXmla => $"Service XMLA: {TenantPrefix}{WorkspaceName}/{DatasetName}",
-        SourceKind.ServiceRest => $"Service REST: {TenantPrefix}{WorkspaceName}/{DatasetName}",
+        SourceKind.DesktopSession => string.Format(CultureInfo.CurrentCulture, Strings.Source_Desktop, DisplayName, DesktopServer ?? Strings.Source_NotAttached),
+        SourceKind.ServiceXmla => string.Format(CultureInfo.CurrentCulture, Strings.Source_Xmla, TenantPrefix, WorkspaceName, DatasetName),
+        SourceKind.ServiceRest => string.Format(CultureInfo.CurrentCulture, Strings.Source_Rest, TenantPrefix, WorkspaceName, DatasetName),
         _ => DisplayName,
     };
 }

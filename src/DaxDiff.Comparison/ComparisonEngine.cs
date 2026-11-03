@@ -1,4 +1,6 @@
 using DaxDiff.Domain;
+using System.Globalization;
+using DaxDiff.Comparison.Resources;
 
 namespace DaxDiff.Comparison;
 
@@ -48,13 +50,13 @@ public static class ComparisonEngine
                 KeyA = rowA is null ? null : Keys(rowA, keyCount),
                 KeyB = rowB is null ? null : Keys(rowB, keyCount),
                 Measures = [],
-                Reason = $"Duplicate key after normalization (A: {Occurrences(countA, rowA is not null)}, " +
-                         $"B: {Occurrences(countB, rowB is not null)} rows)",
+                Reason = string.Format(CultureInfo.CurrentCulture, Strings.Eng_DuplicateKeyReason,
+                    Occurrences(countA, rowA is not null), Occurrences(countB, rowB is not null)),
             });
         }
 
         if (duplicateKeys.Count > 0)
-            warnings.Add($"{duplicateKeys.Count} key(s) are duplicated after normalization and were not compared.");
+            warnings.Add(string.Format(CultureInfo.CurrentCulture, Strings.Eng_DuplicateKeysWarning, duplicateKeys.Count));
 
         foreach (var key in indexA.Order)
         {
@@ -75,7 +77,7 @@ public static class ComparisonEngine
                     KeyA = Keys(rowA, keyCount),
                     KeyB = Keys(rowB, keyCount),
                     Measures = cells,
-                    Reason = mismatched.Count == 0 ? null : "Mismatch: " + string.Join(", ", mismatched),
+                    Reason = mismatched.Count == 0 ? null : string.Format(CultureInfo.CurrentCulture, Strings.Eng_MismatchReason, string.Join(", ", mismatched)),
                 });
             }
             else
@@ -96,8 +98,7 @@ public static class ComparisonEngine
         var kept = KeepRows(rows, config.Options.Results);
         if (kept.Count < rows.Count)
         {
-            warnings.Add($"The result lists {kept.Count:N0} of {rows.Count:N0} compared rows (result settings of this comparison). " +
-                         "Summary counts include every row.");
+            warnings.Add(string.Format(CultureInfo.CurrentCulture, Strings.Eng_ResultTrimmed, kept.Count, rows.Count));
         }
 
         return new EngineOutput
@@ -130,12 +131,10 @@ public static class ComparisonEngine
         // An empty result may carry no column names (REST returns none when there are no rows).
         if (result.Rows.Count > 0 && result.Rows.Any(r => r.Length != expectedColumns))
             throw new DaxDiffException(ErrorCategory.InvalidQuery, "ENG-SHAPE",
-                $"Query returned rows with a column count other than the {expectedColumns} expected.",
-                "Check that every mapped field still exists and re-run the comparison.", side);
+                string.Format(CultureInfo.CurrentCulture, Strings.Eng_ShapeRows, expectedColumns), Strings.Eng_ShapeRemedy, side);
         if (result.Rows.Count > 0 && result.ColumnNames.Count != expectedColumns)
             throw new DaxDiffException(ErrorCategory.InvalidQuery, "ENG-SHAPE",
-                $"Query returned {result.ColumnNames.Count} columns but {expectedColumns} were expected.",
-                "Check that every mapped field still exists and re-run the comparison.", side);
+                string.Format(CultureInfo.CurrentCulture, Strings.Eng_ShapeColumns, result.ColumnNames.Count, expectedColumns), Strings.Eng_ShapeRemedy, side);
     }
 
     private sealed class SideIndex
@@ -178,7 +177,7 @@ public static class ComparisonEngine
                 A = side == Side.A ? value : null,
                 B = side == Side.B ? value : null,
                 IsMatch = false,
-                Reason = side == Side.A ? "Only in A" : "Only in B",
+                Reason = side == Side.A ? Strings.Eng_OnlyInA : Strings.Eng_OnlyInB,
             });
         }
 
@@ -190,7 +189,7 @@ public static class ComparisonEngine
             KeyA = side == Side.A ? Keys(row, keyCount) : null,
             KeyB = side == Side.B ? Keys(row, keyCount) : null,
             Measures = cells,
-            Reason = $"Key not returned by {other} (member absent, filtered out, or all measures BLANK)",
+            Reason = string.Format(CultureInfo.CurrentCulture, Strings.Eng_KeyNotReturned, other),
         };
     }
 

@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using DaxDiff.Application;
 using DaxDiff.Comparison;
 using DaxDiff.Domain;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.ViewModels;
 
@@ -74,8 +75,8 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
     public string DisplayName => IsModified ? $"{Name} *" : Name;
 
     public string SaveStateText => IsModified
-        ? IsSaved ? "Unsaved changes – runs use the last saved version" : "Not saved yet – save to run it"
-        : "Saved";
+        ? IsSaved ? Strings.Editor_UnsavedChanges : Strings.Editor_NotSavedYet
+        : Strings.Editor_Saved;
 
     /// <summary>Status on the Run page, describing the saved version that will run.</summary>
     public string RunStatusText
@@ -83,13 +84,13 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
         get
         {
             if (SavedDefinition is null)
-                return "Not saved yet – save it on the Comparisons page to run it";
+                return Strings.Editor_NotSavedRun;
             var saved = ComparisonCompiler.CompileAndValidate(SavedDefinition, _sourceA.Metadata, _sourceB.Metadata);
             var errors = saved.Issues.Count(i => i.Severity == IssueSeverity.Error);
             var text = errors > 0
-                ? $"{errors} error(s) in the saved version"
-                : $"{saved.Config.Keys.Count} key(s), {saved.Config.Values.Count} value(s)";
-            return IsModified ? text + " · newer changes not saved" : text;
+                ? Localized.Format(Strings.Editor_SavedVersionErrors, errors)
+                : Localized.Format(Strings.Editor_KeysValues, saved.Config.Keys.Count, saved.Config.Values.Count);
+            return IsModified ? text + Strings.Editor_NewerChangesSuffix : text;
         }
     }
 
@@ -151,8 +152,8 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
     public int ErrorCount => Compiled.Issues.Count(i => i.Severity == IssueSeverity.Error);
 
     public string StatusText => ErrorCount > 0
-        ? $"{ErrorCount} error(s) to fix"
-        : $"{Compiled.Config.Keys.Count} key(s), {Compiled.Config.Values.Count} value(s) compared";
+        ? Localized.Format(Strings.Editor_ErrorsToFix, ErrorCount)
+        : Localized.Format(Strings.Editor_KeysValuesCompared, Compiled.Config.Keys.Count, Compiled.Config.Values.Count);
 
     partial void OnNameChanged(string value)
     {
@@ -167,7 +168,7 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
     public ComparisonDefinition ToDefinition() => new()
     {
         Id = Id,
-        Name = Name.Trim().Length == 0 ? "Unnamed comparison" : Name.Trim(),
+        Name = Name.Trim().Length == 0 ? Strings.Editor_UnnamedComparison : Name.Trim(),
         FieldsA = FieldsA.Select(f => f.ToModel()).ToList(),
         FieldsB = FieldsB.Select(f => f.ToModel()).ToList(),
         Options = Options.ToOptions(),
@@ -239,7 +240,7 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
 
         Compiled = ComparisonCompiler.CompileAndValidate(ToDefinition(), _sourceA.Metadata, _sourceB.Metadata);
         Pairs = Compiled.Config.FieldPairs
-            .Select(p => new PairPreview(p.Alias, p.Role == FieldRole.Key ? "Key" : "Value", Describe(p.Left, p.LeftAggregation), Describe(p.Right, p.RightAggregation)))
+            .Select(p => new PairPreview(p.Alias, EnumTextConverter.Text(p.Role), Describe(p.Left, p.LeftAggregation), Describe(p.Right, p.RightAggregation)))
             .ToList();
         Annotate(FieldsA, FieldsB, Side.A);
         Annotate(FieldsB, FieldsA, Side.B);
@@ -249,7 +250,7 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
     }
 
     private static string Describe(FieldRef field, Aggregation aggregation) =>
-        aggregation == Aggregation.None ? field.ToString() : $"{aggregation}({field})";
+        aggregation == Aggregation.None ? field.ToString() : $"{EnumTextConverter.Text(aggregation)}({field})";
 
     private void Annotate(IEnumerable<ComparisonFieldViewModel> fields, IReadOnlyList<ComparisonFieldViewModel> others, Side side)
     {
@@ -259,12 +260,12 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
             var key = ComparisonCompiler.SynonymKey(field.Synonym);
             var match = key.Length == 0 ? null : others.FirstOrDefault(o => ComparisonCompiler.SynonymKey(o.Synonym) == key);
             field.PairText = match is null
-                ? $"No model {other} field named '{field.Synonym.Trim()}': not compared"
-                : $"↔ {match.FieldText}{(match.Aggregation == Aggregation.None ? "" : $" ({match.Aggregation})")}";
+                ? Localized.Format(Strings.Editor_NoCounterpart, other, field.Synonym.Trim())
+                : $"↔ {match.FieldText}{(match.Aggregation == Aggregation.None ? "" : $" ({EnumTextConverter.Text(match.Aggregation)})")}";
 
             var mine = Compiled.Issues
                 .Where(i => i.Alias is not null && ComparisonCompiler.SynonymKey(i.Alias) == key)
-                .Where(i => !i.Message.StartsWith("Model ", StringComparison.Ordinal) || i.Message.StartsWith($"Model {side}", StringComparison.Ordinal))
+                .Where(i => i.Side is null || i.Side == side)
                 .DistinctBy(i => i.Message)
                 .ToList();
             field.Issue = mine.Count == 0 ? null : string.Join(" ", mine.Select(i => i.Message));

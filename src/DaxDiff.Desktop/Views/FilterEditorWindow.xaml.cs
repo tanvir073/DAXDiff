@@ -1,6 +1,7 @@
 using System.Windows;
 using DaxDiff.Desktop.ViewModels;
 using DaxDiff.Domain;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.Views;
 
@@ -19,8 +20,8 @@ public partial class FilterEditorWindow : Window
         var (filters, problems) = vm.Collect();
         if (problems.Length > 0)
         {
-            MessageBox.Show(this, "Fix these filters first, or remove them:" + Environment.NewLine + Environment.NewLine + problems,
-                "Filters", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(this, Strings.Filter_FixFirst + Environment.NewLine + Environment.NewLine + problems,
+                Strings.Filter_FixFirstTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 

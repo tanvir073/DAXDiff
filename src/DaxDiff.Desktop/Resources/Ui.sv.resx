@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Settings_Language_Title" xml:space="preserve"><value>Språk</value></data>
+  <data name="Settings_Language_Hint" xml:space="preserve"><value>Menyer, meddelanden och exporterade arbetsböcker. Gäller när DAXDiff startas om. Loggar förblir på engelska.</value></data>
+  <data name="Settings_Language_Label" xml:space="preserve"><value>_Språk</value></data>
+  <data name="Main_StepName" xml:space="preserve"><value>Steg {0}</value></data>
+  <data name="Main_LogoName" xml:space="preserve"><value>DAXDiff-logotyp</value></data>
+  <data name="Main_Save" xml:space="preserve"><value>_Spara</value></data>
+  <data name="Main_SaveTip" xml:space="preserve"><value>Spara projektet (Ctrl+S)</value></data>
+  <data name="Main_SaveAs" xml:space="preserve"><value>Spara so_m…</value></data>
+  <data name="Main_SaveAsTip" xml:space="preserve"><value>Spara projektet i en ny fil (Ctrl+Skift+S)</value></data>
+  <data name="Main_Close" xml:space="preserve"><value>Stäng</value></data>
+  <data name="Main_CloseTip" xml:space="preserve"><value>Stäng projektet</value></data>
+  <data name="Main_OpenProject" xml:space="preserve"><value>_Öppna projekt…</value></data>
+  <data name="Main_OpenProjectTip" xml:space="preserve"><value>Öppna en projektfil (Ctrl+O)</value></data>
+  <data name="Main_NewProjectTip" xml:space="preserve"><value>Skapa en ny projektfil (Ctrl+N)</value></data>
+  <data name="Main_NewProject" xml:space="preserve"><value>_Nytt projekt</value></data>
+  <data name="Main_NoProject" xml:space="preserve"><value>Inget projekt är öppet</value></data>
+  <data name="Main_ProblemCount" xml:space="preserve"><value>{0} problem i den här jämförelsen</value></data>
+  <data name="Main_Settings" xml:space="preserve"><value>Inställningar</value></data>
+  <data name="Main_Home" xml:space="preserve"><value>Start</value></data>
+  <data name="Main_Workflow" xml:space="preserve"><value>PROJEKTETS ARBETSFLÖDE</value></data>
+  <data name="Main_Locked" xml:space="preserve"><value>Öppna eller skapa ett projekt för att låsa upp stegen</value></data>
+  <data name="Home_Eyebrow" xml:space="preserve"><value>JÄMFÖRELSE AV SEMANTISKA MODELLER</value></data>
+  <data name="Home_Title" xml:space="preserve"><value>Jämför två semantiska modeller i Power BI</value></data>
+  <data name="Home_Intro" xml:space="preserve"><value>Välj modell A och modell B, välj de fält du bryr dig om och se varje rad och varje värde som skiljer sig. Allt du ställer in sparas i en enda .pbicomp-projektfil.</value></data>
+  <data name="Home_NewTitle" xml:space="preserve"><value>Nytt projekt</value></data>
+  <data name="Home_NewButton" xml:space="preserve"><value>_Starta nytt projekt</value></data>
+  <data name="Home_NewText" xml:space="preserve"><value>Välj var projektfilen ska sparas, anslut sedan modell A och modell B och lägg till en eller flera jämförelser.</value></data>
+  <data name="Home_OpenTitle" xml:space="preserve"><value>Öppna projekt</value></data>
+  <data name="Home_OpenButton" xml:space="preserve"><value>_Bläddra bland filer…</value></data>
+  <data name="Home_OpenText" xml:space="preserve"><value>Öppna ett .pbicomp-projekt för att köra om eller redigera dess jämförelser. Du ansluter till modellerna igen efter att projektet öppnats.</value></data>
+  <data name="Home_Recent" xml:space="preserve"><value>Senaste projekt</value></data>
+  <data name="Home_NoRecent" xml:space="preserve"><value>Inga senaste projekt ännu. Projekt som du skapar eller öppnar visas här.</value></data>
+  <data name="Home_OpenRecent" xml:space="preserve"><value>Öppna</value></data>
+  <data name="Home_OpenRecentName" xml:space="preserve"><value>Öppna {0}</value></data>
+  <data name="Home_Readiness" xml:space="preserve"><value>Förutsättningar för anslutning</value></data>
+  <data name="Home_ReadinessHint" xml:space="preserve"><value>Vad varje typ av källa behöver.</value></data>
+  <data name="Home_DesktopNeeds" xml:space="preserve"><value>Filen måste vara öppen i Power BI Desktop. DAXDiff läser aldrig PBIX-filer offline.</value></data>
+  <data name="Home_Xmla" xml:space="preserve"><value>Tjänsten via XMLA</value></data>
+  <data name="Home_XmlaNeeds" xml:space="preserve"><value>Premium-, PPU- eller Fabric-kapacitet med XMLA-läsning och behörigheten Skapa. Varje modell loggar in med sitt eget konto.</value></data>
+  <data name="Home_Rest" xml:space="preserve"><value>Tjänsten via REST och bläddring bland arbetsytor</value></data>
+  <data name="Home_RestNeeds" xml:space="preserve"><value>Kräver ett klient-ID för en Entra-app. REST är begränsat till 100 000 rader per fråga.</value></data>
+  <data name="Home_ClientIdSet" xml:space="preserve"><value>Klient-ID angivet</value></data>
+  <data name="Home_ClientIdNotSet" xml:space="preserve"><value>Klient-ID saknas (Inställningar)</value></data>
+  <data name="Home_Identity" xml:space="preserve"><value>Båda modellerna frågas som du. Säkerhet på radnivå (RLS), roller och administratörsåtkomst i Desktop kan göra att data skiljer sig, så resultaten märks som 'så som den aktuella användaren ser dem'.</value></data>
+  <data name="Home_Step1" xml:space="preserve"><value>Anslut</value></data>
+  <data name="Home_Step1Hint" xml:space="preserve"><value>Modell A och modell B</value></data>
+  <data name="Home_Step2" xml:space="preserve"><value>Välj fält</value></data>
+  <data name="Home_Step2Hint" xml:space="preserve"><value>Nycklar, aggregeringar, synonymer</value></data>
+  <data name="Home_Step3" xml:space="preserve"><value>Ange regler</value></data>
+  <data name="Home_Step3Hint" xml:space="preserve"><value>Filter och toleranser</value></data>
+  <data name="Home_Step4" xml:space="preserve"><value>Kör och granska</value></data>
+  <data name="Home_Step4Hint" xml:space="preserve"><value>Granska och exportera till Excel</value></data>
+  <data name="Sources_Next" xml:space="preserve"><value>Nästa: jämförelser →</value></data>
+  <data name="Sources_Step" xml:space="preserve"><value>STEG 1 AV 5</value></data>
+  <data name="Sources_Title" xml:space="preserve"><value>Källor</value></data>
+  <data name="Sources_Hint" xml:space="preserve"><value>Välj de två semantiska modeller som ska jämföras: alla kombinationer av Power BI Desktop och Power BI-tjänsten fungerar. Testa varje anslutning för att läsa in dess metadata.</value></data>
+  <data name="Sources_SwapTip" xml:space="preserve"><value>Byt plats på modell A och modell B, inklusive fält och filter i varje jämförelse</value></data>
+  <data name="Sources_Swap" xml:space="preserve"><value>Byt plats på modell A och modell B</value></data>
+  <data name="Source_NotConnected" xml:space="preserve"><value>Inte ansluten</value></data>
+  <data name="Source_Connected" xml:space="preserve"><value>Ansluten</value></data>
+  <data name="Source_ConnectionFailed" xml:space="preserve"><value>Anslutningen misslyckades</value></data>
+  <data name="Source_Connecting" xml:space="preserve"><value>Ansluter…</value></data>
+  <data name="Source_IdentityName" xml:space="preserve"><value>Källans identitet</value></data>
+  <data name="Source_TypeName" xml:space="preserve"><value>Källtyp</value></data>
+  <data name="Source_DesktopFile" xml:space="preserve"><value>_Desktop-fil</value></data>
+  <data name="Source_DesktopFileTip" xml:space="preserve"><value>En PBIX-fil som är öppen i Power BI Desktop</value></data>
+  <data name="Source_Xmla" xml:space="preserve"><value>Tjänst · _XMLA</value></data>
+  <data name="Source_XmlaTip" xml:space="preserve"><value>En modell i Power BI-tjänsten via XMLA-slutpunkten (rekommenderas)</value></data>
+  <data name="Source_Rest" xml:space="preserve"><value>Tjänst · _REST</value></data>
+  <data name="Source_RestTip" xml:space="preserve"><value>En modell i Power BI-tjänsten via REST-API:t Execute Queries (reservalternativ, radgränser)</value></data>
+  <data name="Source_PbixFile" xml:space="preserve"><value>PBIX-fil (valfritt, hjälper till att välja rätt session)</value></data>
+  <data name="Source_Browse" xml:space="preserve"><value>Bläddra…</value></data>
+  <data name="Source_PbixPath" xml:space="preserve"><value>Sökväg till PBIX-fil</value></data>
+  <data name="Source_OpenInDesktop" xml:space="preserve"><value>Öppna i Power BI Desktop</value></data>
+  <data name="Source_DetectSessions" xml:space="preserve"><value>↻ Identifiera _sessioner</value></data>
+  <data name="Source_Running" xml:space="preserve"><value>Körs i Power BI Desktop</value></data>
+  <data name="Source_RunningName" xml:space="preserve"><value>Sessioner som körs i Power BI Desktop</value></data>
+  <data name="Source_TenantLabel" xml:space="preserve"><value>_Klientorganisation (domän eller klient-ID; 'organizations' = din egen)</value></data>
+  <data name="Source_Tenant" xml:space="preserve"><value>Klientorganisation</value></data>
+  <data name="Source_TenantTip" xml:space="preserve"><value>För en modell i en annan organisations klientorganisation anger du dess domän (t.ex. contoso.com) eller klient-ID</value></data>
+  <data name="Source_AccountLabel" xml:space="preserve"><value>K_onto (användare@domän; tomt = ditt Windows-konto)</value></data>
+  <data name="Source_Account" xml:space="preserve"><value>Konto</value></data>
+  <data name="Source_AccountPlaceholder" xml:space="preserve"><value>namn@foretag.se</value></data>
+  <data name="Source_AccountTip" xml:space="preserve"><value>Kontot som har åtkomst till arbetsytan. XMLA loggar in som det här kontot.</value></data>
+  <data name="Source_SignIn" xml:space="preserve"><value>Logga _in…</value></data>
+  <data name="Source_SignInTip" xml:space="preserve"><value>Logga in i den här klientorganisationen; du kan välja olika konton för varje modell</value></data>
+  <data name="Source_SignOut" xml:space="preserve"><value>Logga ut</value></data>
+  <data name="Source_RefreshWorkspaces" xml:space="preserve"><value>Uppdatera arbetsytor</value></data>
+  <data name="Source_RefreshWorkspacesTip" xml:space="preserve"><value>Läs in listan med arbetsytor igen</value></data>
+  <data name="Source_Workspace" xml:space="preserve"><value>Arbetsyta</value></data>
+  <data name="Source_SearchWorkspaces" xml:space="preserve"><value>Sök arbetsytor</value></data>
+  <data name="Source_SearchWorkspacesTip" xml:space="preserve"><value>Skriv för att filtrera arbetsytor</value></data>
+  <data name="Source_SemanticModel" xml:space="preserve"><value>Semantisk modell</value></data>
+  <data name="Source_SearchModels" xml:space="preserve"><value>Sök semantiska modeller</value></data>
+  <data name="Source_SearchModelsTip" xml:space="preserve"><value>Skriv för att filtrera semantiska modeller</value></data>
+  <data name="Source_WorkspaceLabel" xml:space="preserve"><value>_Arbetsytans namn eller anslutningslänk (powerbi://…)</value></data>
+  <data name="Source_WorkspaceName" xml:space="preserve"><value>Arbetsytans namn</value></data>
+  <data name="Source_WorkspacePlaceholder" xml:space="preserve"><value>powerbi://api.powerbi.com/v1.0/myorg/Arbetsytans namn</value></data>
+  <data name="Source_WorkspaceTip" xml:space="preserve"><value>Klistra in länken från Inställningar för arbetsyta → Licensinformation → Anslutningslänk, eller skriv arbetsytans namn</value></data>
+  <data name="Source_ModelLabel" xml:space="preserve"><value>Namn på semantisk _modell</value></data>
+  <data name="Source_ModelName" xml:space="preserve"><value>Namn på semantisk modell</value></data>
+  <data name="Source_TestConnection" xml:space="preserve"><value>_Testa anslutning</value></data>
+  <data name="Source_RefreshMetadata" xml:space="preserve"><value>Uppdatera m_etadata</value></data>
+  <data name="Source_ConnectionStatus" xml:space="preserve"><value>Anslutningsstatus</value></data>
+  <data name="Source_CapQuery" xml:space="preserve"><value>Fråga: </value></data>
+  <data name="Source_CapMetadata" xml:space="preserve"><value>   Metadata: </value></data>
+  <data name="Source_CapRowLimit" xml:space="preserve"><value>   Radgräns: </value></data>
+  <data name="Source_CapNoLimit" xml:space="preserve"><value>ingen</value></data>
+  <data name="Source_CapIdentity" xml:space="preserve"><value>Identitet: </value></data>
+  <data name="Cmp_Aggregation" xml:space="preserve"><value>Aggregering</value></data>
+  <data name="Cmp_Step" xml:space="preserve"><value>STEG 2 AV 5</value></data>
+  <data name="Cmp_Title" xml:space="preserve"><value>Jämförelser</value></data>
+  <data name="Cmp_PickerLabel" xml:space="preserve"><value>_Jämförelse</value></data>
+  <data name="Cmp_PickerTip" xml:space="preserve"><value>* markerar osparade ändringar</value></data>
+  <data name="Cmp_NameLabel" xml:space="preserve"><value>_Namn</value></data>
+  <data name="Cmp_New" xml:space="preserve"><value>+ Ny jämförelse</value></data>
+  <data name="Cmp_Duplicate" xml:space="preserve"><value>Duplicera</value></data>
+  <data name="Cmp_Delete" xml:space="preserve"><value>Ta bort</value></data>
+  <data name="Cmp_SaveTip" xml:space="preserve"><value>Spara jämförelsen i projektet; körningar använder den sparade versionen</value></data>
+  <data name="Cmp_Save" xml:space="preserve"><value>_Spara jämförelse</value></data>
+  <data name="Cmp_Discard" xml:space="preserve"><value>Ignorera ändringar</value></data>
+  <data name="Cmp_DiscardTip" xml:space="preserve"><value>Gå tillbaka till den senast sparade versionen</value></data>
+  <data name="Cmp_FiltersTip" xml:space="preserve"><value>Filtrera båda modellerna till samma urval av data</value></data>
+  <data name="Cmp_FiltersOpen" xml:space="preserve"><value>Filter (</value></data>
+  <data name="Cmp_EmptyTitle" xml:space="preserve"><value>Inga jämförelser ännu</value></data>
+  <data name="Cmp_EmptyText" xml:space="preserve"><value>Infoga valfri kolumn (eller alla kolumner i en tabell) från varje modell, markera nyckelkolumnerna, välj hur övriga kolumner ska aggregeras och ge fält som ska jämföras samma synonym i båda modellerna. Skapa en jämförelse för att börja.</value></data>
+  <data name="Cmp_InsertA" xml:space="preserve"><value>Infoga i A ▾</value></data>
+  <data name="Cmp_InsertB" xml:space="preserve"><value>Infoga i B ▾</value></data>
+  <data name="Cmp_InsertTip" xml:space="preserve"><value>Infoga de markerade fälten, eller alla kolumner i en markerad tabell. Ctrl+klick eller Skift+klick markerar flera; dubbelklick eller Retur infogar också.</value></data>
+  <data name="Cmp_SearchA" xml:space="preserve"><value>Sök tabeller och fält i modell A</value></data>
+  <data name="Cmp_SearchB" xml:space="preserve"><value>Sök tabeller och fält i modell B</value></data>
+  <data name="Cmp_TreeA" xml:space="preserve"><value>Tabeller och fält i modell A</value></data>
+  <data name="Cmp_TreeB" xml:space="preserve"><value>Tabeller och fält i modell B</value></data>
+  <data name="Cmp_FieldsA" xml:space="preserve"><value>Fält från modell A i den här jämförelsen</value></data>
+  <data name="Cmp_FieldsB" xml:space="preserve"><value>Fält från modell B i den här jämförelsen</value></data>
+  <data name="Cmp_ColKey" xml:space="preserve"><value>Nyckel</value></data>
+  <data name="Cmp_KeyTip" xml:space="preserve"><value>Del av jämförelsens nyckel (granularitet)</value></data>
+  <data name="Cmp_ColField" xml:space="preserve"><value>Fält</value></data>
+  <data name="Cmp_ColType" xml:space="preserve"><value>Typ</value></data>
+  <data name="Cmp_ColSynonym" xml:space="preserve"><value>Synonym</value></data>
+  <data name="Cmp_CopyToB" xml:space="preserve"><value>Lägg till samma i B ▸</value></data>
+  <data name="Cmp_CopyToBTip" xml:space="preserve"><value>Lägg till de markerade fälten i modell B: samma tabell- och kolumnnamn, samma nyckel, aggregering och synonym</value></data>
+  <data name="Cmp_CopyToA" xml:space="preserve"><value>◂ Lägg till samma i A</value></data>
+  <data name="Cmp_CopyToATip" xml:space="preserve"><value>Lägg till de markerade fälten i modell A: samma tabell- och kolumnnamn, samma nyckel, aggregering och synonym</value></data>
+  <data name="Cmp_Remove" xml:space="preserve"><value>Ta bort</value></data>
+  <data name="Cmp_MoveUpA" xml:space="preserve"><value>Flytta fält i modell A uppåt</value></data>
+  <data name="Cmp_MoveDownA" xml:space="preserve"><value>Flytta fält i modell A nedåt</value></data>
+  <data name="Cmp_MoveUpKeyTip" xml:space="preserve"><value>Flytta uppåt (nyckelordning i resultatet). Du kan också dra rader.</value></data>
+  <data name="Cmp_MoveDownKeyTip" xml:space="preserve"><value>Flytta nedåt (nyckelordning i resultatet). Du kan också dra rader.</value></data>
+  <data name="Cmp_MoveUpB" xml:space="preserve"><value>Flytta fält i modell B uppåt</value></data>
+  <data name="Cmp_MoveDownB" xml:space="preserve"><value>Flytta fält i modell B nedåt</value></data>
+  <data name="Cmp_MoveUpTip" xml:space="preserve"><value>Flytta uppåt. Du kan också dra rader.</value></data>
+  <data name="Cmp_MoveDownTip" xml:space="preserve"><value>Flytta nedåt. Du kan också dra rader.</value></data>
+  <data name="Cmp_ShowHidden" xml:space="preserve"><value>Visa _dolda fält</value></data>
+  <data name="Cmp_ShowHiddenTip" xml:space="preserve"><value>Visa dolda tabeller och fält i båda modellerna</value></data>
+  <data name="Cmp_SplitterTip" xml:space="preserve"><value>Dra för att ändra storlek</value></data>
+  <data name="Cmp_Splitter" xml:space="preserve"><value>Ändra storlek på parningspanelen</value></data>
+  <data name="Cmp_MatchSynonyms" xml:space="preserve"><value>_Matcha synonymer</value></data>
+  <data name="Cmp_MatchSynonymsTip" xml:space="preserve"><value>Ge fälten i modell B synonymen för motsvarande fält i modell A (via namn och synonymordlista)</value></data>
+  <data name="Cmp_FindB" xml:space="preserve"><value>Hitta motsvarande _B-fält</value></data>
+  <data name="Cmp_FindBTip" xml:space="preserve"><value>För fält i modell A utan motsvarighet: hitta ett fält i modell B med motsvarande namn (även via synonymordlistan) och infoga det med samma synonym</value></data>
+  <data name="Cmp_PairingHint" xml:space="preserve"><value>Fält med samma synonym (oavsett skiftläge) jämförs. Nycklar måste markeras i båda modellerna.</value></data>
+  <data name="Cmp_PairsTab" xml:space="preserve"><value>Jämförda par</value></data>
+  <data name="Cmp_ColRole" xml:space="preserve"><value>Roll</value></data>
+  <data name="Cmp_ColModelA" xml:space="preserve"><value>Modell A</value></data>
+  <data name="Cmp_ColModelB" xml:space="preserve"><value>Modell B</value></data>
+  <data name="Cmp_IssuesTab" xml:space="preserve"><value>Problem och varningar ({0})</value></data>
+  <data name="Cmp_Issues" xml:space="preserve"><value>Problem och varningar</value></data>
+  <data name="Opt_ValueTitle" xml:space="preserve"><value>Jämförelse av värden</value></data>
+  <data name="Opt_Mode" xml:space="preserve"><value>_Läge</value></data>
+  <data name="Opt_AbsTol" xml:space="preserve"><value>_Absolut tolerans</value></data>
+  <data name="Opt_RelTol" xml:space="preserve"><value>_Relativ tolerans (0.001 = 0,1 %)</value></data>
+  <data name="Opt_TolFormula" xml:space="preserve"><value>Lika när |A − B| ≤ max(absolut, relativ × max(|A|, |B|)).</value></data>
+  <data name="Opt_NullPolicy" xml:space="preserve"><value>_Nullhantering</value></data>
+  <data name="Opt_TextCmp" xml:space="preserve"><value>Jämförelse av te_xtvärden</value></data>
+  <data name="Opt_Baseline" xml:space="preserve"><value>Bas för _procentuell skillnad</value></data>
+  <data name="Opt_KeyTitle" xml:space="preserve"><value>Normalisering av nycklar</value></data>
+  <data name="Opt_Trim" xml:space="preserve"><value>Ta bort inledande och avslutande _blanksteg</value></data>
+  <data name="Opt_CaseInsensitive" xml:space="preserve"><value>_Ignorera skiftläge i nycklar</value></data>
+  <data name="Opt_BlankEqualsEmpty" xml:space="preserve"><value>Behandla BLANK och tom text som samma nyckel</value></data>
+  <data name="Opt_DateOnly" xml:space="preserve"><value>Jämför datumnycklar endast på _datum</value></data>
+  <data name="Opt_Unicode" xml:space="preserve"><value>_Unicode-normalisering</value></data>
+  <data name="Opt_Dupes" xml:space="preserve"><value>Hantering av dubblettn_ycklar</value></data>
+  <data name="Opt_LimitsTitle" xml:space="preserve"><value>Gränser</value></data>
+  <data name="Opt_MaxRows" xml:space="preserve"><value>Max antal rader per _modell</value></data>
+  <data name="Opt_Timeout" xml:space="preserve"><value>_Tidsgräns (sekunder)</value></data>
+  <data name="Opt_Retries" xml:space="preserve"><value>Nya försök vid tillfälli_ga fel</value></data>
+  <data name="Opt_ResultTitle" xml:space="preserve"><value>Resultatrader</value></data>
+  <data name="Opt_ShowAll" xml:space="preserve"><value>Visa lika _och skillnader</value></data>
+  <data name="Opt_ShowDiffs" xml:space="preserve"><value>Visa endast s_killnader</value></data>
+  <data name="Opt_LimitRows" xml:space="preserve"><value>Begränsa antal_et resultatrader</value></data>
+  <data name="Opt_MaxResultRows" xml:space="preserve"><value>Max antal resultatrader</value></data>
+  <data name="Opt_ResultHint" xml:space="preserve"><value>Antalen i sammanfattningen omfattar alltid alla rader. Med en gräns behålls skillnader före lika rader.</value></data>
+  <data name="Opt_FiltersTitle" xml:space="preserve"><value>Filter (tillämpas på båda modellerna)</value></data>
+  <data name="Opt_EditFilters" xml:space="preserve"><value>Redigera _filter…</value></data>
+  <data name="Opt_EditFiltersTip" xml:space="preserve"><value>Grundläggande (välj värden) eller avancerade (villkor) filter, som i filterfönstret i Power BI</value></data>
+  <data name="Opt_PreviewTitle" xml:space="preserve"><value>Förhandsgranskning av frågor och uppskattning</value></data>
+  <data name="Opt_PreviewDax" xml:space="preserve"><value>F_örhandsgranska DAX</value></data>
+  <data name="Opt_EstimateRows" xml:space="preserve"><value>Uppskatta antal rader</value></data>
+  <data name="Opt_QueryA" xml:space="preserve"><value>Fråga för modell A</value></data>
+  <data name="Opt_QueryB" xml:space="preserve"><value>Fråga för modell B</value></data>
+  <data name="OptPage_Step" xml:space="preserve"><value>STEG 3 AV 5</value></data>
+  <data name="OptPage_Title" xml:space="preserve"><value>Alternativ</value></data>
+  <data name="OptPage_Hint" xml:space="preserve"><value>Varje jämförelse har egna alternativ. Varje regel är uttrycklig: inget normaliseras, avrundas eller behandlas som lika om du inte väljer det här. Tal anges med '.' som decimaltecken.</value></data>
+  <data name="OptPage_Picker" xml:space="preserve"><value>Alternativ för _jämförelse</value></data>
+  <data name="OptPage_NoComparison" xml:space="preserve"><value>Skapa först en jämförelse på sidan Jämförelser.</value></data>
+  <data name="Run_Cancel" xml:space="preserve"><value>_Avbryt</value></data>
+  <data name="Run_Run" xml:space="preserve"><value>_Kör (F5)</value></data>
+  <data name="Run_Step" xml:space="preserve"><value>STEG 4 AV 5</value></data>
+  <data name="Run_Title" xml:space="preserve"><value>Kör</value></data>
+  <data name="Run_Hint" xml:space="preserve"><value>Markera de jämförelser som ska köras. Var och en körs i sin senast sparade version, en i taget, och båda modellerna frågas parallellt. En avbruten eller avkortad körning rapporteras aldrig som fullständig.</value></data>
+  <data name="Run_All" xml:space="preserve"><value>Alla</value></data>
+  <data name="Run_None" xml:space="preserve"><value>Inga</value></data>
+  <data name="Run_ToRun" xml:space="preserve"><value>Jämförelser att köra</value></data>
+  <data name="Run_Scope" xml:space="preserve"><value>Jämförelsens omfattning</value></data>
+  <data name="Run_Acknowledge" xml:space="preserve"><value>Jag förstår att resultaten är som de observeras av den aktuella användaren i varje modell. Säkerhet på rad- eller objektnivå och administratörsåtkomst i Desktop kan göra att rader skiljer sig, så saknade nycklar är inte nödvändigtvis skillnader mellan modellerna.</value></data>
+  <data name="Run_Elapsed" xml:space="preserve"><value>Förfluten tid </value></data>
+  <data name="Run_Log" xml:space="preserve"><value>Körningslogg</value></data>
+  <data name="Results_Picker" xml:space="preserve"><value>Visa resultat _för</value></data>
+  <data name="Results_Export" xml:space="preserve"><value>_Exportera till Excel…</value></data>
+  <data name="Results_Step" xml:space="preserve"><value>STEG 5 AV 5</value></data>
+  <data name="Results_Title" xml:space="preserve"><value>Resultat</value></data>
+  <data name="Results_None" xml:space="preserve"><value>Inga resultat ännu. Kör en jämförelse först.</value></data>
+  <data name="Results_Observed" xml:space="preserve"><value>Som det observeras av den aktuella användaren i varje modell.</value></data>
+  <data name="Results_RunStatus" xml:space="preserve"><value>Körningens status</value></data>
+  <data name="Results_KpiMismatches" xml:space="preserve"><value>Avvikelser</value></data>
+  <data name="Results_KpiMatches" xml:space="preserve"><value>Lika</value></data>
+  <data name="Results_KpiMatchRate" xml:space="preserve"><value>Andel lika</value></data>
+  <data name="Results_KpiOnlyInA" xml:space="preserve"><value>Endast i A</value></data>
+  <data name="Results_KpiOnlyInB" xml:space="preserve"><value>Endast i B</value></data>
+  <data name="Results_Details" xml:space="preserve"><value>Källor, identiteter, inställningar och frågehashar</value></data>
+  <data name="Results_Search" xml:space="preserve"><value>Sök i resultat</value></data>
+  <data name="Results_SearchTip" xml:space="preserve"><value>Sök i nycklar, värden och orsaker</value></data>
+  <data name="Results_SearchPlaceholder" xml:space="preserve"><value>Sök rader</value></data>
+  <data name="Results_ShowRows" xml:space="preserve"><value>Visa rader</value></data>
+  <data name="Results_FilterAll" xml:space="preserve"><value>Alla</value></data>
+  <data name="Results_FilterMatch" xml:space="preserve"><value>Lika</value></data>
+  <data name="Results_FilterMismatch" xml:space="preserve"><value>Avvikande värde</value></data>
+  <data name="Results_FilterInvalidKey" xml:space="preserve"><value>Ogiltig nyckel</value></data>
+  <data name="Results_ExportIncludes" xml:space="preserve"><value>Exporten innehåller:</value></data>
+  <data name="Results_ExportAllData" xml:space="preserve"><value>Alla _data</value></data>
+  <data name="Results_ExportDax" xml:space="preserve"><value>DA_X-text</value></data>
+  <data name="Results_Grid" xml:space="preserve"><value>Jämförelseresultat</value></data>
+  <data name="Results_RowDetails" xml:space="preserve"><value>Raddetaljer</value></data>
+  <data name="Settings_Eyebrow" xml:space="preserve"><value>PROGRAM</value></data>
+  <data name="Settings_Title" xml:space="preserve"><value>Inställningar</value></data>
+  <data name="Settings_Hint" xml:space="preserve"><value>Utseende, språk, inloggning, sekretess och diagnostik. Inställningarna gäller alla projekt.</value></data>
+  <data name="Settings_Appearance" xml:space="preserve"><value>Utseende</value></data>
+  <data name="Settings_AppearanceHint" xml:space="preserve"><value>Välj ett färgtema. Det används direkt och sparas på den här datorn.</value></data>
+  <data name="Settings_Theme" xml:space="preserve"><value>Färgtema</value></data>
+  <data name="Settings_SignInTitle" xml:space="preserve"><value>Inloggning med Microsoft Entra</value></data>
+  <data name="Settings_ClientId" xml:space="preserve"><value>_Klient-ID (program-ID)</value></data>
+  <data name="Settings_Tenant" xml:space="preserve"><value>Stan_dardklientorganisation för nya källor (ID, domän eller organizations)</value></data>
+  <data name="Settings_ClientIdHint" xml:space="preserve"><value>Registrera en offentlig klientapp i Entra ID med omdirigerings-URI:n http://localhost och de delegerade behörigheterna Dataset.Read.All och Workspace.Read.All för Power BI-tjänsten. Se docs/setup.md.</value></data>
+  <data name="Settings_Save" xml:space="preserve"><value>Spa_ra</value></data>
+  <data name="Settings_SignOutAll" xml:space="preserve"><value>Logga _ut från alla konton</value></data>
+  <data name="Settings_Privacy" xml:space="preserve"><value>Sekretess</value></data>
+  <data name="Settings_Diagnostics" xml:space="preserve"><value>Diagnostik och version</value></data>
+  <data name="Settings_Version" xml:space="preserve"><value>Version  </value></data>
+  <data name="Settings_Runtime" xml:space="preserve"><value>Körmiljö  </value></data>
+  <data name="Settings_Logs" xml:space="preserve"><value>Loggar  </value></data>
+  <data name="Settings_OpenLogs" xml:space="preserve"><value>Öppna _loggmappen</value></data>
+  <data name="Settings_Reset" xml:space="preserve"><value>Återställ sessi_on</value></data>
+  <data name="Filter_Cancel" xml:space="preserve"><value>Avbryt</value></data>
+  <data name="Filter_Apply" xml:space="preserve"><value>_Verkställ</value></data>
+  <data name="Filter_Intro" xml:space="preserve"><value>Varje filter tillämpas på båda modellerna: kolumnen i modell A och dess motsvarighet i modell B får samma regel. Verkställ och spara sedan jämförelsen för att använda filtren i körningar.</value></data>
+  <data name="Filter_ListTitle" xml:space="preserve"><value>Filter i den här jämförelsen</value></data>
+  <data name="Filter_Add" xml:space="preserve"><value>+ _Lägg till filter</value></data>
+  <data name="Filter_Remove" xml:space="preserve"><value>_Ta bort</value></data>
+  <data name="Filter_ConnectFirst" xml:space="preserve"><value>Anslut båda modellerna på sidan Källor för att välja kolumner och läsa in värden.</value></data>
+  <data name="Filter_Filters" xml:space="preserve"><value>Filter</value></data>
+  <data name="Filter_Empty" xml:space="preserve"><value>Lägg till ett filter för att begränsa båda modellerna till samma urval av data, som i filterfönstret i Power BI.</value></data>
+  <data name="Filter_LeftColumn" xml:space="preserve"><value>Kolumn i modell _A</value></data>
+  <data name="Filter_RightColumn" xml:space="preserve"><value>Samma filter på kolumn i modell _B</value></data>
+  <data name="Filter_Type" xml:space="preserve"><value>Filtertyp</value></data>
+  <data name="Filter_Basic" xml:space="preserve"><value>_Grundläggande filtrering</value></data>
+  <data name="Filter_Advanced" xml:space="preserve"><value>Avan_cerad filtrering</value></data>
+  <data name="Filter_Description" xml:space="preserve"><value>Besk_rivning (visas i Excel-exporten)</value></data>
+  <data name="Filter_Is" xml:space="preserve"><value>_Är (behåll markerade värden)</value></data>
+  <data name="Filter_IsNot" xml:space="preserve"><value>Är _inte (ta bort markerade värden)</value></data>
+  <data name="Filter_SearchValues" xml:space="preserve"><value>Sök värden</value></data>
+  <data name="Filter_ValueToAdd" xml:space="preserve"><value>Värde att lägga till</value></data>
+  <data name="Filter_ValueToAddTip" xml:space="preserve"><value>Skriv ett värde (datum som åååå-mm-dd) och välj Lägg till värde</value></data>
+  <data name="Filter_TypeValue" xml:space="preserve"><value>Skriv ett värde</value></data>
+  <data name="Filter_AddValue" xml:space="preserve"><value>Lägg till värde</value></data>
+  <data name="Filter_SelectAllShown" xml:space="preserve"><value>Markera alla som visas</value></data>
+  <data name="Filter_Clear" xml:space="preserve"><value>Rensa</value></data>
+  <data name="Filter_Values" xml:space="preserve"><value>Värden</value></data>
+  <data name="Filter_ShowWhen" xml:space="preserve"><value>Visa objekt när värdet</value></data>
+  <data name="Filter_Condition1" xml:space="preserve"><value>Första villkoret</value></data>
+  <data name="Filter_Condition1Value" xml:space="preserve"><value>Värde för första villkoret</value></data>
+  <data name="Filter_And" xml:space="preserve"><value>_Och</value></data>
+  <data name="Filter_Or" xml:space="preserve"><value>_Eller</value></data>
+  <data name="Filter_Condition2" xml:space="preserve"><value>Andra villkoret</value></data>
+  <data name="Filter_Condition2Value" xml:space="preserve"><value>Värde för andra villkoret</value></data>
+  <data name="Filter_InputHint" xml:space="preserve"><value>Tal anges med '.' som decimaltecken; datum skrivs åååå-mm-dd (eventuellt med hh:mm:ss). Textmatchning skiljer inte på versaler och gemener. 'är' behandlar aldrig BLANK som 0.</value></data>
+  <data name="Source_SignInOnTest" xml:space="preserve"><value>Du ombeds logga in när du väljer Testa anslutning.</value></data>
+  <data name="Results_ColumnPicker" xml:space="preserve"><value>Kolumner med avvikelser</value></data>
+  <data name="Results_ColumnPickerTip" xml:space="preserve"><value>Visa endast de valda jämförda kolumnerna tillsammans med nyckelkolumnerna.</value></data>
+  <data name="Results_ColumnPickerHint" xml:space="preserve"><value>Kolumner med minst en avvikelse. Ctrl+klicka eller Skift+klicka för att välja flera.</value></data>
+  <data name="Results_ColumnsShowAll" xml:space="preserve"><value>Visa alla kolumner</value></data>
+  <data name="Cmp_SearchFieldPlaceholder" xml:space="preserve"><value>Sök</value></data>
+  <data name="Cmp_SearchFieldTip" xml:space="preserve"><value>Visa endast fält vars namn eller typ innehåller texten, till exempel Revenue eller Double. Esc rensar. Dolda fält ingår fortfarande i jämförelsen.</value></data>
+  <data name="Cmp_SearchFieldA" xml:space="preserve"><value>Sök fält i modell A efter namn eller typ</value></data>
+  <data name="Cmp_SearchFieldB" xml:space="preserve"><value>Sök fält i modell B efter namn eller typ</value></data>
+</root>

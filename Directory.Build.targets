@@ -1,0 +1,26 @@
+<Project>
+  <!--
+    Localized text (Swedish support): each project keeps its user-facing strings in Resources/Strings.resx (English,
+    the neutral language) and Resources/Strings.sv.resx (Swedish). The typed accessor class <RootNamespace>.Resources.Strings
+    is generated at build time, so no Visual Studio designer step is needed.
+  -->
+  <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)\Resources\Strings.resx')">
+    <EmbeddedResource Update="Resources\Strings.resx">
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>$(RootNamespace).Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Strings</StronglyTypedClassName>
+      <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedManifestPrefix>$(RootNamespace).Resources</StronglyTypedManifestPrefix>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!--
+    WPF compiles XAML through a temporary project (<name>_wpftmp) that never runs the resource generator. Generate the
+    accessors before XAML compilation and hand the generated files to that temporary project.
+  -->
+  <Target Name="GenerateResourceAccessorsBeforeXaml" BeforeTargets="MarkupCompilePass1" DependsOnTargets="PrepareResourceNames;CoreResGen"
+          Condition="'$(UseWPF)' == 'true'" />
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('_wpftmp'))">
+    <Compile Include="$(IntermediateOutputPath)*.Designer.cs" />
+  </ItemGroup>
+</Project>

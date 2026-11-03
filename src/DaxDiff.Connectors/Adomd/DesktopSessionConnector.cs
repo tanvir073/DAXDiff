@@ -1,6 +1,8 @@
 using DaxDiff.Domain;
 using Microsoft.AnalysisServices.AdomdClient;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using DaxDiff.Connectors.Resources;
 
 namespace DaxDiff.Connectors.Adomd;
 
@@ -15,25 +17,25 @@ public sealed class DesktopSessionConnector : AdomdConnectorBase
     {
         if (string.IsNullOrWhiteSpace(reference.DesktopServer))
             throw new DaxDiffException(ErrorCategory.Configuration, "DESK-NO-SESSION",
-                $"'{reference.DisplayName}' is not attached to a running Power BI Desktop session.",
-                "Open the PBIX in Power BI Desktop, then choose 'Detect sessions' and select it (or launch DAXDiff from External Tools).");
+                string.Format(CultureInfo.CurrentCulture, Strings.Desk_NoSession, reference.DisplayName),
+                Strings.Remedy_DeskNoSession);
     }
 
     public override ConnectorCapabilities Capabilities { get; protected set; } = new()
     {
-        TransportName = "Power BI Desktop (local Analysis Services)",
+        TransportName = Strings.Desk_TransportName,
         CanQuery = true,
         Metadata = MetadataSupport.Full,
-        SecurityContext = "Local Desktop session",
+        SecurityContext = Strings.Desk_SecurityContextShort,
         Notes =
         [
-            "The PBIX must stay open in Power BI Desktop for the duration of the run.",
-            "Desktop sessions run with model-administrator rights: row-level security roles are not applied.",
+            Strings.Desk_NoteKeepOpen,
+            Strings.Desk_NoteNoRls,
         ],
     };
 
     public override string SecurityContext =>
-        $"{Environment.UserDomainName}\\{Environment.UserName} via local Desktop session (model admin; RLS not applied)";
+        string.Format(CultureInfo.CurrentCulture, Strings.Desk_SecurityContext, $"{Environment.UserDomainName}\\{Environment.UserName}");
 
     protected override string TransportName => "Power BI Desktop";
 

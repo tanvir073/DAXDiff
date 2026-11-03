@@ -1,4 +1,6 @@
 using DaxDiff.Domain;
+using System.Globalization;
+using DaxDiff.Comparison.Resources;
 
 namespace DaxDiff.Comparison;
 
@@ -26,7 +28,7 @@ public static class ComparisonCompiler
         var validation = MappingValidator.Validate(compiled.Config, a, b)
             .Where(i => i.Code is not ("MAP-MISSING" or "MAP-EMPTY")); // already reported per field as CMP-MISSING / CMP-EMPTY
         if (compiled.Config.FieldPairs.Count == 0 && !compiled.Issues.Any(i => i.Code == "CMP-EMPTY"))
-            validation = validation.Prepend(Error("MAP-EMPTY", "Nothing to compare yet: give a model A field and a model B field the same synonym."));
+            validation = validation.Prepend(Error("MAP-EMPTY", Strings.Cmp_NothingToCompareYet));
         return compiled with { Issues = [.. compiled.Issues, .. validation] };
     }
 
@@ -35,7 +37,7 @@ public static class ComparisonCompiler
         var issues = new List<ValidationIssue>();
 
         if (definition.FieldsA.Count == 0 && definition.FieldsB.Count == 0)
-            issues.Add(Error("CMP-EMPTY", "Insert fields from both models."));
+            issues.Add(Error("CMP-EMPTY", Strings.Cmp_InsertFields));
 
         CheckSide(issues, definition.FieldsA, a, Side.A);
         CheckSide(issues, definition.FieldsB, b, Side.B);
@@ -55,15 +57,15 @@ public static class ComparisonCompiler
             if (!right.TryGetValue(key, out var match))
             {
                 issues.Add(left.IsKey
-                    ? Error("CMP-KEY-UNPAIRED", $"Key '{left.Synonym}' has no model B field with the same synonym.", left.Synonym)
-                    : Warning("CMP-UNPAIRED", $"Model A field {left.Field} ('{left.Synonym}') has no model B counterpart and is not compared.", left.Synonym));
+                    ? Error("CMP-KEY-UNPAIRED", Format(Strings.Cmp_KeyUnpairedInB, left.Synonym), left.Synonym)
+                    : Warning("CMP-UNPAIRED", Format(Strings.Cmp_UnpairedA, left.Field, left.Synonym), left.Synonym) with { Side = Side.A });
                 continue;
             }
 
             if (left.IsKey != match.IsKey)
             {
                 issues.Add(Error("CMP-KEY-MISMATCH",
-                    $"'{left.Synonym}' is a key on model {(left.IsKey ? "A" : "B")} only. Mark it as a key on both sides or on neither.", left.Synonym));
+                    Format(Strings.Cmp_KeyOnOneSide, left.Synonym, left.IsKey ? "A" : "B"), left.Synonym));
                 continue;
             }
 
@@ -81,8 +83,8 @@ public static class ComparisonCompiler
         foreach (var field in definition.FieldsB.Where(f => f.Synonym.Trim().Length > 0 && !paired.Contains(SynonymKey(f.Synonym))))
         {
             issues.Add(field.IsKey
-                ? Error("CMP-KEY-UNPAIRED", $"Key '{field.Synonym}' has no model A field with the same synonym.", field.Synonym)
-                : Warning("CMP-UNPAIRED", $"Model B field {field.Field} ('{field.Synonym}') has no model A counterpart and is not compared.", field.Synonym));
+                ? Error("CMP-KEY-UNPAIRED", Format(Strings.Cmp_KeyUnpairedInA, field.Synonym), field.Synonym)
+                : Warning("CMP-UNPAIRED", Format(Strings.Cmp_UnpairedB, field.Field, field.Synonym), field.Synonym) with { Side = Side.B });
         }
 
         // Keys first so result columns are ordinal: keys, then values (see DaxQueryBuilder).
@@ -96,7 +98,7 @@ public static class ComparisonCompiler
                 var tables = fields.Where(f => f.IsKey).Select(f => f.Field.Table).Distinct(StringComparer.OrdinalIgnoreCase).Count();
                 if (tables > 1)
                     issues.Add(Warning("CMP-KEYS-ONLY",
-                        $"Model {side}: keys from {tables} tables without any compared value return every combination of their members. Add a value field to limit the rows to existing data."));
+                        Format(Strings.Cmp_KeysOnly, side, tables)) with { Side = side });
             }
         }
 
@@ -105,29 +107,38 @@ public static class ComparisonCompiler
 
     private static void CheckSide(List<ValidationIssue> issues, IReadOnlyList<ComparisonField> fields, ModelMetadata? meta, Side side)
     {
+        var first = issues.Count;
+        CheckFields(issues, fields, meta, side);
+        // Everything found here concerns this side only.
+        for (var i = first; i < issues.Count; i++)
+            issues[i] = issues[i] with { Side = side };
+    }
+
+    private static void CheckFields(List<ValidationIssue> issues, IReadOnlyList<ComparisonField> fields, ModelMetadata? meta, Side side)
+    {
         foreach (var group in fields.Where(f => f.Synonym.Trim().Length > 0).GroupBy(f => SynonymKey(f.Synonym)).Where(g => g.Count() > 1))
-            issues.Add(Error("CMP-DUP-SYNONYM", $"Model {side}: synonym '{group.First().Synonym.Trim()}' is used by {group.Count()} fields. Each synonym must be unique per model.", group.First().Synonym));
+            issues.Add(Error("CMP-DUP-SYNONYM", Format(Strings.Cmp_DuplicateSynonym, side, group.First().Synonym.Trim(), group.Count()), group.First().Synonym));
 
         foreach (var group in fields.GroupBy(f => f.Field).Where(g => g.Count() > 1))
-            issues.Add(Error("CMP-DUP-FIELD", $"Model {side}: {group.Key} is inserted more than once.", group.First().Synonym));
+            issues.Add(Error("CMP-DUP-FIELD", Format(Strings.Cmp_DuplicateField, side, group.Key), group.First().Synonym));
 
         foreach (var field in fields)
         {
             if (field.Synonym.Trim().Length == 0)
             {
-                issues.Add(Error("CMP-NO-SYNONYM", $"Model {side}: {field.Field} needs a synonym.", field.Synonym));
+                issues.Add(Error("CMP-NO-SYNONYM", Format(Strings.Cmp_NoSynonym, side, field.Field), field.Synonym));
                 continue;
             }
 
             if (field.IsKey && field.Field.Kind == FieldKind.Measure)
             {
-                issues.Add(Error("CMP-MEASURE-KEY", $"Model {side}: measure {field.Field} cannot be a key. Use columns as keys.", field.Synonym));
+                issues.Add(Error("CMP-MEASURE-KEY", Format(Strings.Cmp_MeasureKey, side, field.Field), field.Synonym));
                 continue;
             }
 
             if (meta is not null && !meta.Contains(field.Field))
             {
-                issues.Add(Error("CMP-MISSING", $"Model {side}: {field.Field} no longer exists (renamed or deleted?). Replace or remove it.", field.Synonym));
+                issues.Add(Error("CMP-MISSING", Format(Strings.Cmp_Missing, side, field.Field), field.Synonym));
                 continue;
             }
 
@@ -137,10 +148,12 @@ public static class ComparisonCompiler
             {
                 var allowed = string.Join(", ", AggregationRules.Allowed(field.Field.Kind, dataKind, field.IsKey));
                 issues.Add(Error("CMP-AGGREGATION",
-                    $"Model {side}: {field.Field} cannot use {field.Aggregation} ({(field.IsKey ? "key" : dataKind.ToString())}). Allowed: {allowed}.", field.Synonym));
+                    Format(Strings.Cmp_AggregationNotAllowed, side, field.Field, field.Aggregation, field.IsKey ? Strings.Cmp_KeyWord : dataKind.ToString(), allowed), field.Synonym));
             }
         }
     }
+
+    private static string Format(string format, params object?[] args) => string.Format(CultureInfo.CurrentCulture, format, args);
 
     private static ValidationIssue Error(string code, string message, string? alias = null) => new(IssueSeverity.Error, code, message, alias);
 

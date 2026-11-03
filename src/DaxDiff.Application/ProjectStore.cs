@@ -2,6 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using DaxDiff.Domain;
+using System.Globalization;
+using DaxDiff.Application.Resources;
 
 namespace DaxDiff.Application;
 
@@ -50,26 +52,26 @@ public static class ProjectStore
         }
         catch (JsonException ex)
         {
-            throw Invalid("The project file is not valid JSON.", ex);
+            throw Invalid(Strings.Prj_NotJson, ex);
         }
 
         if (node is not JsonObject root)
-            throw Invalid("The project file is empty or malformed.");
+            throw Invalid(Strings.Prj_Malformed);
 
         var version = root["schemaVersion"]?.GetValue<int>() ?? 0;
         if (version > ProjectFile.CurrentSchemaVersion)
             throw new DaxDiffException(ErrorCategory.Configuration, "PRJ-NEWER",
-                $"This project was saved by a newer DAXDiff (schema {version}).", "Update DAXDiff to open it.");
+                string.Format(CultureInfo.CurrentCulture, Strings.Prj_Newer, version), Strings.Prj_NewerRemedy);
 
         Migrate(root, version);
 
         try
         {
-            return root.Deserialize<ProjectFile>(JsonOptions) ?? throw Invalid("The project file is empty.");
+            return root.Deserialize<ProjectFile>(JsonOptions) ?? throw Invalid(Strings.Prj_Empty);
         }
         catch (JsonException ex)
         {
-            throw Invalid("The project file could not be read: " + ex.Message, ex);
+            throw Invalid(string.Format(CultureInfo.CurrentCulture, Strings.Prj_Unreadable, ex.Message), ex);
         }
     }
 
@@ -160,5 +162,5 @@ public static class ProjectStore
         reference is null ? null : reference with { DesktopServer = null, DesktopDatabase = null };
 
     private static DaxDiffException Invalid(string message, Exception? inner = null) =>
-        new(ErrorCategory.Configuration, "PRJ-INVALID", message, "Choose a valid .pbicomp file.", inner: inner);
+        new(ErrorCategory.Configuration, "PRJ-INVALID", message, Strings.Prj_InvalidRemedy, inner: inner);
 }

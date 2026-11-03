@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using System.Globalization;
+using DaxDiff.Domain.Resources;
 
 namespace DaxDiff.Domain;
 
@@ -101,28 +103,28 @@ public sealed record FilterPair
             var parts = Conditions.Select(c => c.Operator is ConditionOperator.IsBlank or ConditionOperator.IsNotBlank
                 ? OperatorText(c.Operator)
                 : $"{OperatorText(c.Operator)} {c.Value}");
-            return $"{LeftColumn.Name} {string.Join(Join == ConditionJoin.And ? " and " : " or ", parts)}";
+            return $"{LeftColumn.Name} {string.Join($" {(Join == ConditionJoin.And ? Strings.Filter_JoinAnd : Strings.Filter_JoinOr)} ", parts)}";
         }
 
-        var values = Values.Concat(IncludeBlank ? ["(Blank)"] : []).ToList();
-        var shown = values.Count <= 5 ? string.Join(", ", values) : $"{string.Join(", ", values.Take(5))} and {values.Count - 5} more";
-        return $"{LeftColumn.Name} {(Operator == FilterOperator.In ? "is" : "is not")} {shown}";
+        var values = Values.Concat(IncludeBlank ? [Strings.Filter_Blank] : []).ToList();
+        var shown = values.Count <= 5 ? string.Join(", ", values) : string.Format(CultureInfo.CurrentCulture, Strings.Filter_MoreValues, string.Join(", ", values.Take(5)), values.Count - 5);
+        return $"{LeftColumn.Name} {(Operator == FilterOperator.In ? Strings.Filter_Is : Strings.Filter_IsNot)} {shown}";
     }
 
     public static string OperatorText(ConditionOperator op) => op switch
     {
-        ConditionOperator.Is => "is",
-        ConditionOperator.IsNot => "is not",
-        ConditionOperator.LessThan => "is less than",
-        ConditionOperator.LessThanOrEqual => "is less than or equal to",
-        ConditionOperator.GreaterThan => "is greater than",
-        ConditionOperator.GreaterThanOrEqual => "is greater than or equal to",
-        ConditionOperator.Contains => "contains",
-        ConditionOperator.DoesNotContain => "does not contain",
-        ConditionOperator.StartsWith => "starts with",
-        ConditionOperator.DoesNotStartWith => "does not start with",
-        ConditionOperator.IsBlank => "is blank",
-        _ => "is not blank",
+        ConditionOperator.Is => Strings.Filter_Is,
+        ConditionOperator.IsNot => Strings.Filter_IsNot,
+        ConditionOperator.LessThan => Strings.Filter_LessThan,
+        ConditionOperator.LessThanOrEqual => Strings.Filter_LessThanOrEqual,
+        ConditionOperator.GreaterThan => Strings.Filter_GreaterThan,
+        ConditionOperator.GreaterThanOrEqual => Strings.Filter_GreaterThanOrEqual,
+        ConditionOperator.Contains => Strings.Filter_Contains,
+        ConditionOperator.DoesNotContain => Strings.Filter_DoesNotContain,
+        ConditionOperator.StartsWith => Strings.Filter_StartsWith,
+        ConditionOperator.DoesNotStartWith => Strings.Filter_DoesNotStartWith,
+        ConditionOperator.IsBlank => Strings.Filter_IsBlank,
+        _ => Strings.Filter_IsNotBlank,
     };
 
     /// <summary>Operators offered for a column type, as in Power BI's advanced filtering.</summary>

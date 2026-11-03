@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using DaxDiff.Connectors.Auth;
 using DaxDiff.Domain;
 using Microsoft.Extensions.Logging;
+using DaxDiff.Connectors.Core.Resources;
 
 namespace DaxDiff.Connectors.Service;
 
@@ -26,8 +27,8 @@ public sealed partial class ServiceRestConnector : IModelConnector
     {
         if (string.IsNullOrWhiteSpace(reference.WorkspaceId) || string.IsNullOrWhiteSpace(reference.DatasetId))
             throw new DaxDiffException(ErrorCategory.Configuration, "REST-NO-TARGET",
-                "The REST transport needs the workspace and semantic model IDs.",
-                "Sign in and pick the model from the workspace browser.");
+                Strings.Rest_NoTarget,
+                Strings.Remedy_RestNoTarget);
         Reference = reference;
         _client = client;
         _auth = auth;
@@ -38,22 +39,22 @@ public sealed partial class ServiceRestConnector : IModelConnector
 
     public ConnectorCapabilities Capabilities { get; private set; } = new()
     {
-        TransportName = "Power BI Service – Execute Queries REST API",
+        TransportName = Strings.Rest_TransportName,
         CanQuery = true,
         Metadata = MetadataSupport.Partial,
         MaxRowsPerQuery = MaxRowsPerQuery,
         MaxValuesPerQuery = MaxValuesPerQuery,
         MaxBytesPerQuery = MaxBytesPerQuery,
-        SecurityContext = "Signed-in user",
+        SecurityContext = Strings.SignedInUser,
         Notes =
         [
-            "Per query: max 100,000 rows or 1,000,000 values and 15 MB. Larger results are reported as Partial.",
-            "Requires Build permission and the tenant setting 'Dataset Execute Queries REST API'.",
-            "Metadata uses INFO.VIEW functions and may be incomplete.",
+            Strings.Rest_NoteLimits,
+            Strings.Rest_NotePermission,
+            Strings.Rest_NoteMetadata,
         ],
     };
 
-    public string SecurityContext => $"{_auth.SignedInAccount ?? "Signed-in user"} via REST (as observed by current caller)";
+    public string SecurityContext => string.Format(CultureInfo.CurrentCulture, Strings.Rest_SecurityContext, _auth.SignedInAccount ?? Strings.SignedInUser);
 
     private string QueryPath =>
         $"groups/{Uri.EscapeDataString(Reference.WorkspaceId!)}/datasets/{Uri.EscapeDataString(Reference.DatasetId!)}/executeQueries";
@@ -83,7 +84,7 @@ public sealed partial class ServiceRestConnector : IModelConnector
         var metadata = InfoViewMetadataReader.Build(Reference.DatasetName ?? Reference.DisplayName, tables, columns, measures, relationships);
         return metadata with
         {
-            Warnings = [.. metadata.Warnings, "Metadata was retrieved over REST via INFO.VIEW functions and may be incomplete."],
+            Warnings = [.. metadata.Warnings, Strings.Rest_MetadataWarning],
         };
     }
 
@@ -111,8 +112,8 @@ public sealed partial class ServiceRestConnector : IModelConnector
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            throw new DaxDiffException(ErrorCategory.Timeout, "QRY-TIMEOUT", "The REST query timed out.",
-                "Increase the timeout, add filters or reduce the grain.", isTransient: true);
+            throw new DaxDiffException(ErrorCategory.Timeout, "QRY-TIMEOUT", Strings.Rest_Timeout,
+                Strings.Remedy_Timeout, isTransient: true);
         }
 
         using (doc)
@@ -145,7 +146,7 @@ public sealed partial class ServiceRestConnector : IModelConnector
             if (rows.Count >= maxRows)
             {
                 truncated = true;
-                reason = $"Result exceeded the row cap of {maxRows:N0}.";
+                reason = string.Format(CultureInfo.CurrentCulture, Strings.Truncated_RowCap, maxRows);
                 break;
             }
 
@@ -164,12 +165,12 @@ public sealed partial class ServiceRestConnector : IModelConnector
         if (!truncated && rows.Count >= MaxRowsPerQuery)
         {
             truncated = true;
-            reason = "The REST API row limit (100,000) was reached; the result may be incomplete.";
+            reason = Strings.Truncated_RestRowLimit;
         }
         else if (!truncated && (long)rows.Count * Math.Max(1, names.Count) >= MaxValuesPerQuery)
         {
             truncated = true;
-            reason = "The REST API value limit (1,000,000) was reached; the result may be incomplete.";
+            reason = Strings.Truncated_RestValueLimit;
         }
 
         return new QueryResult { ColumnNames = names, Rows = rows, IsTruncated = truncated, TruncationReason = reason };
@@ -181,11 +182,11 @@ public sealed partial class ServiceRestConnector : IModelConnector
         var lower = text.ToLowerInvariant();
         if (lower.Contains("limit") || lower.Contains("exceed") || lower.Contains("too large"))
             return new DaxDiffException(ErrorCategory.UnsupportedModel, "REST-LIMIT",
-                "The query result exceeds the REST API limits (100,000 rows, 1,000,000 values or 15 MB).",
-                "Add filters or reduce the grain, or use the XMLA transport.");
+                Strings.Rest_LimitExceeded,
+                Strings.Remedy_RestLimitExceeded);
         return new DaxDiffException(ErrorCategory.InvalidQuery, "REST-QUERY",
-            "The service rejected the query: " + (text.Length > 400 ? text[..400] + "…" : text),
-            "Refresh metadata and check the mapped fields.");
+            string.Format(CultureInfo.CurrentCulture, Strings.Rest_QueryRejected, text.Length > 400 ? text[..400] + "…" : text),
+            Strings.Remedy_RestQuery);
     }
 
     [GeneratedRegex(@"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$")]

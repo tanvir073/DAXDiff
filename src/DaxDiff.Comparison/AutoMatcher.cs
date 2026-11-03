@@ -1,5 +1,7 @@
 using System.Text;
 using DaxDiff.Domain;
+using System.Globalization;
+using DaxDiff.Comparison.Resources;
 
 namespace DaxDiff.Comparison;
 
@@ -113,7 +115,7 @@ public sealed class AutoMatcher
             }
             else
             {
-                ambiguous.Add($"{group.Key.Field}: wanted by {string.Join(", ", group.Select(g => g.B.Field.ToString()))}");
+                ambiguous.Add(string.Format(CultureInfo.CurrentCulture, Strings.Auto_WantedBy, group.Key.Field, string.Join(", ", group.Select(g => g.B.Field.ToString()))));
             }
         }
 
@@ -125,11 +127,11 @@ public sealed class AutoMatcher
         var name = Normalize(left.Name);
         var exact = b.Measures.Where(m => Normalize(m.Name) == name).Select(m => m.Ref).ToList();
         if (exact.Count > 0)
-            return Pick(left, exact, MatchConfidence.FieldName, "Same normalized measure name");
+            return Pick(left, exact, MatchConfidence.FieldName, Strings.Auto_SameMeasureName);
 
         var canonical = Canonicalize(name);
         var synonyms = b.Measures.Where(m => Canonicalize(Normalize(m.Name)) == canonical).Select(m => m.Ref).ToList();
-        return Pick(left, synonyms, MatchConfidence.Synonym, "Synonym dictionary match");
+        return Pick(left, synonyms, MatchConfidence.Synonym, Strings.Auto_SynonymMatch);
     }
 
     public MatchSuggestion SuggestColumn(FieldRef left, ModelMetadata a, ModelMetadata b)
@@ -141,18 +143,18 @@ public sealed class AutoMatcher
         var sameName = b.AllColumns.Where(c => Normalize(c.Name) == name).ToList();
         var qualified = sameName.Where(c => Normalize(c.Table) == table).Select(c => c.Ref).ToList();
         if (qualified.Count > 0)
-            return Pick(left, qualified, MatchConfidence.QualifiedName, "Same normalized table and column");
+            return Pick(left, qualified, MatchConfidence.QualifiedName, Strings.Auto_SameTableAndColumn);
 
         // Name-only matches are narrowed by data type before declaring ambiguity.
         var typed = sameName.Where(c => TypesCompatible(leftKind, c.DataKind)).Select(c => c.Ref).ToList();
         if (typed.Count > 0)
-            return Pick(left, typed, MatchConfidence.FieldName, "Same normalized column name and compatible type");
+            return Pick(left, typed, MatchConfidence.FieldName, Strings.Auto_SameColumnAndType);
 
         var canonical = Canonicalize(name);
         var synonyms = b.AllColumns
             .Where(c => Canonicalize(Normalize(c.Name)) == canonical && TypesCompatible(leftKind, c.DataKind))
             .Select(c => c.Ref).ToList();
-        return Pick(left, synonyms, MatchConfidence.Synonym, "Synonym dictionary match");
+        return Pick(left, synonyms, MatchConfidence.Synonym, Strings.Auto_SynonymMatch);
     }
 
     public static bool TypesCompatible(DataKind a, DataKind b)
@@ -177,8 +179,8 @@ public sealed class AutoMatcher
     private static MatchSuggestion Pick(FieldRef left, List<FieldRef> candidates, MatchConfidence confidence, string reason) =>
         candidates.Count switch
         {
-            0 => new MatchSuggestion { Left = left, Reason = "No candidate found" },
+            0 => new MatchSuggestion { Left = left, Reason = Strings.Auto_NoCandidate },
             1 => new MatchSuggestion { Left = left, Right = candidates[0], Candidates = candidates, Confidence = confidence, Reason = reason },
-            _ => new MatchSuggestion { Left = left, Candidates = candidates, Confidence = confidence, Reason = $"Ambiguous: {candidates.Count} candidates ({reason.ToLowerInvariant()})" },
+            _ => new MatchSuggestion { Left = left, Candidates = candidates, Confidence = confidence, Reason = string.Format(CultureInfo.CurrentCulture, Strings.Auto_Ambiguous, candidates.Count, reason.ToLower(CultureInfo.CurrentCulture)) },
         };
 }

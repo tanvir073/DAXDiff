@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Cmp_NothingToCompareYet" xml:space="preserve"><value>Nothing to compare yet: give a model A field and a model B field the same synonym.</value></data>
+  <data name="Cmp_InsertFields" xml:space="preserve"><value>Insert fields from both models.</value></data>
+  <data name="Cmp_KeyUnpairedInB" xml:space="preserve"><value>Key '{0}' has no model B field with the same synonym.</value></data>
+  <data name="Cmp_KeyUnpairedInA" xml:space="preserve"><value>Key '{0}' has no model A field with the same synonym.</value></data>
+  <data name="Cmp_UnpairedA" xml:space="preserve"><value>Model A field {0} ('{1}') has no model B counterpart and is not compared.</value></data>
+  <data name="Cmp_UnpairedB" xml:space="preserve"><value>Model B field {0} ('{1}') has no model A counterpart and is not compared.</value></data>
+  <data name="Cmp_KeyOnOneSide" xml:space="preserve"><value>'{0}' is a key on model {1} only. Mark it as a key on both sides or on neither.</value></data>
+  <data name="Cmp_KeysOnly" xml:space="preserve"><value>Model {0}: keys from {1} tables without any compared value return every combination of their members. Add a value field to limit the rows to existing data.</value></data>
+  <data name="Cmp_DuplicateSynonym" xml:space="preserve"><value>Model {0}: synonym '{1}' is used by {2} fields. Each synonym must be unique per model.</value></data>
+  <data name="Cmp_DuplicateField" xml:space="preserve"><value>Model {0}: {1} is inserted more than once.</value></data>
+  <data name="Cmp_NoSynonym" xml:space="preserve"><value>Model {0}: {1} needs a synonym.</value></data>
+  <data name="Cmp_MeasureKey" xml:space="preserve"><value>Model {0}: measure {1} cannot be a key. Use columns as keys.</value></data>
+  <data name="Cmp_Missing" xml:space="preserve"><value>Model {0}: {1} no longer exists (renamed or deleted?). Replace or remove it.</value></data>
+  <data name="Cmp_AggregationNotAllowed" xml:space="preserve"><value>Model {0}: {1} cannot use {2} ({3}). Allowed: {4}.</value></data>
+  <data name="Cmp_KeyWord" xml:space="preserve"><value>key</value></data>
+  <data name="Map_NothingToCompare" xml:space="preserve"><value>Nothing to compare: give a model A field and a model B field the same synonym.</value></data>
+  <data name="Map_NoKey" xml:space="preserve"><value>No key fields: values are compared as grand totals only.</value></data>
+  <data name="Map_PairNeedsSynonym" xml:space="preserve"><value>Pair {0} → {1} needs a synonym.</value></data>
+  <data name="Map_DuplicateLabel" xml:space="preserve"><value>Label '{0}' is used more than once.</value></data>
+  <data name="Map_DuplicateLeft" xml:space="preserve"><value>Model A field {0} is mapped more than once.</value></data>
+  <data name="Map_DuplicateRight" xml:space="preserve"><value>Model B field {0} is mapped more than once.</value></data>
+  <data name="Opt_NegativeTolerance" xml:space="preserve"><value>Tolerances cannot be negative.</value></data>
+  <data name="Opt_MaxRows" xml:space="preserve"><value>Maximum rows must be greater than zero.</value></data>
+  <data name="Opt_Timeout" xml:space="preserve"><value>Timeout must be greater than zero.</value></data>
+  <data name="Opt_ResultRows" xml:space="preserve"><value>The result row limit must be greater than zero.</value></data>
+  <data name="Map_ModelNote" xml:space="preserve"><value>Model {0}: {1}</value></data>
+  <data name="Map_KeyMustBeColumn" xml:space="preserve"><value>'{0}': model {1} key {2} must be a column, not a measure.</value></data>
+  <data name="Map_KeyAggregated" xml:space="preserve"><value>'{0}': model {1} key {2} cannot be aggregated.</value></data>
+  <data name="Map_MeasureAggregated" xml:space="preserve"><value>'{0}': model {1} measure {2} is evaluated as defined and cannot be aggregated again.</value></data>
+  <data name="Map_ColumnNeedsAggregation" xml:space="preserve"><value>'{0}': model {1} column {2} has no aggregation. Choose one (for example Sum or Count), or mark it as a key on both sides.</value></data>
+  <data name="Map_Missing" xml:space="preserve"><value>'{0}': {1} no longer exists in model {2} (renamed or deleted?). Replace it in the comparison.</value></data>
+  <data name="Map_KeyTypesDiffer" xml:space="preserve"><value>'{0}': key types differ ({1} vs {2}); keys would never match. Choose compatible columns.</value></data>
+  <data name="Map_ValueTypesDiffer" xml:space="preserve"><value>'{0}': value types differ ({1} vs {2}); values will be reported as type mismatches. Check the aggregations.</value></data>
+  <data name="Flt_NoValues" xml:space="preserve"><value>Filter {0} has no values selected.</value></data>
+  <data name="Flt_Conditions" xml:space="preserve"><value>Filter {0} needs one or two conditions.</value></data>
+  <data name="Flt_EnterValue" xml:space="preserve"><value>Filter {0}: enter a value for "{1}".</value></data>
+  <data name="Flt_TargetColumn" xml:space="preserve"><value>Filter {0}: model {1} filter must target a column.</value></data>
+  <data name="Flt_Missing" xml:space="preserve"><value>Filter {0}: {1} does not exist in model {2}.</value></data>
+  <data name="Flt_Value" xml:space="preserve"><value>Filter {0}, model {1}: {2}</value></data>
+  <data name="Flt_OperatorNotAvailable" xml:space="preserve"><value>Filter {0}, model {1}: "{2}" is not available for a {3} column.</value></data>
+  <data name="Flt_InvalidLiteral" xml:space="preserve"><value>Filter value '{0}' is not a valid {1} literal.</value></data>
+  <data name="Eng_DuplicateKeyReason" xml:space="preserve"><value>Duplicate key after normalization (A: {0}, B: {1} rows)</value></data>
+  <data name="Eng_DuplicateKeysWarning" xml:space="preserve"><value>{0} key(s) are duplicated after normalization and were not compared.</value></data>
+  <data name="Eng_ResultTrimmed" xml:space="preserve"><value>The result lists {0:N0} of {1:N0} compared rows (result settings of this comparison). Summary counts include every row.</value></data>
+  <data name="Eng_ShapeRows" xml:space="preserve"><value>Query returned rows with a column count other than the {0} expected.</value></data>
+  <data name="Eng_ShapeColumns" xml:space="preserve"><value>Query returned {0} columns but {1} were expected.</value></data>
+  <data name="Eng_ShapeRemedy" xml:space="preserve"><value>Check that every mapped field still exists and re-run the comparison.</value></data>
+  <data name="Eng_OnlyInA" xml:space="preserve"><value>Only in A</value></data>
+  <data name="Eng_OnlyInB" xml:space="preserve"><value>Only in B</value></data>
+  <data name="Eng_KeyNotReturned" xml:space="preserve"><value>Key not returned by {0} (member absent, filtered out, or all measures BLANK)</value></data>
+  <data name="Val_TextDiffers" xml:space="preserve"><value>Text differs</value></data>
+  <data name="Val_BooleanDiffers" xml:space="preserve"><value>Boolean differs</value></data>
+  <data name="Val_DateDiffers" xml:space="preserve"><value>Date/time differs</value></data>
+  <data name="Val_TypeDiffers" xml:space="preserve"><value>Type differs ({0} vs {1})</value></data>
+  <data name="Val_ValuesDiffer" xml:space="preserve"><value>Values differ</value></data>
+  <data name="Val_ExceedsTolerance" xml:space="preserve"><value>Difference exceeds tolerance</value></data>
+  <data name="Val_ValuesDifferOutsideDecimal" xml:space="preserve"><value>Values differ (outside decimal range)</value></data>
+  <data name="Val_BlankIn" xml:space="preserve"><value>BLANK in {0}</value></data>
+  <data name="Auto_WantedBy" xml:space="preserve"><value>{0}: wanted by {1}</value></data>
+  <data name="Auto_SameMeasureName" xml:space="preserve"><value>Same normalized measure name</value></data>
+  <data name="Auto_SynonymMatch" xml:space="preserve"><value>Synonym dictionary match</value></data>
+  <data name="Auto_SameTableAndColumn" xml:space="preserve"><value>Same normalized table and column</value></data>
+  <data name="Auto_SameColumnAndType" xml:space="preserve"><value>Same normalized column name and compatible type</value></data>
+  <data name="Auto_NoCandidate" xml:space="preserve"><value>No candidate found</value></data>
+  <data name="Auto_Ambiguous" xml:space="preserve"><value>Ambiguous: {0} candidates ({1})</value></data>
+  <data name="FltItem_NoValues" xml:space="preserve"><value>This filter has no values selected.</value></data>
+  <data name="FltItem_Conditions" xml:space="preserve"><value>This filter needs one or two conditions.</value></data>
+  <data name="FltItem_EnterValue" xml:space="preserve"><value>Enter a value for "{0}".</value></data>
+  <data name="FltItem_TargetColumn" xml:space="preserve"><value>Model {0} filter must target a column.</value></data>
+  <data name="FltItem_Missing" xml:space="preserve"><value>{0} does not exist in model {1}.</value></data>
+  <data name="FltItem_Value" xml:space="preserve"><value>Model {0}: {1}</value></data>
+  <data name="FltItem_OperatorNotAvailable" xml:space="preserve"><value>Model {0}: "{1}" is not available for a {2} column.</value></data>
+  <data name="Eng_MismatchReason" xml:space="preserve"><value>Mismatch: {0}</value></data>
+</root>

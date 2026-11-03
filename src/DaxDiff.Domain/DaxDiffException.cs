@@ -1,3 +1,5 @@
+using System.Globalization;
+using DaxDiff.Domain.Resources;
 namespace DaxDiff.Domain;
 
 public enum ErrorCategory
@@ -49,5 +51,7 @@ public sealed class DaxDiffException : Exception
     }
 
     public string ToUserText() =>
-        $"{(Side is { } s ? $"Model {s}: " : "")}{Message}{Environment.NewLine}What to do: {Remedy}{Environment.NewLine}Diagnostic code: {DiagnosticCode}";
+        (Side is { } s ? string.Format(CultureInfo.CurrentCulture, Strings.Error_ModelPrefix, s) : "") + Message + Environment.NewLine +
+        string.Format(CultureInfo.CurrentCulture, Strings.Error_WhatToDo, Remedy) + Environment.NewLine +
+        string.Format(CultureInfo.CurrentCulture, Strings.Error_DiagnosticCode, DiagnosticCode);
 }

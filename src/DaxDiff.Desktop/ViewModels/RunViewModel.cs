@@ -7,6 +7,7 @@ using DaxDiff.Application;
 using DaxDiff.Comparison;
 using DaxDiff.Desktop.Services;
 using DaxDiff.Domain;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.ViewModels;
 
@@ -49,10 +50,10 @@ public sealed partial class RunViewModel : ObservableObject
     private string _current = "";
 
     [ObservableProperty]
-    private string _statusA = "Waiting";
+    private string _statusA = Strings.Run_Waiting;
 
     [ObservableProperty]
-    private string _statusB = "Waiting";
+    private string _statusB = Strings.Run_Waiting;
 
     [ObservableProperty]
     private string _elapsed = "00:00.0";
@@ -66,8 +67,8 @@ public sealed partial class RunViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(RunCommand))]
     private bool _acknowledgedScope;
 
-    public string ScopeA => $"{_sourceA.Identity} — {_sourceA.SecurityContext ?? "not connected"}";
-    public string ScopeB => $"{_sourceB.Identity} — {_sourceB.SecurityContext ?? "not connected"}";
+    public string ScopeA => $"{_sourceA.Identity} — {_sourceA.SecurityContext ?? Strings.Run_NotConnected}";
+    public string ScopeB => $"{_sourceB.Identity} — {_sourceB.SecurityContext ?? Strings.Run_NotConnected}";
 
     public void Refresh()
     {
@@ -96,13 +97,13 @@ public sealed partial class RunViewModel : ObservableObject
         var selected = Comparisons.Where(c => c.IncludeInRun && c.SavedDefinition is not null).ToList();
         if (selected.Count == 0)
         {
-            _dialogs.ShowInfo("Tick at least one saved comparison to run. Comparisons are saved with 'Save comparison' on the Comparisons page.");
+            _dialogs.ShowInfo(Strings.Run_TickOne);
             return;
         }
 
         if (_sourceA.Connector is null || _sourceB.Connector is null)
         {
-            _dialogs.ShowInfo("Connect and test both models in the Sources step first.");
+            _dialogs.ShowInfo(Strings.Run_ConnectBothFirst);
             return;
         }
 
@@ -115,12 +116,12 @@ public sealed partial class RunViewModel : ObservableObject
             for (var i = 0; i < selected.Count && !cancellationToken.IsCancellationRequested; i++)
             {
                 var definition = selected[i].SavedDefinition!;
-                Current = $"{definition.Name} ({i + 1} of {selected.Count})";
-                StatusA = StatusB = "Queued";
+                Current = Localized.Format(Strings.Run_CurrentOf, definition.Name, i + 1, selected.Count);
+                StatusA = StatusB = Strings.Run_Queued;
                 var name = definition.Name;
                 var progress = new Progress<RunProgress>(p =>
                 {
-                    Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] {name}: {(p.Side is { } s ? $"Model {s}: " : "")}{p.Step}");
+                    Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] {name}: {(p.Side is { } s ? Localized.Format(Strings.Source_Title, s) + ": " : "")}{p.Step}");
                     if (p.Side == Side.A)
                         StatusA = p.Step;
                     else if (p.Side == Side.B)
@@ -129,11 +130,11 @@ public sealed partial class RunViewModel : ObservableObject
 
                 var request = RunRequest.For(_sourceA.Connector, _sourceB.Connector, definition, _sourceA.Metadata, _sourceB.Metadata);
                 var result = await _runner.RunAsync(request, progress, cancellationToken);
-                Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] {name}: {result.Status}" + (result.FailureMessage is null ? "" : " – " + result.FailureMessage));
+                Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] {name}: {EnumTextConverter.Text(result.Status)}" + (result.FailureMessage is null ? "" : " – " + result.FailureMessage));
                 Completed?.Invoke(this, result);
             }
 
-            Current = cancellationToken.IsCancellationRequested ? "Cancelled" : "Finished";
+            Current = cancellationToken.IsCancellationRequested ? Strings.Run_Cancelled : Strings.Run_Finished;
             Finished?.Invoke(this, EventArgs.Empty);
         }
         finally

@@ -1,7 +1,9 @@
 <UserControl x:Class="DaxDiff.Desktop.Views.ComparisonsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:DaxDiff.Desktop.Resources"
              xmlns:vm="clr-namespace:DaxDiff.Desktop.ViewModels"
+             xmlns:v="clr-namespace:DaxDiff.Desktop.Views"
              x:Name="Root">
     <UserControl.Resources>
         <HierarchicalDataTemplate DataType="{x:Type vm:TableNode}" ItemsSource="{Binding Fields}">
@@ -12,8 +14,26 @@
         </DataTemplate>
         <Style TargetType="TreeViewItem">
             <Setter Property="AutomationProperties.Name" Value="{Binding Display}" />
+            <EventSetter Event="Loaded" Handler="TreeItem_Loaded" />
+            <!-- Items selected with Ctrl+click or Shift+click (TreeMultiSelect); a single selection uses the tree's own highlight. -->
+            <Style.Triggers>
+                <!-- Fields already in the comparison (and tables whose fields all are) are not offered again. -->
+                <DataTrigger Binding="{Binding IsInComparison}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+                <Trigger Property="v:TreeMultiSelect.IsMultiSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource MintBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource SelectionTextBrush}" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
+        <!-- The Field and Type headers hold a search box under the title; every title sits at the top to line up. -->
+        <Style x:Key="FieldGridHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="Padding" Value="10,7,6,6" />
+        </Style>
         <!-- Field grid for one side; DataContext = that side's FieldsA / FieldsB collection. -->
         <Style x:Key="FieldGrid" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
             <Setter Property="AutoGenerateColumns" Value="False" />
@@ -24,6 +44,7 @@
             <Setter Property="SelectionMode" Value="Extended" />
             <Setter Property="SelectionUnit" Value="FullRow" />
             <Setter Property="RowHeight" Value="36" />
+            <Setter Property="ColumnHeaderHeight" Value="66" />
         </Style>
         <!-- Amber: warning (for example not compared). Red: error that blocks the run. -->
         <Style x:Key="ProblemRow" TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
@@ -46,11 +67,24 @@
             <Setter Property="MinHeight" Value="28" />
             <Setter Property="Padding" Value="8,2" />
         </Style>
+        <Style x:Key="HeaderSearch" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Margin" Value="0,4,0,0" />
+            <Setter Property="MinHeight" Value="26" />
+            <Setter Property="Padding" Value="8,1" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <EventSetter Event="KeyDown" Handler="HeaderSearch_KeyDown" />
+        </Style>
         <Style x:Key="SmallButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="MinHeight" Value="32" />
             <Setter Property="Padding" Value="12,0" />
             <Setter Property="Margin" Value="0,0,6,0" />
         </Style>
+        <!-- Enum values (aggregations) in the UI language. -->
+        <DataTemplate x:Key="EnumItem">
+            <TextBlock Text="{Binding Converter={StaticResource EnumText}}" />
+        </DataTemplate>
     </UserControl.Resources>
 
     <Grid>
@@ -61,36 +95,39 @@
         </Grid.RowDefinitions>
 
         <StackPanel>
-            <TextBlock Text="STEP 2 OF 5" Style="{StaticResource Eyebrow}" />
-            <TextBlock Text="Comparisons" Style="{StaticResource PageTitle}" Margin="0,0,0,14" />
+            <TextBlock Text="{x:Static res:Ui.Cmp_Step}" Style="{StaticResource Eyebrow}" />
+            <TextBlock Text="{x:Static res:Ui.Cmp_Title}" Style="{StaticResource PageTitle}" Margin="0,0,0,14" />
         </StackPanel>
 
         <!-- Comparison picker and save bar -->
         <Border Grid.Row="1" Style="{StaticResource Card}" Padding="18,12,18,4" Margin="0,0,0,12">
             <StackPanel>
                 <WrapPanel>
-                    <Label Content="_Comparison" Target="{Binding ElementName=ComparisonPicker}" VerticalAlignment="Center" Padding="0,0,8,8" />
+                    <Label Content="{x:Static res:Ui.Cmp_PickerLabel}" Target="{Binding ElementName=ComparisonPicker}" VerticalAlignment="Center" Padding="0,0,8,8" />
                     <ComboBox x:Name="ComparisonPicker" Width="240" ItemsSource="{Binding Comparisons}" SelectedItem="{Binding Selected}"
-                              DisplayMemberPath="DisplayName" Margin="0,0,16,8" ToolTip="* marks unsaved changes" />
-                    <Label Content="N_ame" Target="{Binding ElementName=ComparisonName}" VerticalAlignment="Center" Padding="0,0,8,8" />
+                              DisplayMemberPath="DisplayName" Margin="0,0,16,8" ToolTip="{x:Static res:Ui.Cmp_PickerTip}" />
+                    <Label Content="{x:Static res:Ui.Cmp_NameLabel}" Target="{Binding ElementName=ComparisonName}" VerticalAlignment="Center" Padding="0,0,8,8" />
                     <TextBox x:Name="ComparisonName" Width="210" Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}"
                              IsEnabled="{Binding HasSelection}" Margin="0,0,16,8" />
-                    <Button Content="+ New comparison" Command="{Binding NewComparisonCommand}" Style="{StaticResource SecondaryButton}" />
-                    <Button Content="Duplicate" Command="{Binding DuplicateComparisonCommand}" />
-                    <Button Content="Delete" Command="{Binding DeleteComparisonCommand}" />
+                    <Button Content="{x:Static res:Ui.Cmp_New}" Command="{Binding NewComparisonCommand}" Style="{StaticResource SecondaryButton}" />
+                    <Button Content="{x:Static res:Ui.Cmp_Duplicate}" Command="{Binding DuplicateComparisonCommand}" />
+                    <Button Content="{x:Static res:Ui.Cmp_Delete}" Command="{Binding DeleteComparisonCommand}" />
                 </WrapPanel>
                 <DockPanel Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
                     <TextBlock DockPanel.Dock="Right" Text="{Binding Selected.StatusText}" VerticalAlignment="Center" Margin="12,0,0,8"
                                AutomationProperties.LiveSetting="Polite" FontWeight="SemiBold" Foreground="{DynamicResource TealBrush}" />
                     <WrapPanel>
                         <Button Command="{Binding Selected.SaveCommand}" Style="{StaticResource PrimaryButton}"
-                                ToolTip="Save this comparison to the project; runs use the saved version" Content="_Save comparison" />
-                        <Button Content="Discard changes" Command="{Binding Selected.DiscardChangesCommand}" ToolTip="Go back to the last saved version" />
-                        <Button Command="{Binding Selected.Options.EditFiltersCommand}" ToolTip="Filter both models to the same slice of data">
+                                ToolTip="{x:Static res:Ui.Cmp_SaveTip}" Content="{x:Static res:Ui.Cmp_Save}" />
+                        <Button Content="{x:Static res:Ui.Cmp_Discard}" Command="{Binding Selected.DiscardChangesCommand}" ToolTip="{x:Static res:Ui.Cmp_DiscardTip}" />
+                        <Button Command="{Binding Selected.Options.EditFiltersCommand}" ToolTip="{x:Static res:Ui.Cmp_FiltersTip}">
                             <TextBlock>
-                                <Run Text="Filters (" /><Run Text="{Binding Selected.Options.Filters.Count, Mode=OneWay}" /><Run Text=")…" />
+                                <Run Text="{x:Static res:Ui.Cmp_FiltersOpen}" /><Run Text="{Binding Selected.Options.Filters.Count, Mode=OneWay}" /><Run Text=")…" />
                             </TextBlock>
                         </Button>
+                        <!-- Applies to both model trees, so it sits above them. -->
+                        <CheckBox Content="{x:Static res:Ui.Cmp_ShowHidden}" IsChecked="{Binding ShowHidden}" VerticalAlignment="Center"
+                                  Margin="8,0,16,8" ToolTip="{x:Static res:Ui.Cmp_ShowHiddenTip}" />
                         <TextBlock Text="{Binding Selected.SaveStateText}" VerticalAlignment="Center" Margin="6,0,0,8" AutomationProperties.LiveSetting="Polite">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -111,10 +148,10 @@
 
         <Border Grid.Row="2" Style="{StaticResource Card}" VerticalAlignment="Top" Visibility="{Binding HasSelection, Converter={StaticResource InverseBoolToVisibility}}">
             <StackPanel>
-                <TextBlock Text="No comparisons yet" Style="{StaticResource CardTitle}" />
-                <TextBlock Text="Insert any column (or a whole table's columns) from each model, mark the key columns, choose how the other columns are aggregated, and give fields that should be compared the same synonym on both sides. Create a comparison to start." Style="{StaticResource Muted}"
+                <TextBlock Text="{x:Static res:Ui.Cmp_EmptyTitle}" Style="{StaticResource CardTitle}" />
+                <TextBlock Text="{x:Static res:Ui.Cmp_EmptyText}" Style="{StaticResource Muted}"
                            Margin="0,0,0,14" />
-                <Button Content="+ New comparison" Command="{Binding NewComparisonCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" />
+                <Button Content="{x:Static res:Ui.Cmp_New}" Command="{Binding NewComparisonCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" />
             </StackPanel>
         </Border>
 
@@ -142,41 +179,50 @@
                     <DockPanel Margin="0,0,0,8">
                         <Border Style="{StaticResource SideChipA}" Margin="0,0,10,0" Padding="10,4" ToolTip="{Binding HeaderA}"
                                 AutomationProperties.Name="{Binding HeaderA}"><TextBlock Text="A" FontSize="13" /></Border>
-                        <Button DockPanel.Dock="Right" Content="Insert into A ▾" Command="{Binding InsertACommand}" Style="{StaticResource SecondaryButton}"
-                                Margin="8,0,0,0" ToolTip="Insert the selected field, or every column of the selected table (double-click or Enter also inserts)" />
-                        <TextBox Text="{Binding SearchA, UpdateSourceTrigger=PropertyChanged}" Margin="0" Tag="Search model A tables and fields"
-                                 AutomationProperties.Name="Search model A tables and fields" ToolTip="Search model A tables and fields" />
+                        <Button DockPanel.Dock="Right" Content="{x:Static res:Ui.Cmp_InsertA}" Command="{Binding InsertACommand}" Style="{StaticResource SecondaryButton}"
+                                Margin="8,0,0,0" ToolTip="{x:Static res:Ui.Cmp_InsertTip}" />
+                        <TextBox Text="{Binding SearchA, UpdateSourceTrigger=PropertyChanged}" Margin="0" Tag="{x:Static res:Ui.Cmp_SearchA}"
+                                 AutomationProperties.Name="{x:Static res:Ui.Cmp_SearchA}" ToolTip="{x:Static res:Ui.Cmp_SearchA}" />
                     </DockPanel>
                     <TreeView Grid.Row="1" x:Name="TreeA" ItemsSource="{Binding TreeA}" SelectedItemChanged="TreeA_SelectedItemChanged"
                               MouseDoubleClick="TreeA_MouseDoubleClick" KeyDown="TreeA_KeyDown"
-                              AutomationProperties.Name="Model A tables and fields" VirtualizingPanel.IsVirtualizing="True" />
+                              AutomationProperties.Name="{x:Static res:Ui.Cmp_TreeA}" VirtualizingPanel.IsVirtualizing="True" />
                     <DataGrid Grid.Row="2" Margin="0,8,0,0" x:Name="FieldsA" ItemsSource="{Binding Selected.FieldsA}" Style="{StaticResource FieldGrid}"
-                              RowStyle="{StaticResource ProblemRow}" AutomationProperties.Name="Model A fields in this comparison">
+                              RowStyle="{StaticResource ProblemRow}" AutomationProperties.Name="{x:Static res:Ui.Cmp_FieldsA}">
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="Key">
+                            <DataGridTemplateColumn HeaderStyle="{StaticResource FieldGridHeader}" Header="{x:Static res:Ui.Cmp_ColKey}" MinWidth="66">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <CheckBox IsChecked="{Binding IsKey, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanBeKey}"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"
-                                                  AutomationProperties.Name="Key" ToolTip="Part of the comparison key (grain)" />
+                                                  AutomationProperties.Name="{x:Static res:Ui.Cmp_ColKey}" ToolTip="{x:Static res:Ui.Cmp_KeyTip}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Field" Binding="{Binding FieldText}" IsReadOnly="True" Width="*" MinWidth="110" />
-                            <DataGridTextColumn Header="Type" Binding="{Binding TypeText}" IsReadOnly="True" />
-                            <DataGridTemplateColumn Header="Aggregation" Width="118">
+                            <DataGridTextColumn HeaderStyle="{StaticResource FieldGridHeader}" Binding="{Binding FieldText}" IsReadOnly="True" Width="*" MinWidth="110">
+                                <DataGridTextColumn.Header>
+                                    <StackPanel>
+                                        <TextBlock Text="{x:Static res:Ui.Cmp_ColField}" />
+                                        <TextBox Text="{Binding DataContext.FieldSearchA, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged, Delay=150}" Style="{StaticResource HeaderSearch}"
+                                                 Tag="{x:Static res:Ui.Cmp_SearchFieldPlaceholder}" ToolTip="{x:Static res:Ui.Cmp_SearchFieldTip}" AutomationProperties.Name="{x:Static res:Ui.Cmp_SearchFieldA}" />
+                                    </StackPanel>
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn HeaderStyle="{StaticResource FieldGridHeader}" Header="{x:Static res:Ui.Cmp_ColType}" Binding="{Binding TypeText}" IsReadOnly="True" />
+                            <DataGridTemplateColumn HeaderStyle="{StaticResource FieldGridHeader}" Header="{x:Static res:Ui.Cmp_Aggregation}" Width="118">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <ComboBox ItemsSource="{Binding AllowedAggregations}" SelectedItem="{Binding Aggregation, UpdateSourceTrigger=PropertyChanged}"
-                                                  IsEnabled="{Binding CanAggregate}" Style="{StaticResource CellCombo}" AutomationProperties.Name="Aggregation" />
+                                                  IsEnabled="{Binding CanAggregate}" Style="{StaticResource CellCombo}" AutomationProperties.Name="{x:Static res:Ui.Cmp_Aggregation}"
+                                                  ItemTemplate="{StaticResource EnumItem}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Synonym" Width="120">
+                            <DataGridTemplateColumn HeaderStyle="{StaticResource FieldGridHeader}" Header="{x:Static res:Ui.Cmp_ColSynonym}" Width="120">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBox Text="{Binding Synonym, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CellText}"
-                                                 AutomationProperties.Name="Synonym" ToolTip="{Binding PairText}" />
+                                                 AutomationProperties.Name="{x:Static res:Ui.Cmp_ColSynonym}" ToolTip="{Binding PairText}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -190,17 +236,17 @@
                                    Text="{Binding SelectedItem.PairText, ElementName=FieldsA}" Foreground="{DynamicResource MutedText}"
                                    Visibility="{Binding SelectedItem.PairText, ElementName=FieldsA, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" />
                         <WrapPanel Margin="0,8,0,0">
-                            <Button Content="Add same to B ▸" Style="{StaticResource SmallButton}" Command="{Binding CopyToBCommand}"
+                            <Button Content="{x:Static res:Ui.Cmp_CopyToB}" Style="{StaticResource SmallButton}" Command="{Binding CopyToBCommand}"
                                     CommandParameter="{Binding SelectedItems, ElementName=FieldsA}"
-                                    ToolTip="Add the selected fields to model B: same table and column name, same key, aggregation and synonym" />
-                            <Button Content="Remove" Style="{StaticResource SmallButton}" Command="{Binding RemoveFieldsCommand}"
+                                    ToolTip="{x:Static res:Ui.Cmp_CopyToBTip}" />
+                            <Button Content="{x:Static res:Ui.Cmp_Remove}" Style="{StaticResource SmallButton}" Command="{Binding RemoveFieldsCommand}"
                                     CommandParameter="{Binding SelectedItems, ElementName=FieldsA}" />
                             <Button Content="▲" Style="{StaticResource SmallButton}" Command="{Binding MoveFieldUpCommand}"
                                     CommandParameter="{Binding SelectedItem, ElementName=FieldsA}"
-                                    AutomationProperties.Name="Move model A field up" ToolTip="Move up (key order in results)" />
+                                    AutomationProperties.Name="{x:Static res:Ui.Cmp_MoveUpA}" ToolTip="{x:Static res:Ui.Cmp_MoveUpKeyTip}" />
                             <Button Content="▼" Style="{StaticResource SmallButton}" Command="{Binding MoveFieldDownCommand}"
                                     CommandParameter="{Binding SelectedItem, ElementName=FieldsA}"
-                                    AutomationProperties.Name="Move model A field down" ToolTip="Move down (key order in results)" />
+                                    AutomationProperties.Name="{x:Static res:Ui.Cmp_MoveDownA}" ToolTip="{x:Static res:Ui.Cmp_MoveDownKeyTip}" />
                         </WrapPanel>
                     </StackPanel>
                 </Grid>
@@ -218,41 +264,50 @@
                     <DockPanel Margin="0,0,0,8">
                         <Border Style="{StaticResource SideChipB}" Margin="0,0,10,0" Padding="10,4" ToolTip="{Binding HeaderB}"
                                 AutomationProperties.Name="{Binding HeaderB}"><TextBlock Text="B" FontSize="13" /></Border>
-                        <Button DockPanel.Dock="Right" Content="Insert into B ▾" Command="{Binding InsertBCommand}" Style="{StaticResource SecondaryButton}"
-                                Margin="8,0,0,0" ToolTip="Insert the selected field, or every column of the selected table (double-click or Enter also inserts)" />
-                        <TextBox Text="{Binding SearchB, UpdateSourceTrigger=PropertyChanged}" Margin="0" Tag="Search model B tables and fields"
-                                 AutomationProperties.Name="Search model B tables and fields" ToolTip="Search model B tables and fields" />
+                        <Button DockPanel.Dock="Right" Content="{x:Static res:Ui.Cmp_InsertB}" Command="{Binding InsertBCommand}" Style="{StaticResource SecondaryButton}"
+                                Margin="8,0,0,0" ToolTip="{x:Static res:Ui.Cmp_InsertTip}" />
+                        <TextBox Text="{Binding SearchB, UpdateSourceTrigger=PropertyChanged}" Margin="0" Tag="{x:Static res:Ui.Cmp_SearchB}"
+                                 AutomationProperties.Name="{x:Static res:Ui.Cmp_SearchB}" ToolTip="{x:Static res:Ui.Cmp_SearchB}" />
                     </DockPanel>
                     <TreeView Grid.Row="1" x:Name="TreeB" ItemsSource="{Binding TreeB}" SelectedItemChanged="TreeB_SelectedItemChanged"
                               MouseDoubleClick="TreeB_MouseDoubleClick" KeyDown="TreeB_KeyDown"
-                              AutomationProperties.Name="Model B tables and fields" VirtualizingPanel.IsVirtualizing="True" />
+                              AutomationProperties.Name="{x:Static res:Ui.Cmp_TreeB}" VirtualizingPanel.IsVirtualizing="True" />
                     <DataGrid Grid.Row="2" Margin="0,8,0,0" x:Name="FieldsB" ItemsSource="{Binding Selected.FieldsB}" Style="{StaticResource FieldGrid}"
-                              RowStyle="{StaticResource ProblemRow}" AutomationProperties.Name="Model B fields in this comparison">
+                              RowStyle="{StaticResource ProblemRow}" AutomationProperties.Name="{x:Static res:Ui.Cmp_FieldsB}">
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="Key">
+                            <DataGridTemplateColumn HeaderStyle="{StaticResource FieldGridHeader}" Header="{x:Static res:Ui.Cmp_ColKey}" MinWidth="66">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <CheckBox IsChecked="{Binding IsKey, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanBeKey}"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0"
-                                                  AutomationProperties.Name="Key" ToolTip="Part of the comparison key (grain)" />
+                                                  AutomationProperties.Name="{x:Static res:Ui.Cmp_ColKey}" ToolTip="{x:Static res:Ui.Cmp_KeyTip}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Field" Binding="{Binding FieldText}" IsReadOnly="True" Width="*" MinWidth="110" />
-                            <DataGridTextColumn Header="Type" Binding="{Binding TypeText}" IsReadOnly="True" />
-                            <DataGridTemplateColumn Header="Aggregation" Width="118">
+                            <DataGridTextColumn HeaderStyle="{StaticResource FieldGridHeader}" Binding="{Binding FieldText}" IsReadOnly="True" Width="*" MinWidth="110">
+                                <DataGridTextColumn.Header>
+                                    <StackPanel>
+                                        <TextBlock Text="{x:Static res:Ui.Cmp_ColField}" />
+                                        <TextBox Text="{Binding DataContext.FieldSearchB, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged, Delay=150}" Style="{StaticResource HeaderSearch}"
+                                                 Tag="{x:Static res:Ui.Cmp_SearchFieldPlaceholder}" ToolTip="{x:Static res:Ui.Cmp_SearchFieldTip}" AutomationProperties.Name="{x:Static res:Ui.Cmp_SearchFieldB}" />
+                                    </StackPanel>
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn HeaderStyle="{StaticResource FieldGridHeader}" Header="{x:Static res:Ui.Cmp_ColType}" Binding="{Binding TypeText}" IsReadOnly="True" />
+                            <DataGridTemplateColumn HeaderStyle="{StaticResource FieldGridHeader}" Header="{x:Static res:Ui.Cmp_Aggregation}" Width="118">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <ComboBox ItemsSource="{Binding AllowedAggregations}" SelectedItem="{Binding Aggregation, UpdateSourceTrigger=PropertyChanged}"
-                                                  IsEnabled="{Binding CanAggregate}" Style="{StaticResource CellCombo}" AutomationProperties.Name="Aggregation" />
+                                                  IsEnabled="{Binding CanAggregate}" Style="{StaticResource CellCombo}" AutomationProperties.Name="{x:Static res:Ui.Cmp_Aggregation}"
+                                                  ItemTemplate="{StaticResource EnumItem}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Synonym" Width="120">
+                            <DataGridTemplateColumn HeaderStyle="{StaticResource FieldGridHeader}" Header="{x:Static res:Ui.Cmp_ColSynonym}" Width="120">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBox Text="{Binding Synonym, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CellText}"
-                                                 AutomationProperties.Name="Synonym" ToolTip="{Binding PairText}" />
+                                                 AutomationProperties.Name="{x:Static res:Ui.Cmp_ColSynonym}" ToolTip="{Binding PairText}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -266,54 +321,52 @@
                                    Text="{Binding SelectedItem.PairText, ElementName=FieldsB}" Foreground="{DynamicResource MutedText}"
                                    Visibility="{Binding SelectedItem.PairText, ElementName=FieldsB, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" />
                         <WrapPanel Margin="0,8,0,0">
-                            <Button Content="◂ Add same to A" Style="{StaticResource SmallButton}" Command="{Binding CopyToACommand}"
+                            <Button Content="{x:Static res:Ui.Cmp_CopyToA}" Style="{StaticResource SmallButton}" Command="{Binding CopyToACommand}"
                                     CommandParameter="{Binding SelectedItems, ElementName=FieldsB}"
-                                    ToolTip="Add the selected fields to model A: same table and column name, same key, aggregation and synonym" />
-                            <Button Content="Remove" Style="{StaticResource SmallButton}" Command="{Binding RemoveFieldsCommand}"
+                                    ToolTip="{x:Static res:Ui.Cmp_CopyToATip}" />
+                            <Button Content="{x:Static res:Ui.Cmp_Remove}" Style="{StaticResource SmallButton}" Command="{Binding RemoveFieldsCommand}"
                                     CommandParameter="{Binding SelectedItems, ElementName=FieldsB}" />
                             <Button Content="▲" Style="{StaticResource SmallButton}" Command="{Binding MoveFieldUpCommand}"
                                     CommandParameter="{Binding SelectedItem, ElementName=FieldsB}"
-                                    AutomationProperties.Name="Move model B field up" ToolTip="Move up" />
+                                    AutomationProperties.Name="{x:Static res:Ui.Cmp_MoveUpB}" ToolTip="{x:Static res:Ui.Cmp_MoveUpTip}" />
                             <Button Content="▼" Style="{StaticResource SmallButton}" Command="{Binding MoveFieldDownCommand}"
                                     CommandParameter="{Binding SelectedItem, ElementName=FieldsB}"
-                                    AutomationProperties.Name="Move model B field down" ToolTip="Move down" />
-                            <CheckBox Content="Show _hidden fields" IsChecked="{Binding ShowHidden}" VerticalAlignment="Center" Margin="8,0,0,0"
-                                      ToolTip="Show hidden tables and fields in both models" />
+                                    AutomationProperties.Name="{x:Static res:Ui.Cmp_MoveDownB}" ToolTip="{x:Static res:Ui.Cmp_MoveDownTip}" />
                         </WrapPanel>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <GridSplitter Grid.Row="1" Grid.ColumnSpan="3" Height="12" HorizontalAlignment="Stretch" Background="Transparent" ResizeDirection="Rows"
-                          ToolTip="Drag to resize" AutomationProperties.Name="Resize the pairing panel" />
+                          ToolTip="{x:Static res:Ui.Cmp_SplitterTip}" AutomationProperties.Name="{x:Static res:Ui.Cmp_Splitter}" />
 
             <!-- Pairing and validation -->
             <Border Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource Card}" Padding="16,14">
                 <DockPanel>
                     <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                            <Button Content="_Match synonyms" Command="{Binding MatchSynonymsCommand}" Style="{StaticResource SmallButton}"
-                                    ToolTip="Give model B fields the synonym of the equivalent model A field (by name and synonym dictionary)" />
-                            <Button Content="Find equivalent _B fields" Command="{Binding AddMatchingFieldsCommand}" Style="{StaticResource SmallButton}" Margin="0"
-                                    ToolTip="For model A fields without a counterpart, find a model B field with an equivalent name (also via the synonym dictionary) and insert it with the same synonym" />
+                            <Button Content="{x:Static res:Ui.Cmp_MatchSynonyms}" Command="{Binding MatchSynonymsCommand}" Style="{StaticResource SmallButton}"
+                                    ToolTip="{x:Static res:Ui.Cmp_MatchSynonymsTip}" />
+                            <Button Content="{x:Static res:Ui.Cmp_FindB}" Command="{Binding AddMatchingFieldsCommand}" Style="{StaticResource SmallButton}" Margin="0"
+                                    ToolTip="{x:Static res:Ui.Cmp_FindBTip}" />
                         </StackPanel>
                         <TextBlock VerticalAlignment="Center" Style="{StaticResource Muted}" FontSize="13" Margin="0,0,12,0"
-                                   Text="Fields with the same synonym (not case-sensitive) are compared. Keys must be marked on both sides." />
+                                   Text="{x:Static res:Ui.Cmp_PairingHint}" />
                     </DockPanel>
                     <TabControl>
-                        <TabItem Header="Compared pairs">
+                        <TabItem Header="{x:Static res:Ui.Cmp_PairsTab}">
                             <DataGrid ItemsSource="{Binding Selected.Pairs}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
-                                      AutomationProperties.Name="Compared pairs">
+                                      AutomationProperties.Name="{x:Static res:Ui.Cmp_PairsTab}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Synonym" Binding="{Binding Synonym}" Width="160" />
-                                    <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="70" />
-                                    <DataGridTextColumn Header="Model A" Binding="{Binding A}" Width="*" />
-                                    <DataGridTextColumn Header="Model B" Binding="{Binding B}" Width="*" />
+                                    <DataGridTextColumn Header="{x:Static res:Ui.Cmp_ColSynonym}" Binding="{Binding Synonym}" Width="160" />
+                                    <DataGridTextColumn Header="{x:Static res:Ui.Cmp_ColRole}" Binding="{Binding Role}" Width="70" />
+                                    <DataGridTextColumn Header="{x:Static res:Ui.Cmp_ColModelA}" Binding="{Binding A}" Width="*" />
+                                    <DataGridTextColumn Header="{x:Static res:Ui.Cmp_ColModelB}" Binding="{Binding B}" Width="*" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </TabItem>
-                        <TabItem Header="{Binding Selected.Compiled.Issues.Count}" HeaderStringFormat="Problems and warnings ({0})">
-                            <ListBox ItemsSource="{Binding Selected.Compiled.Issues}" AutomationProperties.Name="Problems and warnings"
+                        <TabItem Header="{Binding Selected.Compiled.Issues.Count}" HeaderStringFormat="{x:Static res:Ui.Cmp_IssuesTab}">
+                            <ListBox ItemsSource="{Binding Selected.Compiled.Issues}" AutomationProperties.Name="{x:Static res:Ui.Cmp_Issues}"
                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>

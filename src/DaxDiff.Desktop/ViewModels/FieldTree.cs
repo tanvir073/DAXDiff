@@ -1,21 +1,45 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using DaxDiff.Domain;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.ViewModels;
 
 /// <summary>A searchable table → field tree for one model (FR-005).</summary>
-public sealed record TableNode(string Name, bool IsHidden, IReadOnlyList<FieldNode> Fields)
+/// <remarks>
+/// Nodes are classes, not records: they are compared by reference, so the tree keeps finding them while their
+/// <see cref="FieldNode.IsInComparison"/> state changes.
+/// </remarks>
+public sealed partial class TableNode(string name, bool isHidden, IReadOnlyList<FieldNode> fields) : ObservableObject
 {
-    public string Display => IsHidden ? $"{Name} (hidden)" : Name;
+    public string Name { get; } = name;
+    public bool IsHidden { get; } = isHidden;
+    public IReadOnlyList<FieldNode> Fields { get; } = fields;
+
+    public string Display => IsHidden ? Localized.Format(Strings.Tree_Hidden, Name) : Name;
+
+    /// <summary>Every field of the table is in the comparison, so the table is left out of the tree.</summary>
+    [ObservableProperty]
+    private bool _isInComparison;
 }
 
-public sealed record FieldNode(FieldRef Ref, DataKind DataKind, bool IsHidden, string? DisplayFolder)
+public sealed partial class FieldNode(FieldRef fieldRef, DataKind dataKind, bool isHidden, string? displayFolder) : ObservableObject
 {
+    public FieldRef Ref { get; } = fieldRef;
+    public DataKind DataKind { get; } = dataKind;
+    public bool IsHidden { get; } = isHidden;
+    public string? DisplayFolder { get; } = displayFolder;
+
+    /// <summary>The field is already in the selected comparison, so the tree leaves it out.</summary>
+    [ObservableProperty]
+    private bool _isInComparison;
+
     public bool IsMeasure => Ref.Kind == FieldKind.Measure;
 
     public string Display =>
-        $"{(IsMeasure ? "Σ " : "")}{Ref.Name}  ·  {DataKind}{(IsHidden ? " · hidden" : "")}{(string.IsNullOrEmpty(DisplayFolder) ? "" : $" · {DisplayFolder}")}";
+        $"{(IsMeasure ? "Σ " : "")}{Ref.Name}  ·  {EnumTextConverter.Text(DataKind)}{(IsHidden ? Strings.Tree_HiddenSuffix : "")}{(string.IsNullOrEmpty(DisplayFolder) ? "" : $" · {DisplayFolder}")}";
 
-    public string AccessibleName => $"{(IsMeasure ? "Measure" : "Column")} {Ref.Name} in {Ref.Table}, {DataKind}";
+    public string AccessibleName =>
+        Localized.Format(IsMeasure ? Strings.Tree_AccessibleMeasure : Strings.Tree_AccessibleColumn, Ref.Name, Ref.Table, EnumTextConverter.Text(DataKind));
 }
 
 public static class FieldTree
@@ -54,4 +78,23 @@ public static class FieldTree
 
         return nodes;
     }
+
+    /// <summary>Marks the fields (and whole tables) that are in the comparison, which the tree then leaves out.</summary>
+    public static void MarkInComparison(IReadOnlyList<TableNode> tree, IReadOnlySet<FieldRef> inComparison)
+    {
+        foreach (var table in tree)
+        {
+            foreach (var field in table.Fields)
+                field.IsInComparison = inComparison.Contains(field.Ref);
+            table.IsInComparison = table.Fields.All(f => f.IsInComparison);
+        }
+    }
+
+    /// <summary>False for a node the tree leaves out because it is already in the comparison.</summary>
+    public static bool IsOffered(object node) => node switch
+    {
+        TableNode table => !table.IsInComparison,
+        FieldNode field => !field.IsInComparison,
+        _ => true,
+    };
 }

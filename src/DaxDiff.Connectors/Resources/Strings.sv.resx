@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Truncated_RowCap" xml:space="preserve"><value>Resultatet överskred radgränsen på {0:N0}.</value></data>
+  <data name="SignedInUser" xml:space="preserve"><value>Inloggad användare</value></data>
+  <data name="Desk_NoSession" xml:space="preserve"><value>'{0}' är inte kopplad till en Power BI Desktop-session som körs.</value></data>
+  <data name="Remedy_DeskNoSession" xml:space="preserve"><value>Öppna PBIX-filen i Power BI Desktop, välj sedan 'Identifiera sessioner' och markera den (eller starta DAXDiff från Externa verktyg).</value></data>
+  <data name="Desk_TransportName" xml:space="preserve"><value>Power BI Desktop (lokal Analysis Services)</value></data>
+  <data name="Desk_SecurityContextShort" xml:space="preserve"><value>Lokal Desktop-session</value></data>
+  <data name="Desk_NoteKeepOpen" xml:space="preserve"><value>PBIX-filen måste vara öppen i Power BI Desktop under hela körningen.</value></data>
+  <data name="Desk_NoteNoRls" xml:space="preserve"><value>Desktop-sessioner körs med modelladministratörsrättigheter: roller för säkerhet på radnivå tillämpas inte.</value></data>
+  <data name="Desk_SecurityContext" xml:space="preserve"><value>{0} via lokal Desktop-session (modelladministratör; RLS tillämpas inte)</value></data>
+  <data name="Desk_SessionName" xml:space="preserve"><value>{0} (port {1})</value></data>
+  <data name="Desk_UnnamedSession" xml:space="preserve"><value>Power BI Desktop-session (port {0})</value></data>
+  <data name="Xmla_NoTarget" xml:space="preserve"><value>Välj först en arbetsyta och en semantisk modell.</value></data>
+  <data name="Remedy_XmlaNoTarget" xml:space="preserve"><value>Välj arbetsytan och modellen i steget Källor.</value></data>
+  <data name="Xmla_TransportName" xml:space="preserve"><value>Power BI-tjänsten – XMLA-slutpunkt</value></data>
+  <data name="Xmla_NoteCapacity" xml:space="preserve"><value>Kräver Premium-, PPU- eller Fabric-kapacitet med XMLA-läsning aktiverad.</value></data>
+  <data name="Xmla_NoteRls" xml:space="preserve"><value>Resultaten speglar den inloggade användarens behörigheter; RLS/OLS gäller för åtkomst som läsare, medan arbetsytans administratörer, medlemmar och deltagare kringgår RLS.</value></data>
+  <data name="Xmla_SecurityContext" xml:space="preserve"><value>{0} via XMLA (så som den aktuella användaren ser det)</value></data>
+  <data name="Xmla_InTenant" xml:space="preserve"><value>{0} i klientorganisationen {1}</value></data>
+  <data name="Xmla_NoteNoClientId" xml:space="preserve"><value>Inget klient-ID har konfigurerats: ADOMD:s inbyggda interaktiva inloggning används.</value></data>
+  <data name="Auth_NoClientId" xml:space="preserve"><value>Inget klient-ID för Entra ID har konfigurerats, så DAXDiff kan inte själv logga in i Power BI-tjänsten.</value></data>
+  <data name="Remedy_AuthNoClientId" xml:space="preserve"><value>Be din administratör om klient-ID:t för en appregistrering för DAXDiff och ange det under Inställningar (se docs/setup.md). XMLA-anslutningar fungerar ändå utan det: skriv arbetsytans och modellens namn och välj Testa anslutning; då visas Microsofts inloggning.</value></data>
+  <data name="Auth_Cancelled" xml:space="preserve"><value>Inloggningen avbröts.</value></data>
+  <data name="Remedy_AuthCancelled" xml:space="preserve"><value>Logga in igen för att fortsätta.</value></data>
+  <data name="Auth_Failed" xml:space="preserve"><value>Inloggningen misslyckades: {0}</value></data>
+  <data name="Remedy_AuthFailed" xml:space="preserve"><value>Kontrollera klientorganisationen och klient-ID:t under Inställningar och logga sedan in igen. Din administratör kan behöva ge sitt medgivande.</value></data>
+  <data name="Auth_TransportLabel" xml:space="preserve"><value>Inloggning</value></data>
+</root>

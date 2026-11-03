@@ -1,4 +1,6 @@
 using DaxDiff.Domain;
+using System.Globalization;
+using DaxDiff.Comparison.Resources;
 
 namespace DaxDiff.Comparison;
 
@@ -28,10 +30,10 @@ public static class MeasureComparer
                 string.Equals(sa, sb, options.TextComparison == TextComparison.OrdinalIgnoreCase
                     ? StringComparison.OrdinalIgnoreCase
                     : StringComparison.Ordinal),
-                "Text differs"),
-            (bool ba, bool bb) => Cell(alias, a, b, ba == bb, "Boolean differs"),
-            (DateTime ta, DateTime tb) => Cell(alias, a, b, ta == tb, "Date/time differs"),
-            _ => Cell(alias, a, b, false, $"Type differs ({a.GetType().Name} vs {b.GetType().Name})"),
+                Strings.Val_TextDiffers),
+            (bool ba, bool bb) => Cell(alias, a, b, ba == bb, Strings.Val_BooleanDiffers),
+            (DateTime ta, DateTime tb) => Cell(alias, a, b, ta == tb, Strings.Val_DateDiffers),
+            _ => Cell(alias, a, b, false, string.Format(CultureInfo.CurrentCulture, Strings.Val_TypeDiffers, a.GetType().Name, b.GetType().Name)),
         };
     }
 
@@ -65,7 +67,7 @@ public static class MeasureComparer
         var match = WithinTolerance(da, db, options.Tolerance);
         string? reason = null;
         if (!match)
-            reason = options.Tolerance.Mode == ToleranceMode.Exact ? "Values differ" : "Difference exceeds tolerance";
+            reason = options.Tolerance.Mode == ToleranceMode.Exact ? Strings.Val_ValuesDiffer : Strings.Val_ExceedsTolerance;
 
         return new MeasureCell
         {
@@ -95,7 +97,7 @@ public static class MeasureComparer
             match = Math.Abs(xa - xb) <= allowed;
         }
 
-        return Cell(alias, a, b, match, "Values differ (outside decimal range)");
+        return Cell(alias, a, b, match, Strings.Val_ValuesDifferOutsideDecimal);
     }
 
     private static MeasureCell CompareWithBlank(string alias, object? a, object? b, ComparisonOptions options)
@@ -123,7 +125,7 @@ public static class MeasureComparer
             Delta = delta,
             DeltaPercent = pct,
             IsMatch = match,
-            Reason = match ? null : $"BLANK in {blankSide}",
+            Reason = match ? null : string.Format(CultureInfo.CurrentCulture, Strings.Val_BlankIn, blankSide),
         };
     }
 

@@ -1,5 +1,6 @@
 using System.Globalization;
 using DaxDiff.Domain;
+using DaxDiff.Connectors.Core.Resources;
 
 namespace DaxDiff.Connectors;
 
@@ -278,7 +279,7 @@ internal static class MdschemaMetadataReader
             ModelName = modelName,
             Tables = tables,
             Measures = measureInfos,
-            Warnings = ["Metadata came from the limited MDSCHEMA rowsets: hidden flags, relationships and some data types are unavailable."],
+            Warnings = [Strings.Meta_MdschemaLimited],
         };
     }
 
@@ -303,16 +304,16 @@ internal static class ModelWarnings
         var warnings = new List<string>();
         var calcGroups = tables.Where(t => t.IsCalculationGroup).Select(t => t.Name).ToList();
         if (calcGroups.Count > 0)
-            warnings.Add($"Calculation groups present ({string.Join(", ", calcGroups)}); they can change measure results.");
+            warnings.Add(string.Format(CultureInfo.CurrentCulture, Strings.Meta_CalculationGroups, string.Join(", ", calcGroups)));
         var inactive = relationships.Count(r => !r.IsActive);
         if (inactive > 0)
-            warnings.Add($"{inactive} inactive relationship(s); measures using USERELATIONSHIP may differ from the default path.");
+            warnings.Add(string.Format(CultureInfo.CurrentCulture, Strings.Meta_InactiveRelationships, inactive));
         var manyToMany = relationships.Count(r => r.Cardinality == "Many:Many");
         if (manyToMany > 0)
-            warnings.Add($"{manyToMany} many-to-many relationship(s); totals may not be additive.");
+            warnings.Add(string.Format(CultureInfo.CurrentCulture, Strings.Meta_ManyToManyRelationships, manyToMany));
         var bidirectional = relationships.Count(r => r.CrossFilter == "Both");
         if (bidirectional > 0)
-            warnings.Add($"{bidirectional} bidirectional relationship(s).");
+            warnings.Add(string.Format(CultureInfo.CurrentCulture, Strings.Meta_BidirectionalRelationships, bidirectional));
         return warnings;
     }
 }

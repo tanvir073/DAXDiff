@@ -148,6 +148,7 @@ public class ComparisonCompilerTests
         var issue = Assert.Single(compiled.Issues, i => i.Code == "MAP-AGG");
         Assert.Equal("Amount", issue.Alias);
         Assert.Contains("model A", issue.Message);
+        Assert.Equal(Side.A, issue.Side);
         Assert.DoesNotContain(compiled.Issues, i => i.Code == "CMP-AGGREGATION");
     }
 }

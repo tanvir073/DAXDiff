@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Filter_JoinAnd" xml:space="preserve"><value>och</value></data>
+  <data name="Filter_JoinOr" xml:space="preserve"><value>eller</value></data>
+  <data name="Filter_Blank" xml:space="preserve"><value>(Tom)</value></data>
+  <data name="Filter_MoreValues" xml:space="preserve"><value>{0} och {1} till</value></data>
+  <data name="Filter_Is" xml:space="preserve"><value>är</value></data>
+  <data name="Filter_IsNot" xml:space="preserve"><value>är inte</value></data>
+  <data name="Filter_LessThan" xml:space="preserve"><value>är mindre än</value></data>
+  <data name="Filter_LessThanOrEqual" xml:space="preserve"><value>är mindre än eller lika med</value></data>
+  <data name="Filter_GreaterThan" xml:space="preserve"><value>är större än</value></data>
+  <data name="Filter_GreaterThanOrEqual" xml:space="preserve"><value>är större än eller lika med</value></data>
+  <data name="Filter_Contains" xml:space="preserve"><value>innehåller</value></data>
+  <data name="Filter_DoesNotContain" xml:space="preserve"><value>innehåller inte</value></data>
+  <data name="Filter_StartsWith" xml:space="preserve"><value>börjar med</value></data>
+  <data name="Filter_DoesNotStartWith" xml:space="preserve"><value>börjar inte med</value></data>
+  <data name="Filter_IsBlank" xml:space="preserve"><value>är tom</value></data>
+  <data name="Filter_IsNotBlank" xml:space="preserve"><value>är inte tom</value></data>
+  <data name="Error_ModelPrefix" xml:space="preserve"><value>Modell {0}: </value></data>
+  <data name="Error_WhatToDo" xml:space="preserve"><value>Så här gör du: {0}</value></data>
+  <data name="Error_DiagnosticCode" xml:space="preserve"><value>Diagnoskod: {0}</value></data>
+  <data name="Source_Desktop" xml:space="preserve"><value>Desktop: {0} ({1})</value></data>
+  <data name="Source_NotAttached" xml:space="preserve"><value>inte ansluten</value></data>
+  <data name="Source_Xmla" xml:space="preserve"><value>Tjänst XMLA: {0}{1}/{2}</value></data>
+  <data name="Source_Rest" xml:space="preserve"><value>Tjänst REST: {0}{1}/{2}</value></data>
+</root>

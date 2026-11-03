@@ -1,6 +1,7 @@
 using System.Windows;
 using DaxDiff.Domain;
 using Microsoft.Win32;
+using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.Services;
 
@@ -24,10 +25,10 @@ public sealed class DialogService : IDialogService
     {
         var text = exception is DaxDiffException known
             ? known.ToUserText()
-            : $"{exception.Message}{Environment.NewLine}Diagnostic code: ERR-UNEXPECTED";
+            : exception.Message + Environment.NewLine + Localized.Format(Strings.Dialog_DiagnosticCode, "ERR-UNEXPECTED");
         if (context is not null)
             text = context + Environment.NewLine + Environment.NewLine + text;
-        Show(text, "DAXDiff – problem", MessageBoxButton.OK, MessageBoxImage.Warning);
+        Show(text, Strings.Dialog_ProblemTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
     public void ShowInfo(string message, string title = "DAXDiff") =>
@@ -46,13 +47,13 @@ public sealed class DialogService : IDialogService
 
     public string? OpenFile(string filter, string? title = null)
     {
-        var dialog = new OpenFileDialog { Filter = filter, Title = title ?? "Open" };
+        var dialog = new OpenFileDialog { Filter = filter, Title = title ?? Strings.Dialog_Open };
         return dialog.ShowDialog(Owner) == true ? dialog.FileName : null;
     }
 
     public string? SaveFile(string filter, string defaultFileName, string? title = null)
     {
-        var dialog = new SaveFileDialog { Filter = filter, FileName = defaultFileName, Title = title ?? "Save", OverwritePrompt = true };
+        var dialog = new SaveFileDialog { Filter = filter, FileName = defaultFileName, Title = title ?? Strings.Dialog_Save, OverwritePrompt = true };
         return dialog.ShowDialog(Owner) == true ? dialog.FileName : null;
     }
 

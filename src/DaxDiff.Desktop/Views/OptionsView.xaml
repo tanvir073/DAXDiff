@@ -1,7 +1,14 @@
 <UserControl x:Class="DaxDiff.Desktop.Views.OptionsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:DaxDiff.Desktop.Resources"
              xmlns:vm="clr-namespace:DaxDiff.Desktop.ViewModels">
+    <UserControl.Resources>
+        <!-- Enum values (option choices) in the UI language. -->
+        <DataTemplate x:Key="EnumItem">
+            <TextBlock Text="{Binding Converter={StaticResource EnumText}}" />
+        </DataTemplate>
+    </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <Grid>
@@ -13,50 +20,50 @@
 
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="Value comparison" Style="{StaticResource CardTitle}" />
-                        <Label Content="_Mode" Target="{Binding ElementName=ToleranceMode}" Padding="0,0,0,2" />
-                        <ComboBox x:Name="ToleranceMode" ItemsSource="{x:Static vm:OptionsViewModel.ToleranceModes}" SelectedItem="{Binding ToleranceMode}" />
-                        <Label Content="_Absolute tolerance" Target="{Binding ElementName=AbsTol}" Padding="0,0,0,2" />
+                        <TextBlock Text="{x:Static res:Ui.Opt_ValueTitle}" Style="{StaticResource CardTitle}" />
+                        <Label Content="{x:Static res:Ui.Opt_Mode}" Target="{Binding ElementName=ToleranceMode}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="ToleranceMode" ItemsSource="{x:Static vm:OptionsViewModel.ToleranceModes}" SelectedItem="{Binding ToleranceMode}" ItemTemplate="{StaticResource EnumItem}" />
+                        <Label Content="{x:Static res:Ui.Opt_AbsTol}" Target="{Binding ElementName=AbsTol}" Padding="0,0,0,2" />
                         <TextBox x:Name="AbsTol" Text="{Binding AbsoluteTolerance, UpdateSourceTrigger=PropertyChanged}" />
-                        <Label Content="_Relative tolerance (0.001 = 0.1%)" Target="{Binding ElementName=RelTol}" Padding="0,0,0,2" />
+                        <Label Content="{x:Static res:Ui.Opt_RelTol}" Target="{Binding ElementName=RelTol}" Padding="0,0,0,2" />
                         <TextBox x:Name="RelTol" Text="{Binding RelativeTolerance, UpdateSourceTrigger=PropertyChanged}" />
-                        <TextBlock Text="Match when |A − B| ≤ max(absolute, relative × max(|A|, |B|))." Style="{StaticResource Muted}" FontSize="12.5" Margin="0,0,0,8" />
-                        <Label Content="_Null policy" Target="{Binding ElementName=NullPolicy}" Padding="0,0,0,2" />
-                        <ComboBox x:Name="NullPolicy" ItemsSource="{x:Static vm:OptionsViewModel.NullPolicies}" SelectedItem="{Binding NullPolicy}" />
-                        <Label Content="Te_xt value comparison" Target="{Binding ElementName=TextCmp}" Padding="0,0,0,2" />
-                        <ComboBox x:Name="TextCmp" ItemsSource="{x:Static vm:OptionsViewModel.TextComparisons}" SelectedItem="{Binding TextComparison}" />
-                        <Label Content="_Percentage difference baseline" Target="{Binding ElementName=Baseline}" Padding="0,0,0,2" />
-                        <ComboBox x:Name="Baseline" ItemsSource="{x:Static vm:OptionsViewModel.PercentBaselines}" SelectedItem="{Binding PercentBaseline}" />
+                        <TextBlock Text="{x:Static res:Ui.Opt_TolFormula}" Style="{StaticResource Muted}" FontSize="12.5" Margin="0,0,0,8" />
+                        <Label Content="{x:Static res:Ui.Opt_NullPolicy}" Target="{Binding ElementName=NullPolicy}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="NullPolicy" ItemsSource="{x:Static vm:OptionsViewModel.NullPolicies}" SelectedItem="{Binding NullPolicy}" ItemTemplate="{StaticResource EnumItem}" />
+                        <Label Content="{x:Static res:Ui.Opt_TextCmp}" Target="{Binding ElementName=TextCmp}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="TextCmp" ItemsSource="{x:Static vm:OptionsViewModel.TextComparisons}" SelectedItem="{Binding TextComparison}" ItemTemplate="{StaticResource EnumItem}" />
+                        <Label Content="{x:Static res:Ui.Opt_Baseline}" Target="{Binding ElementName=Baseline}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="Baseline" ItemsSource="{x:Static vm:OptionsViewModel.PercentBaselines}" SelectedItem="{Binding PercentBaseline}" ItemTemplate="{StaticResource EnumItem}" />
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="2" Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="Key normalization" Style="{StaticResource CardTitle}" />
-                        <CheckBox Content="Trim _whitespace" IsChecked="{Binding TrimWhitespace}" />
-                        <CheckBox Content="Case-_insensitive keys" IsChecked="{Binding CaseInsensitiveKeys}" />
-                        <CheckBox Content="Treat BLANK and empty text as the same key" IsChecked="{Binding BlankEqualsEmpty}" />
-                        <CheckBox Content="Compare date keys on _date only" IsChecked="{Binding DateOnly}" />
-                        <Label Content="_Unicode normalization" Target="{Binding ElementName=Unicode}" Padding="0,0,0,2" />
-                        <ComboBox x:Name="Unicode" ItemsSource="{x:Static vm:OptionsViewModel.UnicodeForms}" SelectedItem="{Binding Unicode}" />
-                        <Label Content="Duplicate _key policy" Target="{Binding ElementName=Dupes}" Padding="0,0,0,2" />
-                        <ComboBox x:Name="Dupes" ItemsSource="{x:Static vm:OptionsViewModel.DuplicatePolicies}" SelectedItem="{Binding DuplicateKeyPolicy}" />
+                        <TextBlock Text="{x:Static res:Ui.Opt_KeyTitle}" Style="{StaticResource CardTitle}" />
+                        <CheckBox Content="{x:Static res:Ui.Opt_Trim}" IsChecked="{Binding TrimWhitespace}" />
+                        <CheckBox Content="{x:Static res:Ui.Opt_CaseInsensitive}" IsChecked="{Binding CaseInsensitiveKeys}" />
+                        <CheckBox Content="{x:Static res:Ui.Opt_BlankEqualsEmpty}" IsChecked="{Binding BlankEqualsEmpty}" />
+                        <CheckBox Content="{x:Static res:Ui.Opt_DateOnly}" IsChecked="{Binding DateOnly}" />
+                        <Label Content="{x:Static res:Ui.Opt_Unicode}" Target="{Binding ElementName=Unicode}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="Unicode" ItemsSource="{x:Static vm:OptionsViewModel.UnicodeForms}" SelectedItem="{Binding Unicode}" ItemTemplate="{StaticResource EnumItem}" />
+                        <Label Content="{x:Static res:Ui.Opt_Dupes}" Target="{Binding ElementName=Dupes}" Padding="0,0,0,2" />
+                        <ComboBox x:Name="Dupes" ItemsSource="{x:Static vm:OptionsViewModel.DuplicatePolicies}" SelectedItem="{Binding DuplicateKeyPolicy}" ItemTemplate="{StaticResource EnumItem}" />
 
-                        <TextBlock Text="Limits" Style="{StaticResource CardTitle}" Margin="0,14,0,8" />
-                        <Label Content="Max rows per _side" Target="{Binding ElementName=MaxRows}" Padding="0,0,0,2" />
+                        <TextBlock Text="{x:Static res:Ui.Opt_LimitsTitle}" Style="{StaticResource CardTitle}" Margin="0,14,0,8" />
+                        <Label Content="{x:Static res:Ui.Opt_MaxRows}" Target="{Binding ElementName=MaxRows}" Padding="0,0,0,2" />
                         <TextBox x:Name="MaxRows" Text="{Binding MaxRows, UpdateSourceTrigger=PropertyChanged}" />
-                        <Label Content="_Timeout (seconds)" Target="{Binding ElementName=Timeout}" Padding="0,0,0,2" />
+                        <Label Content="{x:Static res:Ui.Opt_Timeout}" Target="{Binding ElementName=Timeout}" Padding="0,0,0,2" />
                         <TextBox x:Name="Timeout" Text="{Binding TimeoutSeconds, UpdateSourceTrigger=PropertyChanged}" />
-                        <Label Content="Retries on transient _errors" Target="{Binding ElementName=Retries}" Padding="0,0,0,2" />
+                        <Label Content="{x:Static res:Ui.Opt_Retries}" Target="{Binding ElementName=Retries}" Padding="0,0,0,2" />
                         <TextBox x:Name="Retries" Text="{Binding RetryCount, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <TextBlock Text="Result rows" Style="{StaticResource CardTitle}" Margin="0,14,0,8" />
-                        <RadioButton Content="Show matches and _differences" GroupName="ResultRows" IsChecked="{Binding DifferencesOnly, Converter={StaticResource InverseBool}}" />
-                        <RadioButton Content="Show differences _only" GroupName="ResultRows" IsChecked="{Binding DifferencesOnly}" />
-                        <CheckBox Content="_Limit the number of result rows" IsChecked="{Binding LimitResultRows}" Margin="0,8,0,0" />
+                        <TextBlock Text="{x:Static res:Ui.Opt_ResultTitle}" Style="{StaticResource CardTitle}" Margin="0,14,0,8" />
+                        <RadioButton Content="{x:Static res:Ui.Opt_ShowAll}" GroupName="ResultRows" IsChecked="{Binding DifferencesOnly, Converter={StaticResource InverseBool}}" />
+                        <RadioButton Content="{x:Static res:Ui.Opt_ShowDiffs}" GroupName="ResultRows" IsChecked="{Binding DifferencesOnly}" />
+                        <CheckBox Content="{x:Static res:Ui.Opt_LimitRows}" IsChecked="{Binding LimitResultRows}" Margin="0,8,0,0" />
                         <TextBox Text="{Binding MaxResultRows, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding LimitResultRows}"
-                                 AutomationProperties.Name="Maximum result rows" />
-                        <TextBlock Text="Summary counts always include every row. With a limit, differences are kept before matches."
+                                 AutomationProperties.Name="{x:Static res:Ui.Opt_MaxResultRows}" />
+                        <TextBlock Text="{x:Static res:Ui.Opt_ResultHint}"
                                    Style="{StaticResource Muted}" FontSize="12.5" TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
@@ -64,19 +71,19 @@
 
             <Border Style="{StaticResource Card}" Margin="0,14,0,0">
                 <StackPanel>
-                    <TextBlock Text="Filters (applied to both models)" Style="{StaticResource CardTitle}" />
+                    <TextBlock Text="{x:Static res:Ui.Opt_FiltersTitle}" Style="{StaticResource CardTitle}" />
                     <TextBlock Text="{Binding FiltersSummary}" TextWrapping="Wrap" Margin="0,0,0,8" />
-                    <Button Content="Edit _filters…" Command="{Binding EditFiltersCommand}" HorizontalAlignment="Left" Style="{StaticResource SecondaryButton}"
-                            ToolTip="Basic (pick values) or advanced (conditions) filters, as in the Power BI filter pane" />
+                    <Button Content="{x:Static res:Ui.Opt_EditFilters}" Command="{Binding EditFiltersCommand}" HorizontalAlignment="Left" Style="{StaticResource SecondaryButton}"
+                            ToolTip="{x:Static res:Ui.Opt_EditFiltersTip}" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource Card}" Margin="0,14,0,0">
                 <StackPanel>
-                    <TextBlock Text="Query preview and estimate" Style="{StaticResource CardTitle}" />
+                    <TextBlock Text="{x:Static res:Ui.Opt_PreviewTitle}" Style="{StaticResource CardTitle}" />
                     <WrapPanel>
-                        <Button Content="_Preview DAX" Command="{Binding PreviewQueriesCommand}" />
-                        <Button Content="Estimate _rows" Command="{Binding EstimateRowsCommand}" />
+                        <Button Content="{x:Static res:Ui.Opt_PreviewDax}" Command="{Binding PreviewQueriesCommand}" />
+                        <Button Content="{x:Static res:Ui.Opt_EstimateRows}" Command="{Binding EstimateRowsCommand}" />
                         <TextBlock Text="{Binding EstimateText}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,6" />
                     </WrapPanel>
                     <Grid>
@@ -86,9 +93,9 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBox Text="{Binding QueryPreviewA, Mode=OneWay}" Style="{StaticResource CodeBox}" MinHeight="150"
-                                 TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Model A query" />
+                                 TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{x:Static res:Ui.Opt_QueryA}" />
                         <TextBox Grid.Column="2" Text="{Binding QueryPreviewB, Mode=OneWay}" Style="{StaticResource CodeBox}" MinHeight="150"
-                                 TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Model B query" />
+                                 TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{x:Static res:Ui.Opt_QueryB}" />
                     </Grid>
                 </StackPanel>
             </Border>
