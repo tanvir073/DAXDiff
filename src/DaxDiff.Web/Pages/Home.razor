@@ -33,6 +33,8 @@
             <button class="btn secondary" @onclick="SampleAsync">Open sample</button>
         </section>
     </div>
+
+    <Requirements />
 }
 else
 {
@@ -71,6 +73,11 @@ else
             <a class="btn secondary" href="@(State.BothConnected ? "run" : "sources")">@(State.BothConnected ? "Go to Run" : "Go to Sources")</a>
         </section>
     </div>
+
+    @if (!State.IsSample)
+    {
+        <Requirements />
+    }
 }
 
 <ErrorMessage Error="error" />

@@ -1,0 +1,85 @@
+@* What a user needs before comparing real models (docs/web.md). Shown on the Project page. Only the sign-in app can be
+   checked from here; the rest depends on the user's tenant and permissions. *@
+@inject WebSettings WebSettings
+
+<section class="card">
+    <div class="card-head">
+        <h2 class="card-title">Before you start</h2>
+        <span class="muted">The sample project needs none of this.</span>
+    </div>
+    <ol class="reqs">
+        <li>
+            <div class="req-head">
+                <span class="req-title">Sign-in app</span>
+                @if (WebSettings.HostProvidesClientId)
+                {
+                    <span class="badge ok">Built in</span>
+                }
+                else if (Guid.TryParse(WebSettings.Auth.ClientId, out _))
+                {
+                    <span class="badge ok">Set in Settings</span>
+                }
+                else
+                {
+                    <span class="badge warn">Missing</span>
+                }
+            </div>
+            <p>
+                An Entra ID app registration lets this site sign you in to Power BI. When it is not built in, enter its
+                client ID in <a href="settings">Settings</a>.
+            </p>
+        </li>
+        <li>
+            <div class="req-head"><span class="req-title">Microsoft work or school account</span></div>
+            <p>
+                Each model signs in separately, so A and B can use different accounts and different tenants. For a guest
+                account, enter that tenant's domain or ID on the source.
+            </p>
+        </li>
+        <li>
+            <div class="req-head"><span class="req-title">Approval in your organisation</span></div>
+            <p>
+                The first sign-in asks you to approve DAXDiff. If your organisation only lets admins approve apps, an Entra
+                admin approves it once for the tenant.
+            </p>
+        </li>
+        <li>
+            <div class="req-head"><span class="req-title">Execute Queries REST API turned on</span></div>
+            <p>
+                A Power BI admin enables <em>Semantic model Execute Queries REST API</em> under Admin portal → Integration
+                settings, in each tenant you query.
+            </p>
+        </li>
+        <li>
+            <div class="req-head"><span class="req-title">Build permission on both models</span></div>
+            <p>
+                Build permission on each semantic model, or a Contributor or higher role in its workspace. The models must
+                be published to the Power BI Service.
+            </p>
+        </li>
+        <li>
+            <div class="req-head"><span class="req-title">Comparisons set up in the desktop app</span></div>
+            <p>
+                The web app runs comparisons but cannot create or edit them yet. Set them up in DAXDiff desktop, save the
+                <code>.pbicomp</code> project and open it here.
+            </p>
+        </li>
+        <li>
+            <div class="req-head"><span class="req-title">Results within the REST limits</span></div>
+            <p>
+                Each query returns at most 100,000 rows or 1,000,000 values. A larger result is marked Partial, never
+                Complete. Use filters or fewer keys to stay under it.
+            </p>
+        </li>
+        <li>
+            <div class="req-head"><span class="req-title">A modern browser</span></div>
+            <p>
+                Edge or Chrome can save straight back to the project file; other browsers download a copy. Allow pop-ups
+                for Microsoft sign-in.
+            </p>
+        </li>
+    </ol>
+    <p class="muted req-foot">
+        Models open in Power BI Desktop and XMLA-only access need the desktop app. Sign-in tokens stay in this browser tab.
+    </p>
+</section>
