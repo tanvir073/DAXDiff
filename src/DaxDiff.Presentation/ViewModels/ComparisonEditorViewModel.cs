@@ -8,6 +8,7 @@ using DaxDiff.Application;
 using DaxDiff.Comparison;
 using DaxDiff.Domain;
 using DaxDiff.Desktop.Resources;
+using DaxDiff.Desktop.Services;
 
 namespace DaxDiff.Desktop.ViewModels;
 
@@ -39,6 +40,8 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
         Options.CompiledProvider = () => Compiled;
         _savedDefinition = isSaved ? definition : null;
 
+        FieldsAView = ListViews.Create(FieldsA);
+        FieldsBView = ListViews.Create(FieldsB);
         FieldsA.CollectionChanged += OnFieldsChanged;
         FieldsB.CollectionChanged += OnFieldsChanged;
         Options.PropertyChanged += (_, e) =>
@@ -140,6 +143,10 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
 
     public ObservableCollection<ComparisonFieldViewModel> FieldsA { get; } = [];
     public ObservableCollection<ComparisonFieldViewModel> FieldsB { get; } = [];
+
+    /// <summary>The field grids: <see cref="FieldsA"/> and <see cref="FieldsB"/> filtered by the field search.</summary>
+    public IListView FieldsAView { get; }
+    public IListView FieldsBView { get; }
     public OptionsViewModel Options { get; }
 
     [ObservableProperty]
@@ -240,7 +247,7 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
 
         Compiled = ComparisonCompiler.CompileAndValidate(ToDefinition(), _sourceA.Metadata, _sourceB.Metadata);
         Pairs = Compiled.Config.FieldPairs
-            .Select(p => new PairPreview(p.Alias, EnumTextConverter.Text(p.Role), Describe(p.Left, p.LeftAggregation), Describe(p.Right, p.RightAggregation)))
+            .Select(p => new PairPreview(p.Alias, EnumText.Of(p.Role), Describe(p.Left, p.LeftAggregation), Describe(p.Right, p.RightAggregation)))
             .ToList();
         Annotate(FieldsA, FieldsB, Side.A);
         Annotate(FieldsB, FieldsA, Side.B);
@@ -250,7 +257,7 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
     }
 
     private static string Describe(FieldRef field, Aggregation aggregation) =>
-        aggregation == Aggregation.None ? field.ToString() : $"{EnumTextConverter.Text(aggregation)}({field})";
+        aggregation == Aggregation.None ? field.ToString() : $"{EnumText.Of(aggregation)}({field})";
 
     private void Annotate(IEnumerable<ComparisonFieldViewModel> fields, IReadOnlyList<ComparisonFieldViewModel> others, Side side)
     {
@@ -261,7 +268,7 @@ public sealed partial class ComparisonEditorViewModel : ObservableObject
             var match = key.Length == 0 ? null : others.FirstOrDefault(o => ComparisonCompiler.SynonymKey(o.Synonym) == key);
             field.PairText = match is null
                 ? Localized.Format(Strings.Editor_NoCounterpart, other, field.Synonym.Trim())
-                : $"↔ {match.FieldText}{(match.Aggregation == Aggregation.None ? "" : $" ({EnumTextConverter.Text(match.Aggregation)})")}";
+                : $"↔ {match.FieldText}{(match.Aggregation == Aggregation.None ? "" : $" ({EnumText.Of(match.Aggregation)})")}";
 
             var mine = Compiled.Issues
                 .Where(i => i.Alias is not null && ComparisonCompiler.SynonymKey(i.Alias) == key)

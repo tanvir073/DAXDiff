@@ -19,7 +19,7 @@ public static class AppRestarter
 
         var start = new ProcessStartInfo(host) { UseShellExecute = false, WorkingDirectory = AppContext.BaseDirectory };
         if (string.Equals(Path.GetFileNameWithoutExtension(host), "dotnet", StringComparison.OrdinalIgnoreCase))
-            start.ArgumentList.Add(typeof(App).Assembly.Location);
+            start.ArgumentList.Add(System.Reflection.Assembly.GetEntryAssembly()!.Location);
         foreach (var arg in args)
             start.ArgumentList.Add(arg);
 

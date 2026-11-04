@@ -23,7 +23,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         _dialogs = dialogs;
         _clientId = options.ClientId;
         _tenantId = options.TenantId;
-        _selectedTheme = ThemeService.Current;
+        _selectedTheme = ThemeCatalog.Current;
         _selectedLanguage = LanguageService.Languages.First(l => l.Code == LanguageService.Current);
     }
 
@@ -60,7 +60,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     /// <summary>Restarts the app (offering to save the project first) and reopens the current project.</summary>
     public Action? RestartRequested { get; set; }
 
-    public IReadOnlyList<AppTheme> Themes => ThemeService.Themes;
+    public IReadOnlyList<AppTheme> Themes => ThemeCatalog.Themes;
 
     /// <summary>Colour theme; applied immediately and remembered in the user settings.</summary>
     [ObservableProperty]
@@ -68,12 +68,12 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     partial void OnSelectedThemeChanged(AppTheme value)
     {
-        if (value is null || value == ThemeService.Current)
+        if (value is null || value == ThemeCatalog.Current)
             return;
-        ThemeService.Apply(value.Id);
+        ThemeCatalog.Apply(value.Id);
         try
         {
-            ThemeService.Save(value.Id);
+            ThemeCatalog.Save(value.Id);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

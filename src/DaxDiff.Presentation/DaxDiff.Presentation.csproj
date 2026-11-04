@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    View models, their services and the desktop text, shared by the desktop apps. No UI toolkit here: list filtering,
+    dialogs, the filter pop-up and theme brushes are supplied by each app (ListViews, IDialogService,
+    IFilterEditorService, ThemeCatalog.Applier). Namespaces stay DaxDiff.Desktop.*.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\DaxDiff.Application\DaxDiff.Application.csproj" />
+    <ProjectReference Include="..\DaxDiff.Connectors\DaxDiff.Connectors.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>DaxDiff.Desktop</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- XAML text, read by the views with x:Static, so public. Strings is set up in Directory.Build.targets. -->
+    <EmbeddedResource Update="Resources\Ui.resx">
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>DaxDiff.Desktop.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Ui</StronglyTypedClassName>
+      <StronglyTypedFileName>$(IntermediateOutputPath)Ui.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedManifestPrefix>DaxDiff.Desktop.Resources</StronglyTypedManifestPrefix>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Strings.resx" PublicClass="true" />
+    <InternalsVisibleTo Include="DaxDiff.Tests.Unit" />
+  </ItemGroup>
+
+</Project>

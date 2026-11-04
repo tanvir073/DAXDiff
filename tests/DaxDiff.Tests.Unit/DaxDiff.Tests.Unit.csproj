@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\DaxDiff.Application\DaxDiff.Application.csproj" />
     <ProjectReference Include="..\..\src\DaxDiff.Connectors\DaxDiff.Connectors.csproj" />
+    <ProjectReference Include="..\..\src\DaxDiff.Presentation\DaxDiff.Presentation.csproj" />
   </ItemGroup>
 
 </Project>

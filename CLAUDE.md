@@ -21,7 +21,7 @@ There is no linter configured. On the developer's machine, an application-contro
 
 ## Architecture
 
-The dependency direction is Desktop → {Application, Connectors} and Web → Application → {Comparison, Connectors.Core, Export} → Domain, with Connectors → Connectors.Core.
+The dependency direction is Desktop → Presentation → {Application, Connectors} and Web → Application → {Comparison, Connectors.Core, Export} → Domain, with Connectors → Connectors.Core.
 
 - **Target frameworks:** everything targets `net10.0` except the WPF `Desktop` (`net10.0-windows`). `Connectors` is cross-platform: WMI session discovery returns nothing outside Windows (`DesktopSessionLocator.IsSupported`), and the MSAL cache uses DPAPI, the macOS Keychain or the Linux keyring, else memory only. ADOMD.NET reaches the Power BI XMLA endpoint on Linux and macOS (probed in CI), but a full query there is unverified. The tests run on Windows, Linux and macOS in CI.
 - **Connectors.Core vs Connectors.** `Connectors.Core` holds everything that also runs in the browser: `IModelConnector`, `IAuthService`/`AuthOptions`/`SourceSession`, `ErrorClassifier`, the metadata parsers and the REST connector, client and discovery. `Connectors` holds ADOMD (Desktop, XMLA), WMI session discovery, `MsalAuthService` (which maps `MsalException` itself) and `ConnectorFactory`. Namespaces did not change. Keep native-client code (ADOMD, MSAL.NET, WMI) out of Core and Application, or the web app stops building, and guard Windows-only calls with `OperatingSystem.IsWindows()`.
@@ -89,7 +89,17 @@ The dependency direction is Desktop → {Application, Connectors} and Web → Ap
 - **Session discovery.** `DesktopSessionLocator` finds Power BI Desktop sessions through WMI: `msmdsrv.exe` processes, their `-s <dataDir>` argument, the UTF-16 `msmdsrv.port.txt` file, and the parent `PBIDesktop.exe` process. If WMI fails it falls back to scanning the workspace folders.
 - **Errors.** All errors become `DaxDiffException` (category, diagnostic code, remedy, side, transient flag) through `ErrorClassifier`. Its message heuristics are covered by tests in `ConnectorParsingTests`.
 
-### Desktop (`DaxDiff.Desktop`, MVVM with CommunityToolkit.Mvvm)
+### Presentation (`DaxDiff.Presentation`, shared by the desktop apps)
+
+- **What lives here.** The view models (`ViewModels/`), their non-UI services (`AppPaths`, `LaunchArguments`, `RecentProjects`, `LanguageService`/`UserSettings`, `AppRestarter`, `ThemeCatalog`, `EnumText`), the `IDialogService` and `IFilterEditorService` interfaces, and the desktop text (`Resources/Strings*.resx`, `Ui*.resx`). It targets `net10.0` and references no UI toolkit. `RootNamespace` is `DaxDiff.Desktop`, so namespaces did not change; XAML refers to them with `;assembly=DaxDiff.Presentation`.
+- **The app supplies the toolkit parts at startup.**
+  - `ListViews.Create`: view models never use `ICollectionView`. They create an `IListView` (filter, sort, `Refresh`, `Count`) and the UI binds to its `ItemsSource`. WPF hands back the collection's default view (`WpfListView`), so grids bound to the collection itself (the drag-reorder field grids) are filtered too. The default is `FilteredListView`, an observable list that resets on change.
+  - `ThemeCatalog.Applier` turns a theme's CSS tokens into brushes (WPF: `ThemeService.Apply`).
+  - `MainViewModel.ShutdownRequested` asks the app to close (used by Restart).
+- **Threading.** Don't use toolkit timers or dispatchers in view models. Await on the UI thread instead (`RunViewModel.TickAsync` uses `PeriodicTimer`), because Avalonia, unlike WPF, does not marshal `PropertyChanged` from other threads.
+- **Tests.** The test project references Presentation, so view models and `FilteredListView` can be tested on any OS.
+
+### Desktop (`DaxDiff.Desktop`, WPF, MVVM with CommunityToolkit.Mvvm)
 
 - **Startup.** `App.OnStartup` builds a Generic Host with Serilog file logging to `%LOCALAPPDATA%\DAXDiff\logs`. It reads `appsettings.json` plus the optional user override `%LOCALAPPDATA%\DAXDiff\settings.json`, then shows `MainWindow` and applies the External Tools arguments (`--server` and `--database`, or positional `localhost:port`). The attach waits until a project is created or opened.
 - **Project lifecycle.** `MainViewModel` owns it: New project creates the file first, then Open, Save, Close, and an unsaved-changes prompt (also on window close). The project steps in the nav are disabled until a project is open.
@@ -98,20 +108,20 @@ The dependency direction is Desktop → {Application, Connectors} and Web → Ap
   - `IsModified` compares JSON fingerprints of the two. `Save` commits the draft and raises `SaveRequested`, which makes the shell write the project file. `Commit()` commits without writing.
   - `ProjectFile.Comparisons` and the Run page use only `SavedDefinition`s. A never-saved comparison cannot run.
   - Project Save and close offer to commit drafts. Deleting a saved comparison also writes the file.
-- **View models.** `MainViewModel` owns two `SourcePanelViewModel`s (A and B) and the page view models.
+- **View models** (in Presentation). `MainViewModel` owns two `SourcePanelViewModel`s (A and B) and the page view models.
   - `ComparisonsViewModel` holds one `ComparisonEditorViewModel` per comparison.
   - Each editor owns its `FieldsA`/`FieldsB` (`ComparisonFieldViewModel`) and its own `OptionsViewModel`, and recompiles on every change. `Recompile()` annotates each field with its counterpart and its issues.
   - The Options page (`OptionsPageViewModel`) shows the selected comparison's options. Run executes the ticked comparisons one after another, in their saved versions. Results keeps the latest result per comparison.
   - Filters are edited in `FilterEditorWindow` (`FilterEditorViewModel` / `FilterItemViewModel`), opened by `IFilterEditorService` through `OptionsViewModel.EditFiltersRequested`. The value list is loaded from both connected models (first 1,000 values each, searchable).
   - "Add same to B/A" (`ComparisonsViewModel.CopyToB/CopyToA`) copies the selected grid rows to the other model by exact table and column name (measures by name).
 - **Theme.** `Themes/Numberskills.xaml` (merged in `App.xaml`) implements the Numberskills design system: the embedded fonts (`Fonts/`, Bricolage Grotesque for headings and Onest for text) and implicit styles for every standard control.
-  - **Colours are user-selectable.** `Services/ThemeService` holds 10 colour themes (tokens from the design canvas; Midnight is the default, and an unknown saved id falls back to it) and builds the brush dictionary that replaces the first merged dictionary of `App.xaml` at run time. The user picks a theme on Settings → Appearance; it is saved as `Appearance:Theme` in the user settings file.
+  - **Colours are user-selectable.** `ThemeCatalog` (Presentation) holds 10 colour themes (tokens from the design canvas; Midnight is the default, and an unknown saved id falls back to it) and WPF `Services/ThemeService` builds the brush dictionary that replaces the first merged dictionary of `App.xaml` at run time. The user picks a theme on Settings → Appearance; it is saved as `Appearance:Theme` in the user settings file.
   - Always reference brushes with `DynamicResource` (a `StaticResource` brush never changes with the theme and fails if no theme is loaded yet). Text on a fill uses the fill's pair: `ChipBrush`/`ChipTextBrush` for selected states, `AccentFillBrush`/`OnAccentBrush`, `HeroBrush`/`HeroTextBrush`, `MintBrush`/`SelectionTextBrush`, `AccentSoftBrush`/`TileTextBrush`, and the `Header*` brushes on the header. Never hard-code White for text or surfaces, because some themes are dark.
   - Use its keyed styles rather than local colours: `PrimaryButton` (one main action per page), `SecondaryButton`, `LightButton` (on the teal header), `Card`, `CardTitle`, `Eyebrow`/`PageTitle`/`PageHint` for page headers, `Badge` tones, `Segment`/`SegmentGroup`, `SideChipA`/`SideChipB`, `Message` tones and `CodeBox`.
   - A TextBox's `Tag` is shown as placeholder text.
   - Pill shapes bind `CornerRadius` through `PillRadiusConverter`, because a large fixed radius renders as an ellipse in WPF.
 - **Language (English and Swedish).** Every user-facing string lives in resources, never in code or XAML.
-  - Each project has `Resources/Strings.resx` (English, the neutral language) and `Strings.sv.resx`. `Directory.Build.targets` generates the typed class `<RootNamespace>.Resources.Strings` at build time. Desktop also has `Resources/Ui.resx` for XAML text, used as `{x:Static res:Ui.Key}`. A target generates these classes before WPF's XAML pass, because the XAML temporary project would not see them otherwise.
+  - Each project has `Resources/Strings.resx` (English, the neutral language) and `Strings.sv.resx`. `Directory.Build.targets` generates the typed class `<RootNamespace>.Resources.Strings` at build time. The desktop text, including `Resources/Ui.resx` for XAML (`{x:Static res:Ui.Key}`), lives in Presentation. A target generates these classes before WPF's XAML pass in projects that have them, because the XAML temporary project would not see them otherwise.
   - Format with `string.Format(CultureInfo.CurrentCulture, Strings.Key, …)`; Desktop has `Localized.Format`. Enums show through `EnumTextConverter` (resource `Enum_<Type>_<Value>`).
   - `LanguageService` sets only the UI culture at startup (Settings → Language, saved as `Appearance:Language`; empty means the Windows language). Text is read once when screens are built, so a change needs a restart: Settings offers one, and `MainViewModel.Restart` saves through the unsaved-changes prompt and relaunches with the project path (`AppRestarter`, which also handles the `dotnet DAXDiff.dll` form). Numbers and dates follow Windows regional settings. Logs, diagnostic codes, DAX and the names saved in project files stay English.
   - Never parse message text. Use structured data instead, such as `ValidationIssue.Side`, or `MappingValidator.ValidateFilter(filter, a, b)` for the pop-up's "this filter" wording.

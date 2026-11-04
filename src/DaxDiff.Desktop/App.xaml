@@ -1,4 +1,4 @@
-﻿<Application x:Class="DaxDiff.Desktop.App"
+<Application x:Class="DaxDiff.Desktop.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:DaxDiff.Desktop"
@@ -16,6 +16,7 @@
             <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
             <local:NullToVisibilityConverter x:Key="NullToVisibility" />
             <local:EnumTextConverter x:Key="EnumText" />
+            <local:CssBrushConverter x:Key="CssBrush" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

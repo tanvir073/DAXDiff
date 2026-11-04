@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DaxDiff.Connectors;
@@ -47,10 +46,10 @@ public sealed partial class SourcePanelViewModel : ObservableObject
         _tenant = session.Auth.Tenant;
         _dialogs = dialogs;
         _logger = logger;
-        WorkspacesView = CollectionViewSource.GetDefaultView(Workspaces);
+        WorkspacesView = ListViews.Create(Workspaces);
         WorkspacesView.Filter = o => string.IsNullOrWhiteSpace(WorkspaceSearch) ||
                                      ((WorkspaceInfo)o).Name.Contains(WorkspaceSearch, StringComparison.OrdinalIgnoreCase);
-        DatasetsView = CollectionViewSource.GetDefaultView(Datasets);
+        DatasetsView = ListViews.Create(Datasets);
         DatasetsView.Filter = o => string.IsNullOrWhiteSpace(DatasetSearch) ||
                                    ((DatasetInfo)o).Name.Contains(DatasetSearch, StringComparison.OrdinalIgnoreCase);
     }
@@ -166,9 +165,9 @@ public sealed partial class SourcePanelViewModel : ObservableObject
     // ---- Service -----------------------------------------------------------------------------
 
     public ObservableCollection<WorkspaceInfo> Workspaces { get; } = [];
-    public ICollectionView WorkspacesView { get; }
+    public IListView WorkspacesView { get; }
     public ObservableCollection<DatasetInfo> Datasets { get; } = [];
-    public ICollectionView DatasetsView { get; }
+    public IListView DatasetsView { get; }
 
     private IAuthService Auth => _session.Auth;
 

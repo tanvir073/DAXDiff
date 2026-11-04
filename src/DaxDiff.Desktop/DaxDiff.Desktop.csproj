@@ -1,12 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\DaxDiff.Application\DaxDiff.Application.csproj" />
-    <ProjectReference Include="..\DaxDiff.Connectors\DaxDiff.Connectors.csproj" />
+    <ProjectReference Include="..\DaxDiff.Presentation\DaxDiff.Presentation.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
@@ -33,16 +31,6 @@
     <!-- Numberskills design system fonts (SIL Open Font License), static instances of the variable fonts. -->
     <Resource Include="Fonts\*.ttf" />
     <Resource Include="Assets\DAXDiff.ico" />
-    <!-- XAML text (Resources/Ui*.resx). Public, because XAML reads it with x:Static. Strings is set up in Directory.Build.targets. -->
-    <EmbeddedResource Update="Resources\Ui.resx">
-      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
-      <StronglyTypedNamespace>DaxDiff.Desktop.Resources</StronglyTypedNamespace>
-      <StronglyTypedClassName>Ui</StronglyTypedClassName>
-      <StronglyTypedFileName>$(IntermediateOutputPath)Ui.Designer.cs</StronglyTypedFileName>
-      <StronglyTypedManifestPrefix>DaxDiff.Desktop.Resources</StronglyTypedManifestPrefix>
-      <PublicClass>true</PublicClass>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resources\Strings.resx" PublicClass="true" />
   </ItemGroup>
 
 </Project>

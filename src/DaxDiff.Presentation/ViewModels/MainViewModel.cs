@@ -109,7 +109,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             Navigate(Results);
             StatusMessage = Localized.Format(Strings.Main_RunFinished,
-                string.Join(", ", Results.Results.Select(r => $"{r.ComparisonName} {EnumTextConverter.Text(r.Status)}")));
+                string.Join(", ", Results.Results.Select(r => $"{r.ComparisonName} {EnumText.Of(r.Status)}")));
         };
 
         NavItems =
@@ -374,6 +374,9 @@ public sealed partial class MainViewModel : ObservableObject
 
     private bool _restarting;
 
+    /// <summary>Asks the app to close, after the current UI event has finished (used by <see cref="Restart"/>).</summary>
+    public event EventHandler? ShutdownRequested;
+
     /// <summary>
     /// Starts a new instance that reopens the current project, then closes this one (used to switch language).
     /// Connections and results are not carried over: the new instance reconnects when the project opens.
@@ -390,8 +393,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         _restarting = true;
-        // Let the settings change finish before the window closes.
-        System.Windows.Application.Current.Dispatcher.BeginInvoke(() => System.Windows.Application.Current.Shutdown());
+        ShutdownRequested?.Invoke(this, EventArgs.Empty);
     }
 
     private bool TrySave(string path, string? name = null)

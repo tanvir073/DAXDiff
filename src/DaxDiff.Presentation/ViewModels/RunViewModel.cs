@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DaxDiff.Application;
@@ -22,7 +21,6 @@ public sealed partial class RunViewModel : ObservableObject
     private readonly ComparisonsViewModel _comparisons;
     private readonly ComparisonRunner _runner;
     private readonly IDialogService _dialogs;
-    private readonly DispatcherTimer _timer;
     private readonly Stopwatch _stopwatch = new();
 
     public RunViewModel(SourcePanelViewModel sourceA, SourcePanelViewModel sourceB, ComparisonsViewModel comparisons, ComparisonRunner runner, IDialogService dialogs)
@@ -32,8 +30,20 @@ public sealed partial class RunViewModel : ObservableObject
         _comparisons = comparisons;
         _runner = runner;
         _dialogs = dialogs;
-        _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
-        _timer.Tick += (_, _) => Elapsed = _stopwatch.Elapsed.ToString(@"mm\:ss\.f");
+    }
+
+    /// <summary>Updates <see cref="Elapsed"/> until cancelled. Awaited from the UI thread, so each update runs there.</summary>
+    private async Task TickAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(250));
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+                Elapsed = _stopwatch.Elapsed.ToString(@"mm\:ss\.f");
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
     /// <summary>Raised with each finished result as soon as it is available.</summary>
@@ -110,7 +120,8 @@ public sealed partial class RunViewModel : ObservableObject
         IsRunning = true;
         Log.Clear();
         _stopwatch.Restart();
-        _timer.Start();
+        using var ticking = new CancellationTokenSource();
+        var ticker = TickAsync(ticking.Token);
         try
         {
             for (var i = 0; i < selected.Count && !cancellationToken.IsCancellationRequested; i++)
@@ -130,7 +141,7 @@ public sealed partial class RunViewModel : ObservableObject
 
                 var request = RunRequest.For(_sourceA.Connector, _sourceB.Connector, definition, _sourceA.Metadata, _sourceB.Metadata);
                 var result = await _runner.RunAsync(request, progress, cancellationToken);
-                Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] {name}: {EnumTextConverter.Text(result.Status)}" + (result.FailureMessage is null ? "" : " – " + result.FailureMessage));
+                Log.Add($"[{_stopwatch.Elapsed:mm\\:ss}] {name}: {EnumText.Of(result.Status)}" + (result.FailureMessage is null ? "" : " – " + result.FailureMessage));
                 Completed?.Invoke(this, result);
             }
 
@@ -139,7 +150,8 @@ public sealed partial class RunViewModel : ObservableObject
         }
         finally
         {
-            _timer.Stop();
+            await ticking.CancelAsync();
+            await ticker;
             Elapsed = _stopwatch.Elapsed.ToString(@"mm\:ss\.f");
             IsRunning = false;
         }

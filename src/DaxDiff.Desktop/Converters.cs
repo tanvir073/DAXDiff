@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using DaxDiff.Desktop.Services;
 using DaxDiff.Desktop.ViewModels;
 
 namespace DaxDiff.Desktop;
@@ -12,10 +13,7 @@ namespace DaxDiff.Desktop;
 public sealed class EnumTextConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) =>
-        value is Enum e ? Text(e) : value;
-
-    public static string Text(Enum value) =>
-        Resources.Strings.ResourceManager.GetString($"Enum_{value.GetType().Name}_{value}") ?? value.ToString();
+        value is Enum e ? EnumText.Of(e) : value;
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }
@@ -51,6 +49,15 @@ public sealed class PillRadiusConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
         new CornerRadius(value is double height && height > 0 ? height / 2 : 0);
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
+}
+
+/// <summary>A CSS colour from a theme token (#rrggbb or rgba()) as a brush, for the theme previews in Settings.</summary>
+public sealed class CssBrushConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture) =>
+        value is string css ? ThemeService.Brush(css) : null;
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }

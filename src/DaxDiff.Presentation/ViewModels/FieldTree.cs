@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using DaxDiff.Domain;
 using DaxDiff.Desktop.Resources;
+using DaxDiff.Desktop.Services;
 
 namespace DaxDiff.Desktop.ViewModels;
 
@@ -36,10 +37,10 @@ public sealed partial class FieldNode(FieldRef fieldRef, DataKind dataKind, bool
     public bool IsMeasure => Ref.Kind == FieldKind.Measure;
 
     public string Display =>
-        $"{(IsMeasure ? "Σ " : "")}{Ref.Name}  ·  {EnumTextConverter.Text(DataKind)}{(IsHidden ? Strings.Tree_HiddenSuffix : "")}{(string.IsNullOrEmpty(DisplayFolder) ? "" : $" · {DisplayFolder}")}";
+        $"{(IsMeasure ? "Σ " : "")}{Ref.Name}  ·  {EnumText.Of(DataKind)}{(IsHidden ? Strings.Tree_HiddenSuffix : "")}{(string.IsNullOrEmpty(DisplayFolder) ? "" : $" · {DisplayFolder}")}";
 
     public string AccessibleName =>
-        Localized.Format(IsMeasure ? Strings.Tree_AccessibleMeasure : Strings.Tree_AccessibleColumn, Ref.Name, Ref.Table, EnumTextConverter.Text(DataKind));
+        Localized.Format(IsMeasure ? Strings.Tree_AccessibleMeasure : Strings.Tree_AccessibleColumn, Ref.Name, Ref.Table, EnumText.Of(DataKind));
 }
 
 public static class FieldTree

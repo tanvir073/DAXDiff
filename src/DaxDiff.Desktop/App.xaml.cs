@@ -49,11 +49,16 @@ public partial class App : System.Windows.Application
         _host = builder.Build();
 
         DispatcherUnhandledException += OnUnhandledException;
+        // The shared view models filter lists and switch themes through these.
+        ListViews.Create = source => new WpfListView(source);
+        ThemeCatalog.Applier = ThemeService.Apply;
         // Before any window or view model reads localized text.
         LanguageService.Apply(builder.Configuration["Appearance:Language"]);
-        ThemeService.Apply(builder.Configuration["Appearance:Theme"]);
+        ThemeCatalog.Apply(builder.Configuration["Appearance:Theme"]);
 
         var main = _host.Services.GetRequiredService<MainViewModel>();
+        // Let the current UI event (such as a settings change) finish before the app closes.
+        main.ShutdownRequested += (_, _) => Dispatcher.BeginInvoke(Shutdown);
         var window = new MainWindow { DataContext = main };
         _host.Services.GetRequiredService<SourceSessionFactory>().ParentWindow = () => new System.Windows.Interop.WindowInteropHelper(window).Handle;
         MainWindow = window;

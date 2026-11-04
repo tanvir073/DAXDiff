@@ -1,7 +1,7 @@
 <UserControl x:Class="DaxDiff.Desktop.Views.SourcePanelView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:res="clr-namespace:DaxDiff.Desktop.Resources">
+             xmlns:res="clr-namespace:DaxDiff.Desktop.Resources;assembly=DaxDiff.Presentation">
     <UserControl.Resources>
         <!-- A in teal, B in cyan, as everywhere in the app. -->
         <Style x:Key="SideChip" TargetType="Border" BasedOn="{StaticResource SideChipA}">
@@ -125,12 +125,12 @@
                         </DockPanel>
                         <TextBox Text="{Binding WorkspaceSearch, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{x:Static res:Ui.Source_SearchWorkspaces}" Tag="{x:Static res:Ui.Source_SearchWorkspaces}"
                                  ToolTip="{x:Static res:Ui.Source_SearchWorkspacesTip}" />
-                        <ComboBox ItemsSource="{Binding WorkspacesView}" SelectedItem="{Binding SelectedWorkspace}" DisplayMemberPath="Name"
+                        <ComboBox ItemsSource="{Binding WorkspacesView.ItemsSource}" SelectedItem="{Binding SelectedWorkspace}" DisplayMemberPath="Name"
                                   AutomationProperties.Name="{x:Static res:Ui.Source_Workspace}" />
                         <TextBlock Text="{x:Static res:Ui.Source_SemanticModel}" Style="{StaticResource SectionTitle}" />
                         <TextBox Text="{Binding DatasetSearch, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{x:Static res:Ui.Source_SearchModels}" Tag="{x:Static res:Ui.Source_SearchModels}"
                                  ToolTip="{x:Static res:Ui.Source_SearchModelsTip}" />
-                        <ComboBox ItemsSource="{Binding DatasetsView}" SelectedItem="{Binding SelectedDataset}" DisplayMemberPath="Name"
+                        <ComboBox ItemsSource="{Binding DatasetsView.ItemsSource}" SelectedItem="{Binding SelectedDataset}" DisplayMemberPath="Name"
                                   AutomationProperties.Name="{x:Static res:Ui.Source_SemanticModel}" />
                     </StackPanel>
                     <Label Content="{x:Static res:Ui.Source_WorkspaceLabel}" Target="{Binding ElementName=Workspace}" />

@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DaxDiff.Comparison;
@@ -99,7 +98,7 @@ public sealed partial class ResultsViewModel : ObservableObject
     private ComparisonResult? _result;
 
     [ObservableProperty]
-    private ICollectionView? _rowsView;
+    private IListView? _rowsView;
 
     [ObservableProperty]
     private IReadOnlyList<ResultColumn> _columns = [];
@@ -140,7 +139,7 @@ public sealed partial class ResultsViewModel : ObservableObject
         : $"A: {Result.SourceA.Describe()}  [{Result.SecurityContextA}]{Environment.NewLine}" +
           $"B: {Result.SourceB.Describe()}  [{Result.SecurityContextB}]{Environment.NewLine}" +
           Localized.Format(Strings.Results_SourceDetails, Result.FinishedUtc, Result.RunId,
-              EnumTextConverter.Text(Result.Config.Options.Tolerance.Mode), Result.Config.Options.Tolerance.Absolute, Result.Config.Options.Tolerance.Relative,
+              EnumText.Of(Result.Config.Options.Tolerance.Mode), Result.Config.Options.Tolerance.Absolute, Result.Config.Options.Tolerance.Relative,
               string.Join(", ", Result.Queries.Select(q => $"{q.Side}:{q.QueryHash[..12]}")));
 
     public IReadOnlyList<KeyValuePair<string, string>> Kpis => Result is null
@@ -255,7 +254,8 @@ public sealed partial class ResultsViewModel : ObservableObject
         }).ToList();
 
         Columns = columns;
-        var view = new ListCollectionView(_rows) { Filter = Matches };
+        var view = ListViews.Create(_rows);
+        view.Filter = Matches;
         RowsView = view;
         Filter = ResultFilter.All;
         UpdateCount();
@@ -308,7 +308,7 @@ public sealed partial class ResultsViewModel : ObservableObject
     private void UpdateCount() =>
         VisibleCountText = RowsView is null
             ? ""
-            : Localized.Format(Strings.Results_VisibleCount, RowsView.Cast<object>().Count(), _rows.Count) +
+            : Localized.Format(Strings.Results_VisibleCount, RowsView.Count, _rows.Count) +
               (Result?.Summary.RowsOmitted is > 0 and var omitted ? " " + Localized.Format(Strings.Results_RowsOmitted, omitted) : "");
 
     private bool Matches(object item)
@@ -329,9 +329,8 @@ public sealed partial class ResultsViewModel : ObservableObject
     /// <summary>Sorts by a column using a type-aware comparer (numbers numerically, text case-insensitively).</summary>
     public void Sort(int columnIndex, ListSortDirection direction)
     {
-        if (RowsView is not ListCollectionView view)
-            return;
-        view.CustomSort = new CellComparer(columnIndex, direction);
+        if (RowsView is { } view)
+            view.Sort = new CellComparer(columnIndex, direction);
     }
 
     private bool CanExport() => Result is not null;
@@ -351,7 +350,7 @@ public sealed partial class ResultsViewModel : ObservableObject
                      Localized.Format(Strings.Export_Destination, path) + nl +
                      Localized.Format(Strings.Export_AllDataRows, ExportAllData ? Strings.Export_Included : Strings.Export_AllDataOmitted) + nl +
                      Localized.Format(Strings.Export_DaxText, ExportQueryText ? Strings.Export_Included : Strings.Export_DaxOmitted) + nl +
-                     (result.IsComplete ? "" : nl + Localized.Format(Strings.Export_IncompleteRun, EnumTextConverter.Text(result.Status).ToUpper(CultureInfo.CurrentCulture)) + nl) +
+                     (result.IsComplete ? "" : nl + Localized.Format(Strings.Export_IncompleteRun, EnumText.Of(result.Status).ToUpper(CultureInfo.CurrentCulture)) + nl) +
                      nl + Strings.Export_Continue;
         if (!_dialogs.Confirm(notice, Strings.Export_NoticeTitle))
             return;

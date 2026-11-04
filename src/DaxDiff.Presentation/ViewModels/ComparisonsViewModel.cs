@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DaxDiff.Comparison;
@@ -135,13 +134,12 @@ public sealed partial class ComparisonsViewModel : ObservableObject
     {
         if (Selected is null)
             return;
-        SetSearch(Selected.FieldsA, FieldSearchA);
-        SetSearch(Selected.FieldsB, FieldSearchB);
+        SetSearch(Selected.FieldsAView, FieldSearchA);
+        SetSearch(Selected.FieldsBView, FieldSearchB);
     }
 
-    private static void SetSearch(IEnumerable fields, string text)
+    private static void SetSearch(IListView view, string text)
     {
-        var view = CollectionViewSource.GetDefaultView(fields);
         text = text.Trim();
         view.Filter = text.Length == 0
             ? null

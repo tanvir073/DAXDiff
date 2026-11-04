@@ -5,18 +5,6 @@ using DaxDiff.Desktop.Resources;
 
 namespace DaxDiff.Desktop.Services;
 
-public interface IDialogService
-{
-    void ShowError(Exception exception, string? context = null);
-    void ShowInfo(string message, string title = "DAXDiff");
-    bool Confirm(string message, string title = "DAXDiff");
-
-    /// <summary>Yes = true, No = false, Cancel = null.</summary>
-    bool? AskYesNoCancel(string message, string title = "DAXDiff");
-    string? OpenFile(string filter, string? title = null);
-    string? SaveFile(string filter, string defaultFileName, string? title = null);
-}
-
 public sealed class DialogService : IDialogService
 {
     private static Window? Owner => System.Windows.Application.Current?.MainWindow;
