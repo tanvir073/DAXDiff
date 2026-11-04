@@ -61,7 +61,9 @@ public sealed partial class DesktopSessionLocator
         {
             return FindViaWmi();
         }
-        catch (Exception ex) when (ex is ManagementException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException)
+        // TypeInitializationException: System.Management could not start (for example without built-in COM interop).
+        catch (Exception ex) when (ex is ManagementException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException
+                                       or TypeInitializationException or PlatformNotSupportedException)
         {
             _logger.LogWarning(ex, "WMI session discovery failed; scanning workspace folders instead");
             return FindViaWorkspaceFolders();
