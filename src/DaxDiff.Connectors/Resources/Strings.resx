@@ -24,7 +24,7 @@
   <data name="Xmla_InTenant" xml:space="preserve"><value>{0} in tenant {1}</value></data>
   <data name="Xmla_NoteNoClientId" xml:space="preserve"><value>No client ID configured: ADOMD's built-in interactive sign-in is used.</value></data>
   <data name="Auth_NoClientId" xml:space="preserve"><value>No Entra ID client ID is configured, so DAXDiff cannot sign in to the Power BI service itself.</value></data>
-  <data name="Remedy_AuthNoClientId" xml:space="preserve"><value>Ask your administrator for the client ID of a DAXDiff app registration and enter it in Settings (see docs/setup.md). XMLA connections still work without it: type the workspace and model names and Test; Microsoft's sign-in appears then.</value></data>
+  <data name="Remedy_AuthNoClientId" xml:space="preserve"><value>Ask your administrator for the client ID of a DAXDiff app registration and enter it in Settings (the administrator guide in the DAXDiff documentation has the steps). XMLA connections still work without it: type the workspace and model names and Test; Microsoft's sign-in appears then.</value></data>
   <data name="Auth_Cancelled" xml:space="preserve"><value>Sign-in was cancelled.</value></data>
   <data name="Remedy_AuthCancelled" xml:space="preserve"><value>Sign in again to continue.</value></data>
   <data name="Auth_Failed" xml:space="preserve"><value>Sign-in failed: {0}</value></data>

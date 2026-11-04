@@ -1,45 +1,68 @@
 # DAXDiff
 
-Windows desktop app that compares evaluated business data from two Power BI semantic models. It lists every key that matches, differs, or exists on one side only, and exports the results to an Excel audit workbook.
+[![CI](https://github.com/tanvir073/DAXDiff/actions/workflows/ci.yml/badge.svg)](https://github.com/tanvir073/DAXDiff/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/tanvir073/DAXDiff?include_prereleases)](https://github.com/tanvir073/DAXDiff/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Work is organised in **projects** (`.pbicomp` files). A project holds the two models and any number of **comparisons**. In each comparison you:
+**Compare the data two Power BI semantic models return.** DAXDiff lists every row that matches, differs or exists on
+one side only, and exports the result to an Excel audit workbook.
 
-- insert any columns (or a whole table's columns) and measures from each model;
-- mark the key columns;
-- choose an aggregation for the other columns (Sum, Average, Min, Max, Count, Distinct count, Concatenate);
-- give fields that should be compared the same **synonym** on both sides;
-- add filters (basic value lists or advanced conditions, as in the Power BI filter pane);
-- **save** the comparison: runs always use its saved version.
+Use it to check a migrated or refactored model against the original, a test workspace against production, or a PBIX
+on your laptop against the published model.
 
-Each Service model signs in separately, so the two models can be in different tenants.
+- Compare any pair: a PBIX open in Power BI Desktop, a Service model over XMLA, or a Service model over REST.
+- Choose columns and measures on each side, mark the key columns, aggregate the rest, and pair fields by synonym.
+- Filter both models to the same slice. Compare exactly or with tolerances, with optional key normalization.
+- Each model signs in separately, so the two can be in different tenants.
 
-Any pairing works: local PBIX (open in Power BI Desktop) ↔ PBIX, PBIX ↔ Service, or Service ↔ Service. Service models are reached over XMLA, with the REST API as a bounded fallback.
+## Download
 
-- Requirements: `DAXDiff_Requirements.docx` (SRS v1.2)
-- Implementation plan and status: [docs/implementation-plan.md](docs/implementation-plan.md)
-- Setup, sign-in and External Tools registration: [docs/setup.md](docs/setup.md)
+| System | Get it |
+|---|---|
+| **Windows 10 / 11** | [Latest release](https://github.com/tanvir073/DAXDiff/releases/latest): `DAXDiff-<version>-win-x64.msi` (installer) or `…-portable.zip` (no admin rights) |
+| **macOS, Linux, any browser** | Web app: **https://tanvir073.github.io/DAXDiff/** (Service models over REST) |
 
-```powershell
-dotnet build
-dotnet test
-dotnet run --project src/DaxDiff.Desktop
-```
+A native desktop app for macOS and Linux is in development. See [Install DAXDiff](docs/user/installation.md) for
+details.
+
+## Documentation
+
+- **[User guide](docs/user/README.md)**: installation, getting started, connecting to models, comparisons, results,
+  troubleshooting.
+- **[Administrator guide](docs/user/administrators.md)**: Entra ID app registration, Power BI settings, deployment.
+- **[Technical documentation](docs/dev/README.md)**: architecture, building, testing, releasing.
+- **[Changelog](CHANGELOG.md)**
 
 ## Guarantees
 
 - **Read-only.** Models are only queried, never modified or refreshed.
-- **No silent truncation.** A row cap, a REST limit, a cancellation or a duplicate key makes the run *Partial*, *Cancelled* or *Failed*, never *Complete*.
-- **Security as observed.** Each side is queried as the current caller. Results are labelled that way, and RLS caveats must be acknowledged before a run.
-- **No secrets at rest.** Projects (`.pbicomp`), logs and workbooks never contain tokens or passwords. Logs contain no measure values or DAX literals.
+- **No silent truncation.** A row limit, a REST limit, a cancellation or a duplicate key makes the run *Partial*,
+  *Cancelled* or *Failed*, never *Complete*.
+- **Security as observed.** Each side is queried as the signed-in user, and results are labelled that way.
+- **No secrets at rest.** Projects, logs and workbooks never contain tokens or passwords. Logs contain no values or DAX.
+- **No telemetry.** Nothing is sent anywhere except to Microsoft for sign-in and to the models you query.
 
-## Structure
+## Feedback
 
-| Project | Responsibility |
-|---|---|
-| `DaxDiff.Domain` | Contracts: model references, metadata, comparison definitions and aggregation rules, config, results, project file |
-| `DaxDiff.Comparison` | Synonym compiler, DAX builder, key normalization, comparison engine, auto-matcher, validator |
-| `DaxDiff.Connectors` | Desktop session, Service XMLA and Service REST connectors, session discovery, MSAL |
-| `DaxDiff.Export` | Excel workbook (Summary, Differences, All Data, Field Mapping, Settings, Execution Log) |
-| `DaxDiff.Application` | Run orchestration (parallel, retries, timeouts, audit), project persistence |
-| `DaxDiff.Desktop` | WPF MVVM shell |
-| `DaxDiff.Tests.Unit` | xUnit tests mapped to SRS acceptance tests |
+- Found a bug? Use **Settings → Report a bug** in the app, or [open a bug report](https://github.com/tanvir073/DAXDiff/issues/new/choose).
+- Have an idea? [Request a feature](https://github.com/tanvir073/DAXDiff/issues/new/choose).
+- Security problem? Report it privately; see [SECURITY.md](SECURITY.md).
+
+## Build from source
+
+```powershell
+dotnet build
+dotnet test tests/DaxDiff.Tests.Unit
+dotnet run --project src/DaxDiff.Desktop
+```
+
+Requires the .NET 10 SDK. See [Building and testing](docs/dev/building.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Status
+
+DAXDiff is a preview (0.x). It is well covered by unit tests, but has not yet been verified against live Power BI
+models. Please report anything that does not work.
+
+## License
+
+[MIT](LICENSE). Third-party components are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

@@ -71,7 +71,7 @@
   <data name="Source_NotSignedIn" xml:space="preserve"><value>Inte inloggad</value></data>
   <data name="Source_SignedInAs" xml:space="preserve"><value>Inloggad som {0}</value></data>
   <data name="Source_TenantSuffix" xml:space="preserve"><value> (klientorganisation {0})</value></data>
-  <data name="Source_SetupDocHint" xml:space="preserve"><value>Stegen för appregistreringen finns i docs/setup.md.</value></data>
+  <data name="Source_SetupDocHint" xml:space="preserve"><value>Stegen för appregistreringen finns i administratörsguiden (Inställningar → Hjälp och återkoppling → Användarguide, sedan För administratörer).</value></data>
   <data name="Source_SignInDialogTitle" xml:space="preserve"><value>Logga in på Power BI</value></data>
   <data name="Source_SigningIn" xml:space="preserve"><value>Loggar in…</value></data>
   <data name="Source_SignedInWorkspaces" xml:space="preserve"><value>Inloggad som {0}. Tillgängliga arbetsytor: {1}.</value></data>
@@ -198,6 +198,9 @@
   <data name="Filter_LoadValuesFailed" xml:space="preserve"><value>Värdena kunde inte läsas in: {0}</value></data>
   <data name="Filter_WindowTitle" xml:space="preserve"><value>Filter – {0}</value></data>
   <data name="Filter_Problem" xml:space="preserve"><value>Filter {0} ({1}): {2}</value></data>
+  <data name="Settings_OpenUrlFailed" xml:space="preserve"><value>Ingen webbläsare kunde öppnas. Öppna den här adressen själv:
+
+{0}</value></data>
   <data name="Settings_ThemeSaveFailed" xml:space="preserve"><value>Temat används men kunde inte sparas till nästa gång: {0}</value></data>
   <data name="Settings_SignInConfigured" xml:space="preserve"><value>Konfigurerat. Varje källa loggar in separat på sidan Källor (egen klientorganisation och eget konto).</value></data>
   <data name="Settings_SignInNotConfigured" xml:space="preserve"><value>Inget klient-ID: XMLA använder den inbyggda inloggningen; det går inte att bläddra bland arbetsytor eller använda REST.</value></data>

@@ -71,7 +71,7 @@
   <data name="Source_NotSignedIn" xml:space="preserve"><value>Not signed in</value></data>
   <data name="Source_SignedInAs" xml:space="preserve"><value>Signed in as {0}</value></data>
   <data name="Source_TenantSuffix" xml:space="preserve"><value> (tenant {0})</value></data>
-  <data name="Source_SetupDocHint" xml:space="preserve"><value>See docs/setup.md for the app registration steps.</value></data>
+  <data name="Source_SetupDocHint" xml:space="preserve"><value>The administrator guide describes the app registration steps (Settings → Help and feedback → User guide, then For administrators).</value></data>
   <data name="Source_SignInDialogTitle" xml:space="preserve"><value>Sign in to Power BI</value></data>
   <data name="Source_SigningIn" xml:space="preserve"><value>Signing in…</value></data>
   <data name="Source_SignedInWorkspaces" xml:space="preserve"><value>Signed in as {0}. {1} workspace(s) available.</value></data>
@@ -198,6 +198,9 @@
   <data name="Filter_LoadValuesFailed" xml:space="preserve"><value>Could not load values: {0}</value></data>
   <data name="Filter_WindowTitle" xml:space="preserve"><value>Filters – {0}</value></data>
   <data name="Filter_Problem" xml:space="preserve"><value>Filter {0} ({1}): {2}</value></data>
+  <data name="Settings_OpenUrlFailed" xml:space="preserve"><value>No web browser could be opened. Open this address yourself:
+
+{0}</value></data>
   <data name="Settings_ThemeSaveFailed" xml:space="preserve"><value>The theme is applied but could not be saved for next time: {0}</value></data>
   <data name="Settings_SignInConfigured" xml:space="preserve"><value>Configured. Each source signs in separately on the Sources page (own tenant and account).</value></data>
   <data name="Settings_SignInNotConfigured" xml:space="preserve"><value>No client ID: XMLA uses the built-in sign-in; workspace browsing and REST are unavailable.</value></data>

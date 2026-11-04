@@ -257,7 +257,7 @@
   <data name="Settings_SignInTitle" xml:space="preserve"><value>Inloggning med Microsoft Entra</value></data>
   <data name="Settings_ClientId" xml:space="preserve"><value>_Klient-ID (program-ID)</value></data>
   <data name="Settings_Tenant" xml:space="preserve"><value>Stan_dardklientorganisation för nya källor (ID, domän eller organizations)</value></data>
-  <data name="Settings_ClientIdHint" xml:space="preserve"><value>Registrera en offentlig klientapp i Entra ID med omdirigerings-URI:n http://localhost och de delegerade behörigheterna Dataset.Read.All och Workspace.Read.All för Power BI-tjänsten. Se docs/setup.md.</value></data>
+  <data name="Settings_ClientIdHint" xml:space="preserve"><value>Registrera en offentlig klientapp i Entra ID med omdirigerings-URI:n http://localhost och de delegerade behörigheterna Dataset.Read.All och Workspace.Read.All för Power BI-tjänsten. Stegen finns i administratörsguiden (Hjälp och återkoppling nedan).</value></data>
   <data name="Settings_Save" xml:space="preserve"><value>Spa_ra</value></data>
   <data name="Settings_SignOutAll" xml:space="preserve"><value>Logga _ut från alla konton</value></data>
   <data name="Settings_Privacy" xml:space="preserve"><value>Sekretess</value></data>
@@ -267,6 +267,11 @@
   <data name="Settings_Logs" xml:space="preserve"><value>Loggar  </value></data>
   <data name="Settings_OpenLogs" xml:space="preserve"><value>Öppna _loggmappen</value></data>
   <data name="Settings_Reset" xml:space="preserve"><value>Återställ sessi_on</value></data>
+  <data name="Settings_Help" xml:space="preserve"><value>Hjälp och återkoppling</value></data>
+  <data name="Settings_HelpHint" xml:space="preserve"><value>Guiderna och formuläret för felrapporter öppnas i webbläsaren på DAXDiffs GitHub-sida. En felrapport börjar med den här versionen och ditt operativsystem ifyllda; klistra aldrig in token eller konfidentiella data i den.</value></data>
+  <data name="Settings_UserGuide" xml:space="preserve"><value>Användar_guide</value></data>
+  <data name="Settings_ReportBug" xml:space="preserve"><value>Rapportera ett _fel…</value></data>
+  <data name="Settings_ReleaseNotes" xml:space="preserve"><value>Versions_nyheter och nedladdningar</value></data>
   <data name="Filter_Cancel" xml:space="preserve"><value>Avbryt</value></data>
   <data name="Filter_Apply" xml:space="preserve"><value>_Verkställ</value></data>
   <data name="Filter_Intro" xml:space="preserve"><value>Varje filter tillämpas på båda modellerna: kolumnen i modell A och dess motsvarighet i modell B får samma regel. Verkställ och spara sedan jämförelsen för att använda filtren i körningar.</value></data>

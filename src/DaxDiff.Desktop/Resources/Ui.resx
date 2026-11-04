@@ -257,7 +257,7 @@
   <data name="Settings_SignInTitle" xml:space="preserve"><value>Microsoft Entra sign-in</value></data>
   <data name="Settings_ClientId" xml:space="preserve"><value>_Client (application) ID</value></data>
   <data name="Settings_Tenant" xml:space="preserve"><value>Default _tenant for new sources (ID, domain or organizations)</value></data>
-  <data name="Settings_ClientIdHint" xml:space="preserve"><value>Register a public-client app in Entra ID with redirect URI http://localhost and the delegated Power BI Service permissions Dataset.Read.All and Workspace.Read.All. See docs/setup.md.</value></data>
+  <data name="Settings_ClientIdHint" xml:space="preserve"><value>Register a public-client app in Entra ID with redirect URI http://localhost and the delegated Power BI Service permissions Dataset.Read.All and Workspace.Read.All. The administrator guide (Help and feedback below) has the steps.</value></data>
   <data name="Settings_Save" xml:space="preserve"><value>_Save</value></data>
   <data name="Settings_SignOutAll" xml:space="preserve"><value>Sign _out of all accounts</value></data>
   <data name="Settings_Privacy" xml:space="preserve"><value>Privacy</value></data>
@@ -267,6 +267,11 @@
   <data name="Settings_Logs" xml:space="preserve"><value>Logs  </value></data>
   <data name="Settings_OpenLogs" xml:space="preserve"><value>Open _log folder</value></data>
   <data name="Settings_Reset" xml:space="preserve"><value>_Reset session</value></data>
+  <data name="Settings_Help" xml:space="preserve"><value>Help and feedback</value></data>
+  <data name="Settings_HelpHint" xml:space="preserve"><value>The guides and the bug-report form open in your browser on the DAXDiff GitHub site. A bug report starts with this version and your operating system filled in; never paste tokens or confidential data into it.</value></data>
+  <data name="Settings_UserGuide" xml:space="preserve"><value>User _guide</value></data>
+  <data name="Settings_ReportBug" xml:space="preserve"><value>Report a _bug…</value></data>
+  <data name="Settings_ReleaseNotes" xml:space="preserve"><value>Release _notes and downloads</value></data>
   <data name="Filter_Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Filter_Apply" xml:space="preserve"><value>_Apply</value></data>
   <data name="Filter_Intro" xml:space="preserve"><value>Each filter is applied to both models: the model A column and its model B counterpart get the same rule. Apply, then save the comparison to use the filters in runs.</value></data>

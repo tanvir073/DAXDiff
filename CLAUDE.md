@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-DAXDiff is a Windows WPF desktop app that compares the evaluated output of two Power BI semantic models. A project holds two sources and any number of comparisons. Each comparison picks columns (or measures) on both sides, marks key columns, aggregates the rest, and pairs fields by synonym. DAXDiff evaluates both sides at the key grain, full-outer-joins the results and exports an Excel audit workbook. The spec is `DAXDiff_Requirements.docx` (SRS v1.2). Code comments, tests and `docs/implementation-plan.md` cite its IDs (FR-xxx, NFR-xx, AT-xx, §n), so keep citing them.
+DAXDiff is a Windows WPF desktop app that compares the evaluated output of two Power BI semantic models. A project holds two sources and any number of comparisons. Each comparison picks columns (or measures) on both sides, marks key columns, aggregates the rest, and pairs fields by synonym. DAXDiff evaluates both sides at the key grain, full-outer-joins the results and exports an Excel audit workbook. The spec is `docs/dev/DAXDiff_Requirements.docx` (SRS v1.2). Code comments, tests and `docs/dev/implementation-plan.md` cite its IDs (FR-xxx, NFR-xx, AT-xx, §n), so keep citing them.
 
 ## Commands
 
@@ -14,7 +14,7 @@ dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngi
 dotnet run --project src/DaxDiff.Desktop       # launch the app
 dotnet run --project src/DaxDiff.Web --launch-profile http   # web app on http://localhost:5215
 ./scripts/build.ps1                            # Release restore/build/test/publish to ./publish
-./scripts/package.ps1                          # self-contained publish + MSI (WiX 5, installer/) to ./dist
+./scripts/package.ps1                          # self-contained publish, MSI (WiX 5, installer/) and portable zip to ./dist
 ```
 
 There is no linter configured. On the developer's machine, an application-control policy blocks the unsigned `DAXDiff.exe` with "Access is denied". Run the built app as `dotnet <output>/DAXDiff.dll` instead. The desktop output lands in `bin/Debug/net10.0-windows/win-x64/` because a `RuntimeIdentifier` is set.
@@ -122,15 +122,22 @@ The dependency direction is Desktop → {Application, Connectors} and Web → Ap
 
 ### Web (`DaxDiff.Web`, Blazor WebAssembly)
 
-- **Browser-only.** A static site: sign-in through MSAL.js (`wwwroot/lib/msal-browser`, vendored 4.x, via `wwwroot/js/auth.js`), queries through `ServiceRestConnector`, comparison and Excel export in WebAssembly. Nothing runs on a server. See `docs/web.md`.
+- **Browser-only.** A static site: sign-in through MSAL.js (`wwwroot/lib/msal-browser`, vendored 4.x, via `wwwroot/js/auth.js`), queries through `ServiceRestConnector`, comparison and Excel export in WebAssembly. Nothing runs on a server. See `docs/dev/web-deployment.md`.
 - **State.** `ProjectState` (singleton) holds the open project, two `SourceState`s (each with its own `BrowserAuthService`, so FR-002 holds), the run and the latest result per comparison. Components derive from `ProjectComponent` to re-render on its `Changed` event.
 - **Only REST.** Desktop-session sources are reported as unsupported. XMLA references are connected over REST by resolving workspace and model names. Comparison editing is not in the web app yet.
 - **Files.** `wwwroot/js/files.js` uses the File System Access API where available (Save writes back), else upload and download.
 - **Sample.** `SampleConnector` serves an in-memory sample project, used to try the app and for headless smoke tests.
 - **Publishing.** `WasmFingerprintAssets` is off so `index.html` needs no inline import map under its CSP meta tag. Domain and Application are trimmer roots, for reflection-based project JSON. `.github/workflows/web-pages.yml` deploys to this repo's GitHub Pages site (`https://tanvir073.github.io/DAXDiff/`) on pushes to `main` and `dev`.
 
+## Docs, versioning and releases
+
+- **Two audiences.** `docs/user/` is the user and administrator guide (no code internals; the apps link to it through `ProductLinks`). `docs/dev/` is technical. Update the matching one when behaviour changes, and add user-visible changes under *Unreleased* in `CHANGELOG.md` (Keep a Changelog).
+- **Version.** `VersionPrefix`/`VersionSuffix` in `Directory.Build.props` is the only place (SemVer). The MSI uses `VersionPrefix` only, because Windows Installer is numeric. The app shows the informational version (`+sha`) through `ComparisonRunner.AppVersion`.
+- **Releases.** Pushing tag `v<Version>` runs `.github/workflows/release.yml`. It fails unless the tag matches the props version and `CHANGELOG.md` has a `## [<Version>]` section. It attaches the MSI, the portable zip, the web zip and `SHA256SUMS.txt`. `ci.yml` builds and tests every PR. Process: `docs/dev/releasing.md`.
+- **Links and bug reports.** `Application/ProductLinks` holds the repository, guide and release URLs. `NewBugReport` pre-fills `.github/ISSUE_TEMPLATE/bug_report.yml` through its `version` and `os` field ids; `ProductLinksTests` guards those ids. Never point in-app text at repository paths such as `docs/...`, because installed users have no repository.
+
 ## Testing
 
 xUnit tests are in `tests/DaxDiff.Tests.Unit`. `Fixtures/Fixture.cs` builds synthetic metadata, configs and `QueryResult`s. Its helpers are `Key(...)`, `Value(...)`, `Field(...)`, and `config.With(o => o with { ... })` for changing options. `Fixtures/FakeConnector.cs` is an in-memory `IModelConnector`; use it for orchestration tests instead of real models. Test names are prefixed with the requirement or acceptance-test ID they cover, such as `AT07_…` or `FR018_…`. The Desktop project (a WinExe) has no tests; to exercise its view models, use an offscreen harness.
 
-Nothing has been verified against live Power BI models yet; this is Stage 0 in `docs/implementation-plan.md`. That covers Desktop attach, XMLA, REST and the DMV/INFO.VIEW queries, so treat connector behaviour against real services as unconfirmed.
+Nothing has been verified against live Power BI models yet; this is Stage 0 in `docs/dev/implementation-plan.md`. That covers Desktop attach, XMLA, REST and the DMV/INFO.VIEW queries, so treat connector behaviour against real services as unconfirmed.

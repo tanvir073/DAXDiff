@@ -138,6 +138,29 @@ public sealed partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void OpenUserGuide() => OpenUrl(ProductLinks.UserGuide);
+
+    [RelayCommand]
+    private void OpenReleases() => OpenUrl(ProductLinks.Releases);
+
+    /// <summary>Opens the GitHub bug-report form with the version and operating system filled in.</summary>
+    [RelayCommand]
+    private void ReportBug() => OpenUrl(ProductLinks.NewBugReport("Desktop", ProductLinks.CurrentOs));
+
+    private void OpenUrl(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            // No default browser: show the address so it can be copied.
+            _dialogs.ShowInfo(Localized.Format(Strings.Settings_OpenUrlFailed, url));
+        }
+    }
+
+    [RelayCommand]
     private void Reset()
     {
         if (_dialogs.Confirm(Strings.Settings_ResetQuestion))
