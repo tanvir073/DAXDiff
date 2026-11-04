@@ -25,7 +25,6 @@
     <RootNamespace>DaxDiff.App</RootNamespace>
     <ApplicationIcon>..\DaxDiff.Desktop\Assets\DAXDiff.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
   </PropertyGroup>
 
   <ItemGroup>

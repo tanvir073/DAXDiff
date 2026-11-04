@@ -70,6 +70,7 @@
   <data name="Source_TypeName" xml:space="preserve"><value>Källtyp</value></data>
   <data name="Source_DesktopFile" xml:space="preserve"><value>_Desktop-fil</value></data>
   <data name="Source_DesktopFileTip" xml:space="preserve"><value>En PBIX-fil som är öppen i Power BI Desktop</value></data>
+  <data name="Source_DesktopWindowsOnly" xml:space="preserve"><value>Power BI Desktop körs bara på Windows, så det finns inga Desktop-sessioner att ansluta till på den här datorn. Välj Tjänst · XMLA eller Tjänst · REST, eller öppna projektet på Windows.</value></data>
   <data name="Source_Xmla" xml:space="preserve"><value>Tjänst · _XMLA</value></data>
   <data name="Source_XmlaTip" xml:space="preserve"><value>En modell i Power BI-tjänsten via XMLA-slutpunkten (rekommenderas)</value></data>
   <data name="Source_Rest" xml:space="preserve"><value>Tjänst · _REST</value></data>

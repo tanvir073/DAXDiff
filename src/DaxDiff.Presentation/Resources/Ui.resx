@@ -70,6 +70,7 @@
   <data name="Source_TypeName" xml:space="preserve"><value>Source type</value></data>
   <data name="Source_DesktopFile" xml:space="preserve"><value>_Desktop file</value></data>
   <data name="Source_DesktopFileTip" xml:space="preserve"><value>A PBIX that is open in Power BI Desktop</value></data>
+  <data name="Source_DesktopWindowsOnly" xml:space="preserve"><value>Power BI Desktop runs only on Windows, so there are no Desktop sessions to attach to on this computer. Choose Service · XMLA or Service · REST, or open the project on Windows.</value></data>
   <data name="Source_Xmla" xml:space="preserve"><value>Service · _XMLA</value></data>
   <data name="Source_XmlaTip" xml:space="preserve"><value>A Power BI Service model through the XMLA endpoint (preferred)</value></data>
   <data name="Source_Rest" xml:space="preserve"><value>Service · _REST</value></data>
