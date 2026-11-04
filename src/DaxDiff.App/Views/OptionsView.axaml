@@ -1,7 +1,120 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:DaxDiff.Desktop.Resources"
              xmlns:vm="using:DaxDiff.Desktop.ViewModels"
+             xmlns:sys="using:System"
              x:Class="DaxDiff.App.Views.OptionsView"
              x:DataType="vm:OptionsViewModel">
-    <TextBlock Classes="pageTitle" Text="OptionsView" />
+    <UserControl.Resources>
+        <!-- Enum values (option choices) in the UI language. -->
+        <DataTemplate x:Key="EnumItem" x:DataType="sys:Enum">
+            <TextBlock Text="{Binding Converter={StaticResource EnumText}}" />
+        </DataTemplate>
+    </UserControl.Resources>
+    <UserControl.Styles>
+        <!-- Form spacing as in the WPF theme: fields stretch and sit 8 apart, labels sit just above their field. -->
+        <Style Selector="Label">
+            <Setter Property="Padding" Value="0,0,0,2" />
+        </Style>
+        <Style Selector="TextBox, ComboBox">
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="CheckBox, RadioButton">
+            <Setter Property="Margin" Value="0,0,0,4" />
+        </Style>
+        <Style Selector="TextBox.code">
+            <Setter Property="Margin" Value="0" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Grid ColumnDefinitions="*,14,*">
+                <Border Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Opt_ValueTitle}" />
+                        <Label Content="{x:Static res:Ui.Opt_Mode}" Target="{Binding #ToleranceMode}" />
+                        <ComboBox x:Name="ToleranceMode" ItemsSource="{x:Static vm:OptionsViewModel.ToleranceModes}" SelectedItem="{Binding ToleranceMode}"
+                                  ItemTemplate="{StaticResource EnumItem}" />
+                        <Label Content="{x:Static res:Ui.Opt_AbsTol}" Target="{Binding #AbsTol}" />
+                        <TextBox x:Name="AbsTol" Text="{Binding AbsoluteTolerance}" />
+                        <Label Content="{x:Static res:Ui.Opt_RelTol}" Target="{Binding #RelTol}" />
+                        <TextBox x:Name="RelTol" Text="{Binding RelativeTolerance}" />
+                        <TextBlock Classes="muted" Text="{x:Static res:Ui.Opt_TolFormula}" FontSize="12.5" Margin="0,0,0,8" />
+                        <Label Content="{x:Static res:Ui.Opt_NullPolicy}" Target="{Binding #NullPolicy}" />
+                        <ComboBox x:Name="NullPolicy" ItemsSource="{x:Static vm:OptionsViewModel.NullPolicies}" SelectedItem="{Binding NullPolicy}"
+                                  ItemTemplate="{StaticResource EnumItem}" />
+                        <Label Content="{x:Static res:Ui.Opt_TextCmp}" Target="{Binding #TextCmp}" />
+                        <ComboBox x:Name="TextCmp" ItemsSource="{x:Static vm:OptionsViewModel.TextComparisons}" SelectedItem="{Binding TextComparison}"
+                                  ItemTemplate="{StaticResource EnumItem}" />
+                        <Label Content="{x:Static res:Ui.Opt_Baseline}" Target="{Binding #Baseline}" />
+                        <ComboBox x:Name="Baseline" ItemsSource="{x:Static vm:OptionsViewModel.PercentBaselines}" SelectedItem="{Binding PercentBaseline}"
+                                  ItemTemplate="{StaticResource EnumItem}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Opt_KeyTitle}" />
+                        <CheckBox Content="{x:Static res:Ui.Opt_Trim}" IsChecked="{Binding TrimWhitespace}" />
+                        <CheckBox Content="{x:Static res:Ui.Opt_CaseInsensitive}" IsChecked="{Binding CaseInsensitiveKeys}" />
+                        <CheckBox Content="{x:Static res:Ui.Opt_BlankEqualsEmpty}" IsChecked="{Binding BlankEqualsEmpty}" />
+                        <CheckBox Content="{x:Static res:Ui.Opt_DateOnly}" IsChecked="{Binding DateOnly}" />
+                        <Label Content="{x:Static res:Ui.Opt_Unicode}" Target="{Binding #Unicode}" />
+                        <ComboBox x:Name="Unicode" ItemsSource="{x:Static vm:OptionsViewModel.UnicodeForms}" SelectedItem="{Binding Unicode}"
+                                  ItemTemplate="{StaticResource EnumItem}" />
+                        <Label Content="{x:Static res:Ui.Opt_Dupes}" Target="{Binding #Dupes}" />
+                        <ComboBox x:Name="Dupes" ItemsSource="{x:Static vm:OptionsViewModel.DuplicatePolicies}" SelectedItem="{Binding DuplicateKeyPolicy}"
+                                  ItemTemplate="{StaticResource EnumItem}" />
+
+                        <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Opt_LimitsTitle}" Margin="0,14,0,8" />
+                        <Label Content="{x:Static res:Ui.Opt_MaxRows}" Target="{Binding #MaxRows}" />
+                        <TextBox x:Name="MaxRows" Text="{Binding MaxRows}" />
+                        <Label Content="{x:Static res:Ui.Opt_Timeout}" Target="{Binding #Timeout}" />
+                        <TextBox x:Name="Timeout" Text="{Binding TimeoutSeconds}" />
+                        <Label Content="{x:Static res:Ui.Opt_Retries}" Target="{Binding #Retries}" />
+                        <TextBox x:Name="Retries" Text="{Binding RetryCount}" />
+
+                        <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Opt_ResultTitle}" Margin="0,14,0,8" />
+                        <!-- One-way negation: ticking "Show differences" (two-way) unticks this one and clears DifferencesOnly through the group. -->
+                        <RadioButton Content="{x:Static res:Ui.Opt_ShowAll}" GroupName="ResultRows" IsChecked="{Binding !DifferencesOnly}" />
+                        <RadioButton Content="{x:Static res:Ui.Opt_ShowDiffs}" GroupName="ResultRows" IsChecked="{Binding DifferencesOnly}" />
+                        <CheckBox Content="{x:Static res:Ui.Opt_LimitRows}" IsChecked="{Binding LimitResultRows}" Margin="0,8,0,4" />
+                        <TextBox Text="{Binding MaxResultRows}" IsEnabled="{Binding LimitResultRows}"
+                                 AutomationProperties.Name="{x:Static res:Ui.Opt_MaxResultRows}" />
+                        <TextBlock Classes="muted" Text="{x:Static res:Ui.Opt_ResultHint}" FontSize="12.5" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Classes="card" Margin="0,14,0,0">
+                <StackPanel>
+                    <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Opt_FiltersTitle}" />
+                    <TextBlock Text="{Binding FiltersSummary}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <Button Classes="secondary" Content="{x:Static res:Ui.Opt_EditFilters}" Command="{Binding EditFiltersCommand}" HorizontalAlignment="Left"
+                            ToolTip.Tip="{x:Static res:Ui.Opt_EditFiltersTip}" />
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card" Margin="0,14,0,0">
+                <StackPanel>
+                    <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Opt_PreviewTitle}" />
+                    <WrapPanel ItemSpacing="8" LineSpacing="8" Margin="0,0,0,8">
+                        <Button Content="{x:Static res:Ui.Opt_PreviewDax}" Command="{Binding PreviewQueriesCommand}" />
+                        <Button Content="{x:Static res:Ui.Opt_EstimateRows}" Command="{Binding EstimateRowsCommand}" />
+                        <TextBlock Text="{Binding EstimateText}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    </WrapPanel>
+                    <Grid ColumnDefinitions="*,12,*">
+                        <TextBox Classes="code" Text="{Binding QueryPreviewA, Mode=OneWay}" MinHeight="150"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 AutomationProperties.Name="{x:Static res:Ui.Opt_QueryA}" />
+                        <TextBox Grid.Column="2" Classes="code" Text="{Binding QueryPreviewB, Mode=OneWay}" MinHeight="150"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 AutomationProperties.Name="{x:Static res:Ui.Opt_QueryB}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

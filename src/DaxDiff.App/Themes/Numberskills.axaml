@@ -323,6 +323,10 @@
     <Style Selector="CheckBox, RadioButton">
         <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
     </Style>
+    <!-- A square box with rounded corners as in WPF; the 10px control radius would make it a circle. -->
+    <Style Selector="CheckBox">
+        <Setter Property="CornerRadius" Value="5" />
+    </Style>
 
     <Style Selector="Border.segmentGroup">
         <Setter Property="Background" Value="{DynamicResource CloudBrush}" />
