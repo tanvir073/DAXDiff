@@ -381,6 +381,7 @@
         <Setter Property="RowBackground" Value="Transparent" />
     </Style>
     <Style Selector="DataGridColumnHeader">
+        <Setter Property="Background" Value="{DynamicResource CloudBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="FontSize" Value="12.5" />
@@ -404,6 +405,16 @@
 
     <Style Selector="Expander">
         <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    </Style>
+    <Style Selector="Expander /template/ ToggleButton#ExpanderHeader">
+        <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TealBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}" />
+    </Style>
+
+    <!-- Scroll bars keep their own lane instead of drawing over the cards at the right edge. -->
+    <Style Selector="ScrollViewer">
+        <Setter Property="AllowAutoHide" Value="False" />
     </Style>
 
     <Style Selector="ToolTip">

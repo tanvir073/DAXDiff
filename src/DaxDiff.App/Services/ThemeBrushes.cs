@@ -72,6 +72,9 @@ public static class ThemeBrushes
         // Fluent's own controls (menus, pop-ups, scroll bars) follow the theme's lightness and accent.
         app.RequestedThemeVariant = dark ? ThemeVariant.Dark : ThemeVariant.Light;
         r["SystemAccentColor"] = Parse(t.Accent);
+        // The DataGrid theme paints its header row from its own brush; use the page colour as in WPF.
+        Set("DataGridColumnHeaderBackgroundBrush", Parse(t.Page));
+        Set("DataGridColumnHeaderForegroundBrush", Parse(t.Muted));
     }
 
     public static IBrush Brush(string css) => new SolidColorBrush(Parse(css));

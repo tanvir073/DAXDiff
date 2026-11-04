@@ -39,6 +39,17 @@
         <Style Selector="Ellipse.statusDot.connected"><Setter Property="Fill" Value="{DynamicResource SuccessBrush}" /></Style>
         <Style Selector="Ellipse.statusDot.failed"><Setter Property="Fill" Value="{DynamicResource DangerBrush}" /></Style>
         <Style Selector="Ellipse.statusDot.working"><Setter Property="Fill" Value="{DynamicResource AccentDeepBrush}" /></Style>
+        <!-- Colours live in styles, not on the elements, so the selected state can override them. -->
+        <Style Selector="Border.circle">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{DynamicResource StrongBorderBrush}" />
+        </Style>
+        <Style Selector="Border.circle TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TealBrush}" />
+        </Style>
+        <Style Selector="TextBlock.navStatus">
+            <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
+        </Style>
         <Style Selector="Button.nav.selected Border.circle">
             <Setter Property="Background" Value="{DynamicResource ChipBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource ChipBrush}" />
@@ -181,13 +192,13 @@
                                         AutomationProperties.Name="{Binding Title}" AutomationProperties.HelpText="{Binding Status}">
                                     <DockPanel>
                                         <Border Classes="circle" Width="26" Height="26" CornerRadius="13" BorderThickness="1" Margin="0,0,12,0"
-                                                BorderBrush="{DynamicResource StrongBorderBrush}" Background="Transparent" VerticalAlignment="Center">
+                                                VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Step}" FontSize="12.5" FontWeight="SemiBold"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TealBrush}" />
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Border>
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock Classes="navTitle" Text="{Binding Title}" FontWeight="Medium" />
-                                            <TextBlock Classes="navStatus" Text="{Binding Status}" FontSize="12.5" Foreground="{DynamicResource MutedText}"
+                                            <TextBlock Classes="navStatus" Text="{Binding Status}" FontSize="12.5"
                                                        TextTrimming="CharacterEllipsis" />
                                         </StackPanel>
                                     </DockPanel>
