@@ -101,6 +101,24 @@ The dependency direction is Desktop → Presentation → {Application, Connector
 - **Threading.** Don't use toolkit timers or dispatchers in view models. Await on the UI thread instead (`RunViewModel.TickAsync` uses `PeriodicTimer`), because Avalonia, unlike WPF, does not marshal `PropertyChanged` from other threads.
 - **Tests.** The test project references Presentation, so view models and `FilteredListView` can be tested on any OS.
 
+### App (`DaxDiff.App`, Avalonia 12, Windows, macOS and Linux)
+
+The cross-platform desktop app. It runs the same view models as the WPF app, and its views are ports of the WPF views. Until WPF is retired, change both apps' views together.
+
+- **Theme.** `Themes/Numberskills.axaml` (Fluent underneath) uses style classes in place of WPF keyed styles. Its header lists them: `card`, `primary`, `pageTitle`, `muted`, `chipA`, `segment`, and so on. `Services/ThemeBrushes` writes the same brush names as WPF into `Application.Resources`, including the DataGrid header brushes and the Fluent light/dark variant. Use `DynamicResource` for brushes, and put colours that a state changes in styles, never as local values on the element.
+- **Idioms.**
+  - Use `IsVisible="{Binding X}"`/`{Binding !X}` where WPF uses visibility converters.
+  - Replace DataTriggers with `Classes.name="{Binding …}"` plus a style; enum states go through the `EnumEquals` converter.
+  - Use `ToolTip.Tip`, `$parent[Type]` and `PlaceholderText` (WPF's `Tag`).
+  - Compiled bindings are on, so every view and template needs `x:DataType`.
+  - `{Binding !X}` is one-way. For radio pairs, bind the other button two-way.
+  - Avalonia controls have no implicit margins, so use `Spacing`/`ItemSpacing`.
+- **Dialogs are synchronous.** `Services/DialogService` and `FilterEditorService` show Avalonia's async dialogs inside `Modal.Run`, which pushes a nested `DispatcherFrame`, so `IDialogService` keeps its WPF shape. `Views/MessageWindow` is the message box.
+- **Lists.** Bind to `IListView.ItemsSource` (here a `FilteredListView`). It resets on every change, which clears grid selection, so `ComparisonsView` re-selects moved rows. `ResultsView` handles `Sorting` itself and calls `ResultsViewModel.Sort`. Its cells format their own values and it builds columns on `ColumnsChanged`.
+- **Off Windows.** The Desktop source type stays selectable, but `SourcePanelView` hides its PBIX and session controls and shows `Source_DesktopWindowsOnly` when `DesktopSessionLocator.IsSupported` is false. MSAL gets the window handle only on Windows.
+- **Don't set `BuiltInComInteropSupport=false`**, because `System.Management` (WMI) then fails at type initialisation.
+- **Packaging.** `scripts/package-app.sh <rid>` builds a `.dmg` (ad-hoc signed `DAXDiff.app`) or a `.tar.gz`. The icon is `Assets/DAXDiff.png`; fonts, the `.ico` and `appsettings.json` are linked from `DaxDiff.Desktop`.
+- **Seeing it.** Run `dotnet src/DaxDiff.App/bin/Debug/net10.0/DAXDiff.dll <project.pbicomp>`. UI Automation can invoke the nav buttons by their titles (WPF's are named `Step <title>`), and `PrintWindow` captures the window without needing focus.
 ### Desktop (`DaxDiff.Desktop`, WPF, MVVM with CommunityToolkit.Mvvm)
 
 - **Startup.** `App.OnStartup` builds a Generic Host with Serilog file logging to `%LOCALAPPDATA%\DAXDiff\logs`. It reads `appsettings.json` plus the optional user override `%LOCALAPPDATA%\DAXDiff\settings.json`, then shows `MainWindow` and applies the External Tools arguments (`--server` and `--database`, or positional `localhost:port`). The attach waits until a project is created or opened.
