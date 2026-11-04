@@ -1,0 +1,19 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:DaxDiff.App"
+             x:Class="DaxDiff.App.App"
+             Name="DAXDiff">
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+        <StyleInclude Source="avares://DAXDiff/Themes/Numberskills.axaml" />
+    </Application.Styles>
+
+    <!-- Theme brushes (PageBrush, SurfaceBrush, …) are added at run time by Services/ThemeBrushes. -->
+    <Application.Resources>
+        <local:EnumTextConverter x:Key="EnumText" />
+        <local:CssBrushConverter x:Key="CssBrush" />
+        <local:EnumEqualsConverter x:Key="EnumEquals" />
+        <local:IsPositiveConverter x:Key="IsPositive" />
+    </Application.Resources>
+</Application>

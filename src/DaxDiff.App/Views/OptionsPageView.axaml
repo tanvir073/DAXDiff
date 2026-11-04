@@ -1,0 +1,7 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DaxDiff.Desktop.ViewModels"
+             x:Class="DaxDiff.App.Views.OptionsPageView"
+             x:DataType="vm:OptionsPageViewModel">
+    <TextBlock Classes="pageTitle" Text="OptionsPageView" />
+</UserControl>

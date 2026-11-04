@@ -1,0 +1,210 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:res="using:DaxDiff.Desktop.Resources"
+        xmlns:vm="using:DaxDiff.Desktop.ViewModels"
+        xmlns:views="using:DaxDiff.App.Views"
+        x:Class="DaxDiff.App.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="{Binding WindowTitle}"
+        Icon="/Assets/DAXDiff.ico"
+        Width="1360" Height="860" MinWidth="1080" MinHeight="700"
+        WindowStartupLocation="CenterScreen">
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+N" Command="{Binding NewProjectCommand}" />
+        <KeyBinding Gesture="Ctrl+O" Command="{Binding OpenProjectCommand}" />
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveProjectCommand}" />
+        <KeyBinding Gesture="Ctrl+Shift+S" Command="{Binding SaveProjectAsCommand}" />
+        <KeyBinding Gesture="F5" Command="{Binding Run.RunCommand}" />
+    </Window.KeyBindings>
+
+    <Window.DataTemplates>
+        <DataTemplate DataType="vm:HomeViewModel"><views:HomeView /></DataTemplate>
+        <DataTemplate DataType="vm:SourcesViewModel"><views:SourcesView /></DataTemplate>
+        <DataTemplate DataType="vm:ComparisonsViewModel"><views:ComparisonsView /></DataTemplate>
+        <DataTemplate DataType="vm:OptionsPageViewModel"><views:OptionsPageView /></DataTemplate>
+        <DataTemplate DataType="vm:OptionsViewModel"><views:OptionsView /></DataTemplate>
+        <DataTemplate DataType="vm:RunViewModel"><views:RunView /></DataTemplate>
+        <DataTemplate DataType="vm:ResultsViewModel"><views:ResultsView /></DataTemplate>
+        <DataTemplate DataType="vm:SettingsViewModel"><views:SettingsView /></DataTemplate>
+    </Window.DataTemplates>
+
+    <Window.Styles>
+        <Style Selector="Ellipse.statusDot">
+            <Setter Property="Width" Value="8" />
+            <Setter Property="Height" Value="8" />
+            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Fill" Value="{DynamicResource FieldBorderBrush}" />
+        </Style>
+        <Style Selector="Ellipse.statusDot.connected"><Setter Property="Fill" Value="{DynamicResource SuccessBrush}" /></Style>
+        <Style Selector="Ellipse.statusDot.failed"><Setter Property="Fill" Value="{DynamicResource DangerBrush}" /></Style>
+        <Style Selector="Ellipse.statusDot.working"><Setter Property="Fill" Value="{DynamicResource AccentDeepBrush}" /></Style>
+        <Style Selector="Button.nav.selected Border.circle">
+            <Setter Property="Background" Value="{DynamicResource ChipBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ChipBrush}" />
+        </Style>
+        <Style Selector="Button.nav.selected Border.circle TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource ChipTextBrush}" />
+        </Style>
+        <Style Selector="Button.nav.selected TextBlock.navTitle">
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="Button.nav.selected TextBlock.navStatus">
+            <Setter Property="Foreground" Value="{DynamicResource SelectionTextBrush}" />
+            <Setter Property="Opacity" Value="0.8" />
+        </Style>
+    </Window.Styles>
+
+    <DockPanel>
+        <!-- Header -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource HeaderBrush}" Padding="20,10" MinHeight="60">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- "Outer join" mark: model A and model B as overlapping circles, the matched rows as the lens. -->
+                    <Viewbox Width="32" Height="32" Margin="0,0,8,0" VerticalAlignment="Center" AutomationProperties.Name="{x:Static res:Ui.Main_LogoName}">
+                        <Canvas Width="100" Height="100">
+                            <Ellipse Canvas.Left="8" Canvas.Top="22" Width="56" Height="56" Fill="{DynamicResource LogoABrush}" />
+                            <Ellipse Canvas.Left="36" Canvas.Top="22" Width="56" Height="56" Fill="{DynamicResource LogoBBrush}" />
+                            <Path Data="M50,25.75 A28,28 0 0 1 50,74.25 A28,28 0 0 1 50,25.75 Z" Fill="{DynamicResource LogoLensBrush}"
+                                  Stroke="{DynamicResource HeaderBrush}" StrokeThickness="6" StrokeJoin="Round" />
+                        </Canvas>
+                    </Viewbox>
+                    <!-- Wordmark "DAX" regular + "DIFF" bold, tracked 0.06em. -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" AutomationProperties.Name="DAXDiff">
+                        <TextBlock Text="DAX" FontSize="21" LetterSpacing="1.3" Foreground="{DynamicResource HeaderTextBrush}" />
+                        <TextBlock Text="DIFF" FontSize="21" LetterSpacing="1.3" FontWeight="Bold" Foreground="{DynamicResource HeaderTextBrush}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                    <Button Classes="light" Content="{x:Static res:Ui.Main_Save}" Command="{Binding SaveProjectCommand}"
+                            ToolTip.Tip="{x:Static res:Ui.Main_SaveTip}" IsVisible="{Binding HasProject}" />
+                    <Button Classes="light" Content="{x:Static res:Ui.Main_SaveAs}" Command="{Binding SaveProjectAsCommand}"
+                            ToolTip.Tip="{x:Static res:Ui.Main_SaveAsTip}" IsVisible="{Binding HasProject}" />
+                    <Button Classes="light" Content="{x:Static res:Ui.Main_Close}" Command="{Binding CloseProjectCommand}"
+                            ToolTip.Tip="{x:Static res:Ui.Main_CloseTip}" IsVisible="{Binding HasProject}" />
+                    <Border Width="1" Height="24" Background="{DynamicResource HeaderLineBrush}" Margin="4,0" IsVisible="{Binding HasProject}" />
+                    <Button Classes="light" Content="{x:Static res:Ui.Main_OpenProject}" Command="{Binding OpenProjectCommand}"
+                            ToolTip.Tip="{x:Static res:Ui.Main_OpenProjectTip}" />
+                    <Button Classes="darkPrimary" Command="{Binding NewProjectCommand}" ToolTip.Tip="{x:Static res:Ui.Main_NewProjectTip}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M 6 0 V 12 M 0 6 H 12" Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="2" StrokeLineCap="Round"
+                                  VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <AccessText Text="{x:Static res:Ui.Main_NewProject}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Project name and save state -->
+                <Border BorderBrush="{DynamicResource HeaderLineBrush}" BorderThickness="1,0,0,0" Margin="18,0,12,0" Padding="16,0,0,0"
+                        VerticalAlignment="Center">
+                    <Panel>
+                        <TextBlock Text="{x:Static res:Ui.Main_NoProject}" Foreground="{DynamicResource HeaderMutedBrush}" VerticalAlignment="Center"
+                                   IsVisible="{Binding !HasProject}" />
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" ToolTip.Tip="{Binding ProjectPath}" IsVisible="{Binding HasProject}">
+                            <TextBlock Text="{Binding ProjectName}" Foreground="{DynamicResource HeaderTextBrush}" FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis" MaxWidth="320" />
+                            <TextBlock Text=".pbicomp" Foreground="{DynamicResource HeaderMutedBrush}" Margin="0,0,14,0" />
+                            <!-- Tick when saved, accent dot when there are unsaved changes. -->
+                            <Panel VerticalAlignment="Center" Margin="0,0,6,0">
+                                <Path Data="M 0 5 L 4 9 L 12 0" Stroke="{DynamicResource HeaderMutedBrush}" StrokeThickness="2" StrokeLineCap="Round"
+                                      StrokeJoin="Round" IsVisible="{Binding !IsDirty}" />
+                                <Ellipse Width="8" Height="8" Fill="{DynamicResource AccentFillBrush}" IsVisible="{Binding IsDirty}" />
+                            </Panel>
+                            <TextBlock Text="{Binding SaveStateText}" Foreground="{DynamicResource HeaderMutedBrush}" />
+                        </StackPanel>
+                    </Panel>
+                </Border>
+            </DockPanel>
+        </Border>
+
+        <!-- Status bar -->
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0"
+                Padding="20,6" TextElement.FontSize="12.5" TextElement.Foreground="{DynamicResource MutedText}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock Margin="0,0,18,0" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold"
+                               Text="{Binding ErrorCount, StringFormat={x:Static res:Ui.Main_ProblemCount}}"
+                               IsVisible="{Binding ErrorCount, Converter={StaticResource IsPositive}}" />
+                    <Ellipse Classes="statusDot" Classes.connected="{Binding SourceA.State, Converter={StaticResource EnumEquals}, ConverterParameter=Connected}"
+                             Classes.failed="{Binding SourceA.State, Converter={StaticResource EnumEquals}, ConverterParameter=Failed}"
+                             Classes.working="{Binding SourceA.State, Converter={StaticResource EnumEquals}, ConverterParameter=Working}" />
+                    <TextBlock Text="{Binding SourceA.Identity, StringFormat='A: {0}'}" MaxWidth="320" TextTrimming="CharacterEllipsis" Margin="0,0,18,0"
+                               ToolTip.Tip="{Binding SourceA.Identity}" />
+                    <Ellipse Classes="statusDot" Classes.connected="{Binding SourceB.State, Converter={StaticResource EnumEquals}, ConverterParameter=Connected}"
+                             Classes.failed="{Binding SourceB.State, Converter={StaticResource EnumEquals}, ConverterParameter=Failed}"
+                             Classes.working="{Binding SourceB.State, Converter={StaticResource EnumEquals}, ConverterParameter=Working}" />
+                    <TextBlock Text="{Binding SourceB.Identity, StringFormat='B: {0}'}" MaxWidth="320" TextTrimming="CharacterEllipsis"
+                               ToolTip.Tip="{Binding SourceB.Identity}" />
+                </StackPanel>
+                <TextBlock Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis" Margin="0,0,18,0" />
+            </DockPanel>
+        </Border>
+
+        <!-- Navigation -->
+        <Border DockPanel.Dock="Left" Width="256" Background="{DynamicResource NavBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0"
+                Padding="12,18,12,12">
+            <DockPanel>
+                <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="0,10,0,0">
+                    <Button Classes="nav" Classes.selected="{Binding SettingsNav.IsSelected}"
+                            Command="{Binding SelectNavCommand}" CommandParameter="{Binding SettingsNav}"
+                            ToolTip.Tip="{Binding SettingsNav.Hint}" AutomationProperties.Name="{x:Static res:Ui.Main_Settings}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M 3 20 V 13 M 3 9 V 2 M 11 20 V 11 M 11 7 V 2 M 19 20 V 15 M 19 11 V 2 M 0 13 H 6 M 8 7 H 14 M 16 15 H 22"
+                                  Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2" StrokeLineCap="Round"
+                                  Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0" />
+                            <AccessText Text="{x:Static res:Ui.Main_Settings}" />
+                        </StackPanel>
+                    </Button>
+                </Border>
+
+                <StackPanel>
+                    <Button Classes="nav" Classes.selected="{Binding HomeNav.IsSelected}"
+                            Command="{Binding SelectNavCommand}" CommandParameter="{Binding HomeNav}"
+                            ToolTip.Tip="{Binding HomeNav.Hint}" AutomationProperties.Name="{x:Static res:Ui.Main_Home}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M 0 8.5 L 9 1 L 18 8.5 M 2 7.5 V 19 H 16 V 7.5"
+                                  Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round"
+                                  Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0" />
+                            <AccessText Text="{x:Static res:Ui.Main_Home}" FontWeight="Medium" />
+                        </StackPanel>
+                    </Button>
+
+                    <TextBlock Classes="eyebrow" Text="{x:Static res:Ui.Main_Workflow}" Foreground="{DynamicResource MutedText}" Margin="12,20,0,6" />
+                    <ItemsControl ItemsSource="{Binding WorkflowNav}">
+                        <ItemsControl.ItemTemplate>
+                            <!-- Workflow step: number circle, title and live status. -->
+                            <DataTemplate x:DataType="vm:NavItem">
+                                <Button Classes="nav" Classes.selected="{Binding IsSelected}" MinHeight="52"
+                                        Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).SelectNavCommand}" CommandParameter="{Binding}"
+                                        IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Hint}"
+                                        AutomationProperties.Name="{Binding Title}" AutomationProperties.HelpText="{Binding Status}">
+                                    <DockPanel>
+                                        <Border Classes="circle" Width="26" Height="26" CornerRadius="13" BorderThickness="1" Margin="0,0,12,0"
+                                                BorderBrush="{DynamicResource StrongBorderBrush}" Background="Transparent" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Step}" FontSize="12.5" FontWeight="SemiBold"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TealBrush}" />
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Classes="navTitle" Text="{Binding Title}" FontWeight="Medium" />
+                                            <TextBlock Classes="navStatus" Text="{Binding Status}" FontSize="12.5" Foreground="{DynamicResource MutedText}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <DockPanel Margin="12,8,0,0" IsVisible="{Binding !HasProject}">
+                        <Path Data="M 1 8 H 13 V 16 H 1 Z M 4 8 V 5 A 3 3 0 0 1 10 5 V 8" Stroke="{DynamicResource MutedText}" StrokeThickness="1.6"
+                              Width="13" Height="14" Stretch="Uniform" VerticalAlignment="Top" Margin="0,2,8,0" />
+                        <TextBlock Text="{x:Static res:Ui.Main_Locked}" FontSize="12.5" Foreground="{DynamicResource MutedText}" TextWrapping="Wrap" />
+                    </DockPanel>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <ContentControl Content="{Binding CurrentPage}" Margin="32,26,32,20" />
+    </DockPanel>
+</Window>

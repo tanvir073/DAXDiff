@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    DAXDiff desktop app for Windows, macOS and Linux (Avalonia). Shares its view models and text with the WPF app
+    through DaxDiff.Presentation; only views, dialogs and theme brushes live here.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\DaxDiff.Presentation\DaxDiff.Presentation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>DAXDiff</AssemblyName>
+    <RootNamespace>DaxDiff.App</RootNamespace>
+    <ApplicationIcon>..\DaxDiff.Desktop\Assets\DAXDiff.ico</ApplicationIcon>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Shared with the WPF app until it is retired. -->
+    <None Include="..\DaxDiff.Desktop\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <AvaloniaResource Include="..\DaxDiff.Desktop\Fonts\*.ttf" Link="Fonts\%(Filename)%(Extension)" />
+    <AvaloniaResource Include="..\DaxDiff.Desktop\Assets\DAXDiff.ico" Link="Assets\DAXDiff.ico" />
+  </ItemGroup>
+
+</Project>

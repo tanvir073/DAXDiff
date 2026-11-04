@@ -213,6 +213,10 @@
   <data name="Dialog_ProblemTitle" xml:space="preserve"><value>DAXDiff – problem</value></data>
   <data name="Dialog_Open" xml:space="preserve"><value>Öppna</value></data>
   <data name="Dialog_Save" xml:space="preserve"><value>Spara</value></data>
+  <data name="Dialog_Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Dialog_Yes" xml:space="preserve"><value>_Ja</value></data>
+  <data name="Dialog_No" xml:space="preserve"><value>_Nej</value></data>
+  <data name="Dialog_Cancel" xml:space="preserve"><value>Avbryt</value></data>
   <data name="Theme_midnight" xml:space="preserve"><value>Midnatt</value></data>
   <data name="Theme_midnight_Description" xml:space="preserve"><value>Mörk blågrön, standard</value></data>
   <data name="Theme_daylight" xml:space="preserve"><value>Dagsljus</value></data>
