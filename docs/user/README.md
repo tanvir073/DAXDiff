@@ -8,7 +8,7 @@ DAXDiff only reads models. It never changes or refreshes them.
 
 ## Contents
 
-1. [Install DAXDiff](installation.md): Windows desktop app, or the web app in any browser
+1. [Install DAXDiff](installation.md): desktop app for Windows, macOS and Linux, or the web app in any browser
 2. [Getting started](getting-started.md): your first comparison, step by step
 3. [Connecting to models](connecting-sources.md): Power BI Desktop, Service over XMLA, Service over REST
 4. [Building comparisons](comparisons.md): fields, keys, aggregations, synonyms, filters and options
@@ -23,12 +23,10 @@ registration, tenant settings, deployment).
 
 | | Desktop app | Web app |
 |---|---|---|
-| Runs on | Windows 10 and 11 (x64) | Any modern browser on Windows, macOS or Linux |
-| Install | MSI installer or portable zip | Nothing to install |
-| Power BI Desktop files (PBIX) | Yes | No |
+| Runs on | Windows 10 and 11, macOS 12 or later, Linux (x64 and ARM) | Any modern browser |
+| Install | Windows: MSI or portable zip. macOS: .dmg. Linux: .tar.gz | Nothing to install |
+| Power BI Desktop files (PBIX) | Windows only | No |
 | Power BI Service over XMLA | Yes | Connected over REST instead |
 | Power BI Service over REST | Yes | Yes |
 | Create and edit comparisons | Yes | Not yet: open a project made in the desktop app |
 | Excel workbook | Yes | Yes |
-
-A native desktop app for macOS and Linux is planned. Until it ships, use the web app on those systems.

@@ -8,6 +8,7 @@ you ask for help.
 | Problem | What to check |
 |---|---|
 | No Power BI Desktop sessions are found | The PBIX must be open in Power BI Desktop and fully loaded. Click *Detect sessions* again after it has loaded. |
+| macOS says "Apple could not verify DAXDiff" | See [Install DAXDiff](installation.md#macos): *Privacy & Security → Open Anyway*. |
 | "Access is denied" when DAXDiff starts | Your organisation blocks unsigned programs. See [Install DAXDiff](installation.md#windows-protected-your-pc-and-blocked-programs). |
 | Sign-in or workspace browsing says a client ID is missing | Ask your administrator for the client ID and enter it under **Settings**. XMLA works without one if you type the names. |
 | XMLA connection fails | The workspace must be on Premium, PPU or Fabric capacity with the XMLA endpoint enabled, and you need Build permission. |
@@ -19,11 +20,14 @@ you ask for help.
 
 ## Files and locations (desktop app)
 
+The DAXDiff folder is `%LOCALAPPDATA%\DAXDiff` on Windows, `~/Library/Application Support/DAXDiff` on macOS and
+`~/.local/share/DAXDiff` on Linux.
+
 | What | Where |
 |---|---|
-| Logs (no values or DAX text) | `%LOCALAPPDATA%\DAXDiff\logs`, or Settings → **Open log folder** |
-| Your settings | `%LOCALAPPDATA%\DAXDiff\settings.json` |
-| Sign-in cache (encrypted, per user) | `%LOCALAPPDATA%\DAXDiff\msal.cache` |
+| Logs (no values or DAX text) | `logs` in the DAXDiff folder, or Settings → **Open log folder** |
+| Your settings | `settings.json` in the DAXDiff folder |
+| Sign-in cache (encrypted, per user) | Windows: `msal.cache` in the DAXDiff folder. macOS: the login keychain. Linux: the desktop keyring |
 | Projects | Wherever you save the `.pbicomp` files |
 
 Settings → **Reset session** closes the current project (after asking) and returns to the start page.

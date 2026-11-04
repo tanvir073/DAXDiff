@@ -20,10 +20,12 @@ on your laptop against the published model.
 | System | Get it |
 |---|---|
 | **Windows 10 / 11** | [Latest release](https://github.com/tanvir073/DAXDiff/releases/latest): `DAXDiff-<version>-win-x64.msi` (installer) or `…-portable.zip` (no admin rights) |
-| **macOS, Linux, any browser** | Web app: **https://tanvir073.github.io/DAXDiff/** (Service models over REST) |
+| **macOS 12+** | [Latest release](https://github.com/tanvir073/DAXDiff/releases/latest): `…-osx-arm64.dmg` (Apple Silicon) or `…-osx-x64.dmg` (Intel) |
+| **Linux** | [Latest release](https://github.com/tanvir073/DAXDiff/releases/latest): `…-linux-x64.tar.gz` or `…-linux-arm64.tar.gz` |
+| **Any browser** | Web app: **https://tanvir073.github.io/DAXDiff/** (Service models over REST) |
 
-A native desktop app for macOS and Linux is in development. See [Install DAXDiff](docs/user/installation.md) for
-details.
+Comparing a PBIX open in Power BI Desktop needs Windows, because Power BI Desktop only runs there. See
+[Install DAXDiff](docs/user/installation.md) for details.
 
 ## Documentation
 

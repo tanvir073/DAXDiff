@@ -27,14 +27,51 @@ To uninstall, use *Settings → Apps → Installed apps → DAXDiff*.
 The portable copy does not add a Start menu entry or the External Tools button. To update it, replace the folder
 with the new version. Your settings are not stored in the folder, so they are kept.
 
-## macOS and Linux: web app
+## macOS
 
-Open **https://tanvir073.github.io/DAXDiff/** in a current browser (Edge, Chrome, Firefox or Safari). Nothing is
-installed. The page runs entirely in your browser, and queries go straight from your browser to Power BI. See
-[The web app](web-app.md) for what it can do.
+1. Download `DAXDiff-<version>-osx-arm64.dmg` for Apple Silicon (M1 and later), or `…-osx-x64.dmg` for Intel Macs.
+   *Apple menu → About This Mac* shows which you have.
+2. Open the `.dmg` and drag **DAXDiff** to **Applications**.
+3. Start DAXDiff from Applications. macOS 12 or later is required.
 
-The web app also works on Windows. Your organisation can host its own copy: each release includes
-`DAXDiff-<version>-web.zip` (see the [administrator guide](administrators.md#hosting-the-web-app)).
+DAXDiff is not notarized by Apple yet, so the first start is blocked with "Apple could not verify DAXDiff". Open
+*System Settings → Privacy & Security*, scroll to the message about DAXDiff and choose **Open Anyway**. You only do
+this once per version. Alternatively, in Terminal:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/DAXDiff.app
+```
+
+Sign-ins are kept in your login keychain. To uninstall, move DAXDiff from Applications to the Bin.
+
+## Linux
+
+1. Download `DAXDiff-<version>-linux-x64.tar.gz` (or `…-linux-arm64.tar.gz` for ARM computers).
+2. Unpack it where you keep programs, for example `tar -xzf DAXDiff-0.2.0-linux-x64.tar.gz -C ~/Apps`.
+3. Run `./DAXDiff` in the unpacked folder. Run `./install.sh` once to add DAXDiff to your application menu.
+
+DAXDiff needs a graphical desktop (X11 or Wayland) and the usual desktop libraries; on a minimal system install
+`libicu`, `fontconfig` and `libsecret` from your distribution. Sign-ins are kept in the desktop keyring (GNOME
+Keyring or KWallet). Without a keyring, you sign in again each time DAXDiff starts; tokens are never written to disk
+unencrypted. To update, unpack the new version and delete the old folder.
+
+## What works where
+
+| | Windows | macOS | Linux | Web app |
+|---|---|---|---|---|
+| Power BI Desktop files (PBIX open in Power BI Desktop) | Yes | No (Power BI Desktop is Windows-only) | No | No |
+| Power BI Service over XMLA | Yes | Yes | Yes | Over REST instead |
+| Power BI Service over REST | Yes | Yes | Yes | Yes |
+| Build and edit comparisons | Yes | Yes | Yes | Not yet |
+
+## Web app (any system, nothing to install)
+
+Open **https://tanvir073.github.io/DAXDiff/** in a current browser (Edge, Chrome, Firefox or Safari). The page runs
+entirely in your browser, and queries go straight from your browser to Power BI. See [The web app](web-app.md) for
+what it can do.
+
+Your organisation can host its own copy: each release includes `DAXDiff-<version>-web.zip` (see the
+[administrator guide](administrators.md#hosting-the-web-app)).
 
 ## "Windows protected your PC" and blocked programs
 

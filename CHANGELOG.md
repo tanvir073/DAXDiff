@@ -15,6 +15,9 @@ described in [docs/dev/releasing.md](docs/dev/releasing.md).
 - GitHub issue forms for bug reports and feature requests, a pull-request checklist and a security policy.
 - Continuous integration on every pull request, and a release workflow that publishes the MSI installer, a portable
   zip and a self-hostable web build to GitHub Releases when a version is tagged.
+- **macOS and Linux desktop app**: the desktop app now also runs on macOS (`.dmg`, Apple Silicon and Intel) and Linux
+  (`.tar.gz`, x64 and ARM), built on Avalonia. Power BI Service models connect over XMLA or REST; Power BI Desktop
+  files need Windows. Sign-ins are kept in the macOS Keychain or the Linux keyring.
 
 ### Changed
 
