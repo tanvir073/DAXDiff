@@ -1,7 +1,211 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:DaxDiff.Desktop.Resources"
              xmlns:vm="using:DaxDiff.Desktop.ViewModels"
+             xmlns:dom="using:DaxDiff.Domain"
+             xmlns:views="using:DaxDiff.App.Views"
              x:Class="DaxDiff.App.Views.ResultsView"
              x:DataType="vm:ResultsViewModel">
-    <TextBlock Classes="pageTitle" Text="ResultsView" />
+    <UserControl.Styles>
+        <Style Selector="RadioButton.segment">
+            <Setter Property="GroupName" Value="ResultFilter" />
+            <Setter Property="MinHeight" Value="26" />
+        </Style>
+
+        <!-- KPI tiles: the value takes the tone of its tile. -->
+        <Style Selector="TextBlock.kpiValue.danger"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}" /></Style>
+        <Style Selector="TextBlock.kpiValue.success"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" /></Style>
+        <Style Selector="TextBlock.kpiValue.accent"><Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" /></Style>
+
+        <!-- Grid cells (built in code): numbers right-aligned, the status as a tinted label. -->
+        <Style Selector="TextBlock.resultCell">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="12,0" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+        <Style Selector="TextBlock.resultCell.number"><Setter Property="TextAlignment" Value="Right" /></Style>
+        <Style Selector="TextBlock.resultCell.status">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="8,2" />
+            <Setter Property="Margin" Value="4,0" />
+        </Style>
+        <!-- Theme tones (follow the selected theme): success, danger, tile (one side only) and warning. -->
+        <Style Selector="TextBlock.resultCell.status.match">
+            <Setter Property="Background" Value="{DynamicResource SuccessSoftBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+        </Style>
+        <Style Selector="TextBlock.resultCell.status.mismatch">
+            <Setter Property="Background" Value="{DynamicResource DangerSoftBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+        </Style>
+        <Style Selector="TextBlock.resultCell.status.oneSide">
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TileTextBrush}" />
+        </Style>
+        <Style Selector="TextBlock.resultCell.status.invalidKey">
+            <Setter Property="Background" Value="{DynamicResource WarningSoftBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+        </Style>
+
+        <!-- The column picker looks like a combo box and opens a multi-select list. -->
+        <Style Selector="Button.picker">
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource FieldBorderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Padding" Value="12,0,10,0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="Button.picker:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- Header -->
+        <DockPanel>
+            <WrapPanel DockPanel.Dock="Right" VerticalAlignment="Bottom" Margin="16,0,0,18" IsVisible="{Binding HasResult}">
+                <Label Content="{x:Static res:Ui.Results_Picker}" Target="ResultPicker" Padding="0,0,8,8" VerticalAlignment="Center" />
+                <ComboBox x:Name="ResultPicker" Width="300" Margin="0,0,12,8" ItemsSource="{Binding Results}" SelectedItem="{Binding Result}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="dom:ComparisonResult">
+                            <TextBlock TextTrimming="CharacterEllipsis">
+                                <Run Text="{Binding ComparisonName, Mode=OneWay}" FontWeight="SemiBold" />
+                                <Run Text=" · " /><Run Text="{Binding Status, Mode=OneWay, Converter={StaticResource EnumText}}" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Classes="secondary" Content="{x:Static res:Ui.Results_Export}" Command="{Binding ExportCommand}" Margin="0,0,0,8" />
+            </WrapPanel>
+            <StackPanel>
+                <TextBlock Classes="eyebrow" Text="{x:Static res:Ui.Results_Step}" />
+                <TextBlock Classes="pageTitle" Text="{x:Static res:Ui.Results_Title}" />
+                <TextBlock Classes="pageHint" Text="{x:Static res:Ui.Results_None}" IsVisible="{Binding !HasResult}" />
+                <TextBlock Classes="pageHint" Text="{x:Static res:Ui.Results_Observed}" IsVisible="{Binding HasResult}" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Status, KPIs, run details -->
+        <StackPanel Grid.Row="1" IsVisible="{Binding HasResult}">
+            <Border Classes="message" Classes.success="{Binding !IsIncomplete}" Classes.error="{Binding IsIncomplete}" Margin="0,0,0,12">
+                <TextBlock Text="{Binding StatusBanner}" FontWeight="SemiBold" TextWrapping="Wrap" AutomationProperties.Name="{x:Static res:Ui.Results_RunStatus}" />
+            </Border>
+            <ItemsControl ItemsSource="{Binding Kpis}" Focusable="False" Margin="0,0,0,6">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <!-- KeyValuePair<string, string>: generic types cannot be named in x:DataType, so this template binds by reflection. -->
+                    <DataTemplate x:CompileBindings="False">
+                        <Border Classes="card" Margin="0,0,10,6" Padding="14,10" CornerRadius="14">
+                            <StackPanel AutomationProperties.Name="{Binding Key}">
+                                <TextBlock Text="{Binding Key}" Foreground="{DynamicResource MutedText}" FontSize="12.5" TextTrimming="CharacterEllipsis" />
+                                <!-- The view model labels its tiles with these texts; the tile's tone follows the label. -->
+                                <TextBlock Classes="kpiValue" Text="{Binding Value}"
+                                           Classes.danger="{Binding Key, Converter={x:Static views:ResultsView.KpiDanger}}"
+                                           Classes.success="{Binding Key, Converter={x:Static views:ResultsView.KpiSuccess}}"
+                                           Classes.accent="{Binding Key, Converter={x:Static views:ResultsView.KpiAccent}}" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <!-- Capped and scrolled: with many compared columns the details would otherwise push the grid off the page. -->
+            <Expander Header="{x:Static res:Ui.Results_Details}" Margin="0,0,0,10" HorizontalAlignment="Stretch">
+                <Border Classes="quietPanel" Margin="0,6,0,0">
+                    <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                        <StackPanel>
+                            <SelectableTextBlock Text="{Binding SourceText}" TextWrapping="Wrap" FontSize="13" />
+                            <ItemsControl ItemsSource="{Binding MeasureStats}" Margin="0,6,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <ItemsControl ItemsSource="{Binding Result.Warnings, FallbackValue={x:Null}}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <TextBlock Text="{Binding StringFormat='⚠ {0}'}" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Expander>
+        </StackPanel>
+
+        <!-- Rows -->
+        <Border Grid.Row="2" Classes="card" Padding="0" IsVisible="{Binding HasResult}">
+            <DockPanel>
+                <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1" Padding="14,10,14,4">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                            <!-- Failed columns: Ctrl+click and Shift+click pick several; the grid then keeps those and the keys. -->
+                            <Button x:Name="ColumnPickerButton" Classes="picker" Width="240" Margin="0,0,12,6" IsVisible="{Binding HasFailedColumns}"
+                                    AutomationProperties.Name="{x:Static res:Ui.Results_ColumnPicker}" ToolTip.Tip="{x:Static res:Ui.Results_ColumnPickerTip}">
+                                <DockPanel>
+                                    <Path DockPanel.Dock="Right" Data="M 0 0 L 4 4 L 8 0" Stroke="{DynamicResource MutedText}" StrokeThickness="1.6"
+                                          StrokeLineCap="Round" StrokeJoin="Round" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                    <TextBlock Text="{Binding ColumnPickerText}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                </DockPanel>
+                                <Button.Flyout>
+                                    <Flyout Placement="BottomEdgeAlignedLeft" Opened="ColumnPicker_Opened">
+                                        <StackPanel MinWidth="240">
+                                            <TextBlock Text="{x:Static res:Ui.Results_ColumnPickerHint}" Foreground="{DynamicResource MutedText}" FontSize="12.5"
+                                                       TextWrapping="Wrap" MaxWidth="260" HorizontalAlignment="Left" Margin="2,0,2,6" />
+                                            <ListBox x:Name="ColumnPickerList" ItemsSource="{Binding FailedColumns}" SelectionMode="Multiple" MaxHeight="300"
+                                                     BorderThickness="0" Padding="0" SelectionChanged="ColumnPicker_SelectionChanged"
+                                                     AutomationProperties.Name="{x:Static res:Ui.Results_ColumnPicker}" />
+                                            <Button Content="{x:Static res:Ui.Results_ColumnsShowAll}" Click="ColumnPicker_ShowAll" HorizontalAlignment="Left" Margin="0,6,0,0" />
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <TextBlock Text="{Binding VisibleCountText}" VerticalAlignment="Center" Margin="0,0,12,6" Foreground="{DynamicResource MutedText}" FontSize="13" />
+                            <TextBox Width="220" Text="{Binding SearchText, Delay=250}" Margin="0,0,0,6" PlaceholderText="{x:Static res:Ui.Results_SearchPlaceholder}"
+                                     AutomationProperties.Name="{x:Static res:Ui.Results_Search}" ToolTip.Tip="{x:Static res:Ui.Results_SearchTip}" />
+                        </StackPanel>
+                        <Border Classes="segmentGroup" Margin="0,0,12,6" VerticalAlignment="Center">
+                            <WrapPanel AutomationProperties.Name="{x:Static res:Ui.Results_ShowRows}">
+                                <RadioButton Classes="segment" Content="{x:Static res:Ui.Results_FilterAll}"
+                                             IsChecked="{Binding Filter, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static vm:ResultFilter.All}}" />
+                                <RadioButton Classes="segment" Content="{x:Static res:Ui.Results_FilterMatch}"
+                                             IsChecked="{Binding Filter, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static vm:ResultFilter.Match}}" />
+                                <RadioButton Classes="segment" Content="{x:Static res:Ui.Results_FilterMismatch}"
+                                             IsChecked="{Binding Filter, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static vm:ResultFilter.Mismatch}}" />
+                                <RadioButton Classes="segment" Content="{x:Static res:Ui.Results_KpiOnlyInA}"
+                                             IsChecked="{Binding Filter, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static vm:ResultFilter.OnlyInA}}" />
+                                <RadioButton Classes="segment" Content="{x:Static res:Ui.Results_KpiOnlyInB}"
+                                             IsChecked="{Binding Filter, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static vm:ResultFilter.OnlyInB}}" />
+                                <RadioButton Classes="segment" Content="{x:Static res:Ui.Results_FilterInvalidKey}"
+                                             IsChecked="{Binding Filter, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static vm:ResultFilter.InvalidKey}}" />
+                            </WrapPanel>
+                        </Border>
+                    </DockPanel>
+                </Border>
+                <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="14,8">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{x:Static res:Ui.Results_ExportIncludes}" Foreground="{DynamicResource MutedText}" VerticalAlignment="Center" Margin="0,0,12,0" FontSize="13" />
+                        <CheckBox Content="{x:Static res:Ui.Results_ExportAllData}" IsChecked="{Binding ExportAllData}" Margin="0,0,14,0" />
+                        <CheckBox Content="{x:Static res:Ui.Results_ExportDax}" IsChecked="{Binding ExportQueryText}" Margin="0" />
+                    </StackPanel>
+                </Border>
+                <!-- Columns are built in code; rows are virtualized. Sorting goes through the view model (Grid_Sorting). -->
+                <DataGrid x:Name="ResultsGrid" ItemsSource="{Binding RowsView.ItemsSource, FallbackValue={x:Null}}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+                          BorderThickness="0" CornerRadius="0" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
+                          SelectionMode="Extended" ClipboardCopyMode="IncludeHeader" CanUserSortColumns="True" CanUserReorderColumns="False"
+                          Sorting="Grid_Sorting" AutomationProperties.Name="{x:Static res:Ui.Results_Grid}" />
+            </DockPanel>
+        </Border>
+
+        <Expander Grid.Row="3" Header="{x:Static res:Ui.Results_RowDetails}" IsExpanded="True" Margin="0,10,0,0" HorizontalAlignment="Stretch"
+                  IsVisible="{Binding HasResult}">
+            <TextBox Classes="code" Text="{Binding Details, Mode=OneWay}" MaxHeight="150" Margin="0,6,0,0" TextWrapping="Wrap"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{x:Static res:Ui.Results_RowDetails}" />
+        </Expander>
+    </Grid>
 </UserControl>
