@@ -61,7 +61,8 @@ adds a line under **Unreleased**, in *Added*, *Changed*, *Fixed*, *Removed* or *
 The **Release** workflow (`.github/workflows/release.yml`) then:
 
 1. checks that the tag equals `v<Version>` and that `CHANGELOG.md` has a section for it, and stops otherwise;
-2. runs the tests and builds the MSI and the portable zip on Windows;
+2. runs the tests and builds the MSI and the portable zip on Windows, and the `.dmg` (Apple Silicon, Intel) and
+   `.tar.gz` (x64, ARM) downloads on macOS and Linux;
 3. builds a self-hostable web zip;
 4. creates the GitHub Release with that changelog section as its notes, the files and `SHA256SUMS.txt`. A version
    with a suffix is marked as a pre-release.
@@ -72,4 +73,6 @@ again. Never move a tag that has already produced a published release; release a
 ## Code signing
 
 Releases are not code-signed yet (§9). When a certificate is available, sign `DAXDiff.exe` and the MSI in the
-`windows` job of the release workflow, before the files are uploaded.
+`windows` job of the release workflow, before the files are uploaded. For macOS, a Developer ID certificate and
+notarization (`xcrun notarytool`) in `scripts/package-app.sh` remove the *Open Anyway* step; until then the app is only
+ad-hoc signed.

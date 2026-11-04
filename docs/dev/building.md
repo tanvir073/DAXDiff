@@ -3,8 +3,8 @@
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- Windows 10 or 11 for the WPF desktop app. Everything else, including the tests, builds and runs on Windows, macOS and
-  Linux.
+- Windows 10 or 11 for the WPF desktop app (`DaxDiff.Desktop`). Everything else, including the cross-platform app
+  (`DaxDiff.App`) and the tests, builds and runs on Windows, macOS and Linux.
 - Optional: Power BI Desktop, for trying local PBIX comparisons.
 
 ## Commands
@@ -13,10 +13,12 @@
 dotnet build                                   # whole solution (DaxDiff.sln)
 dotnet test tests/DaxDiff.Tests.Unit           # all unit tests
 dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngineTests"   # one class
-dotnet run --project src/DaxDiff.Desktop       # desktop app
+dotnet run --project src/DaxDiff.App           # cross-platform desktop app (Avalonia)
+dotnet run --project src/DaxDiff.Desktop       # WPF desktop app (Windows)
 dotnet run --project src/DaxDiff.Web --launch-profile http   # web app on http://localhost:5215
 ./scripts/build.ps1                            # Release restore, build, test, publish to ./publish
-./scripts/package.ps1                          # MSI and portable zip in ./dist
+./scripts/package.ps1                          # Windows: MSI and portable zip in ./dist
+bash scripts/package-app.sh osx-arm64          # macOS .dmg / Linux .tar.gz in ./dist (run on that system)
 ```
 
 The desktop output is in `src/DaxDiff.Desktop/bin/Debug/net10.0-windows/win-x64/`, because a `RuntimeIdentifier` is
@@ -31,6 +33,15 @@ set. If an application-control policy blocks the unsigned `DAXDiff.exe` ("Access
   installing. The MSI installs per machine to `C:\Program Files\DAXDiff`, adds a Start menu shortcut and registers
   the Power BI Desktop External Tool (`tools/DAXDiff.pbitool.json`).
 - `DAXDiff-<version>-win-x64-portable.zip`, the same files for users without administrator rights.
+
+`scripts/package-app.sh <rid>` builds the cross-platform app for `osx-arm64`, `osx-x64`, `linux-x64` or `linux-arm64`:
+
+- macOS: `DaxDiff.app` (Info.plist with the `.pbicomp` document type, an `.icns` made from
+  `src/DaxDiff.App/Assets/DAXDiff.png`), ad-hoc signed so Apple Silicon runs it, in `DAXDiff-<version>-<rid>.dmg`.
+  It is not notarized; users confirm the first start under *Privacy & Security*.
+- Linux: `DAXDiff-<version>-<rid>.tar.gz` with the app, an icon, a `.desktop` entry and `install.sh`.
+
+Pull requests build `osx-arm64` and `linux-x64` previews (CI artifacts, kept a week).
 
 Releases are built by the release workflow, not by hand; see [Versioning and releases](releasing.md).
 

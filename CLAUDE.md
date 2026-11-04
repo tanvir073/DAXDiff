@@ -11,10 +11,12 @@ dotnet build                                   # whole solution (DaxDiff.sln)
 dotnet test tests/DaxDiff.Tests.Unit           # all unit tests
 dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngineTests"          # one class
 dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngineTests.AT04_AbsoluteTolerance"  # one test
-dotnet run --project src/DaxDiff.Desktop       # launch the app
+dotnet run --project src/DaxDiff.App           # launch the cross-platform app (Avalonia)
+dotnet run --project src/DaxDiff.Desktop       # launch the WPF app (Windows)
 dotnet run --project src/DaxDiff.Web --launch-profile http   # web app on http://localhost:5215
 ./scripts/build.ps1                            # Release restore/build/test/publish to ./publish
 ./scripts/package.ps1                          # self-contained publish, MSI (WiX 5, installer/) and portable zip to ./dist
+bash scripts/package-app.sh osx-arm64          # macOS .dmg or Linux .tar.gz of DaxDiff.App to ./dist (run on that OS)
 ```
 
 There is no linter configured. On the developer's machine, an application-control policy blocks the unsigned `DAXDiff.exe` with "Access is denied". Run the built app as `dotnet <output>/DAXDiff.dll` instead. The desktop output lands in `bin/Debug/net10.0-windows/win-x64/` because a `RuntimeIdentifier` is set.
