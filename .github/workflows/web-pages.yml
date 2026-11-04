@@ -31,8 +31,7 @@ concurrency:
 
 jobs:
   test:
-    # The unit tests reference the Windows connectors, so they run on Windows.
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4

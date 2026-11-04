@@ -16,14 +16,14 @@ Web ────────► Application
 | `DaxDiff.Comparison` | net10.0 | Synonym compiler, DAX query builder, key canonicalization, comparison engine, auto-matcher, validator |
 | `DaxDiff.Export` | net10.0 | Excel audit workbook (ClosedXML) |
 | `DaxDiff.Connectors.Core` | net10.0 | `IModelConnector`, auth abstractions, error classification, metadata parsers, the REST connector and discovery |
-| `DaxDiff.Connectors` | net10.0-windows | ADOMD.NET (Desktop session, XMLA), WMI session discovery, MSAL with the encrypted token cache, `ConnectorFactory` |
+| `DaxDiff.Connectors` | net10.0 | ADOMD.NET (Desktop session, XMLA), WMI session discovery (Windows only), MSAL with the encrypted token cache (DPAPI, Keychain or keyring), `ConnectorFactory` |
 | `DaxDiff.Application` | net10.0 | Run orchestration (parallel, retries, timeouts), project persistence and migration, product links |
 | `DaxDiff.Desktop` | net10.0-windows | WPF shell, MVVM with CommunityToolkit.Mvvm |
 | `DaxDiff.Web` | net10.0 | Blazor WebAssembly app, MSAL.js, REST only |
-| `DaxDiff.Tests.Unit` | net10.0-windows | xUnit tests |
+| `DaxDiff.Tests.Unit` | net10.0 | xUnit tests, run on Windows, Linux and macOS |
 
-Windows-only code (WMI, ADOMD, DPAPI) stays in `Connectors` and `Desktop`. Everything else must build without Windows,
-or the web app stops building; CI checks this on Linux.
+Native-client code (ADOMD, MSAL.NET, WMI) stays in `Connectors` and the desktop apps, so the web app keeps building.
+Windows-only calls are guarded with `OperatingSystem.IsWindows()`. CI builds and tests on Windows, Linux and macOS.
 
 `Directory.Build.props` sets Nullable, ImplicitUsings, the version and the package metadata for every project.
 

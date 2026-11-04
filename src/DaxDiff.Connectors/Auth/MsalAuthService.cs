@@ -9,13 +9,15 @@ using DaxDiff.Connectors.Resources;
 namespace DaxDiff.Connectors.Auth;
 
 /// <summary>
-/// Delegated interactive sign-in via the system browser. Tokens live only in the DPAPI-encrypted MSAL cache,
-/// shared by all sources, and never in projects, logs or exports (§9).
+/// Delegated interactive sign-in via the system browser. Tokens live only in the encrypted MSAL cache (DPAPI on
+/// Windows, the Keychain on macOS, the keyring on Linux), shared by all sources, and never in projects, logs or
+/// exports (§9).
 /// </summary>
 public sealed class MsalAuthService : IAuthService
 {
     private static readonly SemaphoreSlim CacheGate = new(1, 1);
     private static MsalCacheHelper? _cacheHelper;
+    private static bool _cacheUnavailable;
 
     private readonly AuthOptions _options;
     private readonly ILogger<MsalAuthService> _logger;
@@ -167,22 +169,41 @@ public sealed class MsalAuthService : IAuthService
             .WithAuthority(AzureCloudInstance.AzurePublic, _tenant)
             .WithRedirectUri(_options.RedirectUri)
             .Build();
-        (await GetCacheHelperAsync()).RegisterCache(app.UserTokenCache);
+        (await GetCacheHelperAsync())?.RegisterCache(app.UserTokenCache);
         _app = app;
         return app;
     }
 
     /// <summary>One cache helper for the whole process; every source's client registers with the same encrypted cache file.</summary>
-    private async Task<MsalCacheHelper> GetCacheHelperAsync()
+    /// <remarks>
+    /// Without a working secret store (a Linux session with no keyring), tokens stay in memory for this run rather
+    /// than in an unencrypted file, so the user signs in again after a restart.
+    /// </remarks>
+    private async Task<MsalCacheHelper?> GetCacheHelperAsync()
     {
         await CacheGate.WaitAsync();
         try
         {
-            if (_cacheHelper is null)
+            if (_cacheHelper is null && !_cacheUnavailable)
             {
                 Directory.CreateDirectory(_options.CacheDirectory);
-                var storage = new StorageCreationPropertiesBuilder("msal.cache", _options.CacheDirectory).Build();
-                _cacheHelper = await MsalCacheHelper.CreateAsync(storage);
+                var storage = new StorageCreationPropertiesBuilder("msal.cache", _options.CacheDirectory)
+                    .WithMacKeyChain("DAXDiff", "MSALCache")
+                    .WithLinuxKeyring("se.numberskills.daxdiff.tokencache", MsalCacheHelper.LinuxKeyRingDefaultCollection,
+                        "DAXDiff sign-in cache", new KeyValuePair<string, string>("Version", "1"),
+                        new KeyValuePair<string, string>("ProductGroup", "DAXDiff"))
+                    .Build();
+                var helper = await MsalCacheHelper.CreateAsync(storage);
+                try
+                {
+                    helper.VerifyPersistence();
+                    _cacheHelper = helper;
+                }
+                catch (MsalCachePersistenceException ex)
+                {
+                    _cacheUnavailable = true;
+                    _logger.LogWarning(ex, "No secure token store is available; sign-ins are kept in memory only");
+                }
             }
 
             return _cacheHelper;

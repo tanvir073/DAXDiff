@@ -3,8 +3,8 @@
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- Windows 10 or 11 for the desktop app, the Windows connectors and the unit tests. The web app and the shared projects
-  also build on macOS and Linux.
+- Windows 10 or 11 for the WPF desktop app. Everything else, including the tests, builds and runs on Windows, macOS and
+  Linux.
 - Optional: Power BI Desktop, for trying local PBIX comparisons.
 
 ## Commands
@@ -48,8 +48,8 @@ The desktop project has no tests. Exercise its view models through an offscreen 
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` builds the solution and runs the tests on Windows for every pull request and every push to
-`main`, `ppe` and `dev`, and builds the web app on Linux.
+`.github/workflows/ci.yml` runs on every pull request and every push to `main`, `ppe` and `dev`. It builds the whole
+solution and runs the tests on Windows, and builds the cross-platform projects and runs the tests on Linux and macOS.
 
 ## Localization
 

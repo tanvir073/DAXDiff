@@ -50,8 +50,13 @@ public sealed partial class DesktopSessionLocator
     [GeneratedRegex("\"(?<path>[^\"]+\\.pbi[xt])\"", RegexOptions.IgnoreCase)]
     private static partial Regex PbixArgument();
 
+    /// <summary>Power BI Desktop only runs on Windows, so there is nothing to find elsewhere.</summary>
+    public static bool IsSupported => OperatingSystem.IsWindows();
+
     public IReadOnlyList<DesktopSession> FindSessions()
     {
+        if (!OperatingSystem.IsWindows())
+            return [];
         try
         {
             return FindViaWmi();
@@ -63,6 +68,7 @@ public sealed partial class DesktopSessionLocator
         }
     }
 
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     private List<DesktopSession> FindViaWmi()
     {
         var processes = new Dictionary<int, (int Parent, string? CommandLine, string Name)>();
