@@ -103,8 +103,10 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            <!-- Capped and scrolled: with many compared columns the details would otherwise push the grid off the page. -->
             <Expander Header="{x:Static res:Ui.Results_Details}" Margin="0,0,0,10">
                 <Border Style="{StaticResource QuietPanel}" Margin="0,6,0,0">
+                    <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
                     <StackPanel>
                         <TextBox Text="{Binding SourceText, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" BorderThickness="0" Background="Transparent"
                                  Margin="0" Padding="0" Style="{x:Null}" FontSize="13" />
@@ -117,6 +119,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
+                    </ScrollViewer>
                 </Border>
             </Expander>
         </StackPanel>
