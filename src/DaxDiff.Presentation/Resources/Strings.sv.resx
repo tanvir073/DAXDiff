@@ -234,7 +234,7 @@
   <data name="Theme_dusk" xml:space="preserve"><value>Skymning</value></data>
   <data name="Theme_dusk_Description" xml:space="preserve"><value>Violettgrå #4A4E79</value></data>
   <data name="Theme_ink" xml:space="preserve"><value>Mörk</value></data>
-  <data name="Theme_ink_Description" xml:space="preserve"><value>Nästan svart #040313</value></data>
+  <data name="Theme_ink_Description" xml:space="preserve"><value>Som mörkt läge i Windows</value></data>
   <data name="Theme_blush" xml:space="preserve"><value>Rosa</value></data>
   <data name="Theme_blush_Description" xml:space="preserve"><value>Mjukt rosa #FFA5BB</value></data>
   <data name="Theme_plum" xml:space="preserve"><value>Plommon</value></data>

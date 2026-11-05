@@ -22,6 +22,8 @@ described in [docs/dev/releasing.md](docs/dev/releasing.md).
 
 ### Changed
 
+- The **Dark** colour theme now looks like dark mode in Windows: charcoal grey instead of near-black, with the light-blue
+  Windows accent.
 - **The Windows app is the same app as on macOS and Linux** (Avalonia), replacing the Windows-only WPF app. It looks
   and works the same; projects, settings, sign-ins and the External Tools button carry over unchanged.
 - The MSI is named `DAXDiff-<version>-win-x64.msi`.
