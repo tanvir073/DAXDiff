@@ -119,7 +119,7 @@
                 </WrapPanel>
                 <DockPanel IsVisible="{Binding HasSelection}">
                     <TextBlock DockPanel.Dock="Right" Text="{Binding Selected.StatusText}" VerticalAlignment="Center" Margin="12,0,0,8"
-                               AutomationProperties.LiveSetting="Polite" FontWeight="SemiBold" Foreground="{DynamicResource TealBrush}" />
+                               AutomationProperties.LiveSetting="Polite" FontWeight="SemiBold" Foreground="{DynamicResource HeadingBrush}" />
                     <WrapPanel Classes="cardBar">
                         <Button Classes="primary" Command="{Binding Selected.SaveCommand}"
                                 ToolTip.Tip="{x:Static res:Ui.Cmp_SaveTip}" Content="{x:Static res:Ui.Cmp_Save}" />

@@ -1,59 +1,53 @@
-/* Numberskills design system for DAXDiff web. Colour tokens match the desktop themes (Services/ThemeService.cs):
-   Daylight in light mode, Midnight in dark mode. Fonts are the desktop's embedded fonts (SIL Open Font License). */
-
-@font-face { font-family: "Bricolage Grotesque"; src: url("../fonts/BricolageGrotesque-Regular.ttf") format("truetype"); font-weight: 400 800; font-display: swap; }
-@font-face { font-family: "Onest"; src: url("../fonts/Onest-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Onest"; src: url("../fonts/Onest-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
-@font-face { font-family: "Onest"; src: url("../fonts/Onest-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
-@font-face { font-family: "Onest"; src: url("../fonts/Onest-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+/* DAXDiff web theme. Colour tokens match the desktop themes (DaxDiff.Presentation/Services/ThemeCatalog.cs):
+   Light in light mode, Dark in dark mode. Text uses the system UI font. */
 
 :root {
     color-scheme: light;
-    --page: #f6f8f9; --surface: #ffffff; --nav: #ffffff; --text: #1b2328; --muted: #56636a; --heading: #1b2328;
-    --border: rgba(27,35,40,0.10); --strong: rgba(27,35,40,0.22); --field: #87959c;
-    --header: #ffffff; --header-text: #1b2328; --header-muted: #56636a; --header-line: rgba(27,35,40,0.14); --header-field: #f1f4f5;
-    --logo-a: #0284c7; --logo-b: #7dd3fc; --logo-lens: #024b60;
-    --accent: #03607a; --on-accent: #ffffff; --accent-hover: #024b60; --link: #03607a;
-    --sel-bg: #e3f1f4; --sel-text: #03607a; --tile-bg: #e3f1f4; --tile-text: #03607a;
-    --chip-a: #1b2328; --chip-a-text: #ffffff;
-    --hero: #03607a; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.84);
-    --success: #147a4b; --danger: #b42318; --warning: #8a5a00;
-    --success-soft: rgba(20,122,75,0.10); --danger-soft: rgba(180,35,24,0.09); --warning-soft: rgba(138,90,0,0.10); --info-soft: #e3f1f4;
-    --radius: 14px; --shadow: 0 1px 2px rgba(27,35,40,0.05);
-    --font-heading: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-    --font-text: "Onest", "Segoe UI", system-ui, sans-serif;
+    --page: #f4f5fa; --surface: #ffffff; --nav: #ffffff; --text: #1a1c2b; --muted: #5b5f78; --heading: #2b2f8f;
+    --border: rgba(26,28,43,0.10); --strong: rgba(26,28,43,0.22); --field: #8a8ea8;
+    --header: #23266b; --header-text: #ffffff; --header-muted: rgba(255,255,255,0.74); --header-line: rgba(255,255,255,0.18); --header-field: rgba(255,255,255,0.08);
+    --logo-a: #8f93ff; --logo-b: #dcdcff; --logo-overlap: #4b4fd6;
+    --accent: #4b4fd6; --on-accent: #ffffff; --accent-hover: #3a3db8; --link: #3a3db8;
+    --sel-bg: #e8e9fb; --sel-text: #23266b; --tile-bg: #e8e9fb; --tile-text: #2b2f8f;
+    --chip-a: #23266b; --chip-a-text: #ffffff;
+    --hero: #2b2f8f; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.80);
+    --success: #18794e; --danger: #c0292b; --warning: #8a5a00;
+    --success-soft: rgba(24,121,78,0.10); --danger-soft: rgba(192,41,43,0.09); --warning-soft: rgba(138,90,0,0.10); --info-soft: #e8e9fb;
+    --radius: 14px; --shadow: 0 1px 2px rgba(26,28,43,0.05);
+    --font-heading: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    --font-text: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     --font-code: ui-monospace, "Cascadia Mono", Consolas, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
         color-scheme: dark;
-        --page: #0a161b; --surface: #10232a; --nav: #0d1d23; --text: #e6f1f2; --muted: #a3b9bf; --heading: #ffffff;
-        --border: rgba(255,255,255,0.10); --strong: rgba(255,255,255,0.24); --field: #62808a;
-        --header: #061014; --header-text: #e6f1f2; --header-muted: rgba(230,241,242,0.72); --header-line: rgba(255,255,255,0.14); --header-field: rgba(255,255,255,0.06);
-        --logo-a: #7dd3fc; --logo-b: #e0f2fe;
-        --accent: #2fc7d8; --on-accent: #0d1927; --accent-hover: #5fd6e3; --link: #7fdde6;
-        --sel-bg: #17353f; --sel-text: #9fe7ea; --tile-bg: #17353f; --tile-text: #9fe7ea;
-        --chip-a: #e6f1f2; --chip-a-text: #0a161b;
-        --hero: #133a45; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.76);
-        --success: #5ad69a; --danger: #ff8f80; --warning: #f2c46d;
-        --success-soft: rgba(90,214,154,0.12); --danger-soft: rgba(255,143,128,0.12); --warning-soft: rgba(242,196,109,0.12); --info-soft: #17353f;
+        --page: #12131c; --surface: #1b1d2a; --nav: #161824; --text: #e8e9f3; --muted: #a2a5bd; --heading: #ffffff;
+        --border: rgba(255,255,255,0.10); --strong: rgba(255,255,255,0.24); --field: #6f7391;
+        --header: #0d0e16; --header-text: #e8e9f3; --header-muted: rgba(232,233,243,0.72); --header-line: rgba(255,255,255,0.14); --header-field: rgba(255,255,255,0.06);
+        --logo-a: #8f93ff; --logo-b: #dcdcff; --logo-overlap: #4b4fd6;
+        --accent: #8f93ff; --on-accent: #12131c; --accent-hover: #a9acff; --link: #a9acff;
+        --sel-bg: #2a2d4a; --sel-text: #c9cbff; --tile-bg: #2a2d4a; --tile-text: #c9cbff;
+        --chip-a: #e8e9f3; --chip-a-text: #12131c;
+        --hero: #262a52; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.76);
+        --success: #4fd08f; --danger: #ff8a80; --warning: #f2c46d;
+        --success-soft: rgba(79,208,143,0.12); --danger-soft: rgba(255,138,128,0.12); --warning-soft: rgba(242,196,109,0.12); --info-soft: #2a2d4a;
         --shadow: none;
     }
 }
 
 :root[data-theme="dark"] {
     color-scheme: dark;
-    --page: #0a161b; --surface: #10232a; --nav: #0d1d23; --text: #e6f1f2; --muted: #a3b9bf; --heading: #ffffff;
-    --border: rgba(255,255,255,0.10); --strong: rgba(255,255,255,0.24); --field: #62808a;
-    --header: #061014; --header-text: #e6f1f2; --header-muted: rgba(230,241,242,0.72); --header-line: rgba(255,255,255,0.14); --header-field: rgba(255,255,255,0.06);
-    --logo-a: #7dd3fc; --logo-b: #e0f2fe;
-    --accent: #2fc7d8; --on-accent: #0d1927; --accent-hover: #5fd6e3; --link: #7fdde6;
-    --sel-bg: #17353f; --sel-text: #9fe7ea; --tile-bg: #17353f; --tile-text: #9fe7ea;
-    --chip-a: #e6f1f2; --chip-a-text: #0a161b;
-    --hero: #133a45; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.76);
-    --success: #5ad69a; --danger: #ff8f80; --warning: #f2c46d;
-    --success-soft: rgba(90,214,154,0.12); --danger-soft: rgba(255,143,128,0.12); --warning-soft: rgba(242,196,109,0.12); --info-soft: #17353f;
+    --page: #12131c; --surface: #1b1d2a; --nav: #161824; --text: #e8e9f3; --muted: #a2a5bd; --heading: #ffffff;
+    --border: rgba(255,255,255,0.10); --strong: rgba(255,255,255,0.24); --field: #6f7391;
+    --header: #0d0e16; --header-text: #e8e9f3; --header-muted: rgba(232,233,243,0.72); --header-line: rgba(255,255,255,0.14); --header-field: rgba(255,255,255,0.06);
+    --logo-a: #8f93ff; --logo-b: #dcdcff; --logo-overlap: #4b4fd6;
+    --accent: #8f93ff; --on-accent: #12131c; --accent-hover: #a9acff; --link: #a9acff;
+    --sel-bg: #2a2d4a; --sel-text: #c9cbff; --tile-bg: #2a2d4a; --tile-text: #c9cbff;
+    --chip-a: #e8e9f3; --chip-a-text: #12131c;
+    --hero: #262a52; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.76);
+    --success: #4fd08f; --danger: #ff8a80; --warning: #f2c46d;
+    --success-soft: rgba(79,208,143,0.12); --danger-soft: rgba(255,138,128,0.12); --warning-soft: rgba(242,196,109,0.12); --info-soft: #2a2d4a;
     --shadow: none;
 }
 
@@ -86,10 +80,10 @@ h1:focus { outline: none; }
 .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--header-text); --logo-gap: var(--header); }
 .logo-tag { font: 500 11px/1 var(--font-text); color: var(--header-muted); text-transform: uppercase; letter-spacing: 0.08em; }
 
-/* Logo lockup, as in the desktop header: the mark, then "DAX" regular + "DIFF" bold in Onest with 0.06em tracking. */
+/* Logo lockup, as in the desktop header: the mark, then "DAX" bold + "Diff" regular. */
 .logo-lockup { display: inline-flex; align-items: center; gap: 8px; }
 .logo-mark { width: 32px; height: 32px; flex: none; }
-.logo-word { font: 400 21px/1 var(--font-text); letter-spacing: 0.06em; color: inherit; white-space: nowrap; }
+.logo-word { font: 400 21px/1 var(--font-text); color: inherit; white-space: nowrap; }
 .logo-word b { font-weight: 700; }
 
 .header-project { display: flex; align-items: center; gap: 10px; min-width: 0; }

@@ -15,5 +15,4 @@ The authoritative terms are those published with each component's package.
 | [Microsoft.Extensions.Hosting / Logging](https://github.com/dotnet/runtime), [System.Management](https://github.com/dotnet/runtime) | Desktop | MIT |
 | [Serilog](https://github.com/serilog/serilog) (Extensions.Logging, Sinks.File) | Desktop | Apache 2.0 |
 | [Blazor WebAssembly](https://github.com/dotnet/aspnetcore) | Web | MIT |
-| [Bricolage Grotesque](https://github.com/ateliertriay/bricolage) by Mathieu Triay, [Onest](https://github.com/simpals/onest) by Dmitri Voloshin | Desktop, Web | SIL Open Font License 1.1 |
 | [WiX Toolset](https://github.com/wixtoolset/wix) (builds the installer, not shipped) | Installer | MS-RL |

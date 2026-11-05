@@ -217,26 +217,18 @@
   <data name="Dialog_Yes" xml:space="preserve"><value>_Ja</value></data>
   <data name="Dialog_No" xml:space="preserve"><value>_Nej</value></data>
   <data name="Dialog_Cancel" xml:space="preserve"><value>Avbryt</value></data>
-  <data name="Theme_midnight" xml:space="preserve"><value>Midnatt</value></data>
-  <data name="Theme_midnight_Description" xml:space="preserve"><value>Mörk blågrön, standard</value></data>
-  <data name="Theme_daylight" xml:space="preserve"><value>Dagsljus</value></data>
-  <data name="Theme_daylight_Description" xml:space="preserve"><value>Ljust sidhuvud</value></data>
-  <data name="Theme_amber" xml:space="preserve"><value>Bärnsten</value></data>
-  <data name="Theme_amber_Description" xml:space="preserve"><value>Grafit och guld</value></data>
+  <data name="Theme_light" xml:space="preserve"><value>Ljust</value></data>
+  <data name="Theme_light_Description" xml:space="preserve"><value>Indigo sidhuvud, standard</value></data>
+  <data name="Theme_dark" xml:space="preserve"><value>Mörkt</value></data>
+  <data name="Theme_dark_Description" xml:space="preserve"><value>Mörkt med mjuk indigo</value></data>
   <data name="Theme_contrast" xml:space="preserve"><value>Hög kontrast</value></data>
   <data name="Theme_contrast_Description" xml:space="preserve"><value>Svart och vitt med stark blå</value></data>
-  <data name="Theme_steel" xml:space="preserve"><value>Stål</value></data>
-  <data name="Theme_steel_Description" xml:space="preserve"><value>Skifferblå #778DA9</value></data>
-  <data name="Theme_deepsea" xml:space="preserve"><value>Djuphav</value></data>
-  <data name="Theme_deepsea_Description" xml:space="preserve"><value>Marinblå #415A77</value></data>
-  <data name="Theme_dusk" xml:space="preserve"><value>Skymning</value></data>
-  <data name="Theme_dusk_Description" xml:space="preserve"><value>Violettgrå #4A4E69</value></data>
-  <data name="Theme_ink" xml:space="preserve"><value>Mörk</value></data>
-  <data name="Theme_ink_Description" xml:space="preserve"><value>Nästan svart #040303</value></data>
-  <data name="Theme_blush" xml:space="preserve"><value>Rosa</value></data>
-  <data name="Theme_blush_Description" xml:space="preserve"><value>Mjukt rosa #FFA5AB</value></data>
-  <data name="Theme_plum" xml:space="preserve"><value>Plommon</value></data>
-  <data name="Theme_plum_Description" xml:space="preserve"><value>Djupt lila #582C4D</value></data>
+  <data name="Theme_graphite" xml:space="preserve"><value>Grafit</value></data>
+  <data name="Theme_graphite_Description" xml:space="preserve"><value>Mörkgrått med orange</value></data>
+  <data name="Theme_forest" xml:space="preserve"><value>Skog</value></data>
+  <data name="Theme_forest_Description" xml:space="preserve"><value>Ljust med djupgrönt</value></data>
+  <data name="Theme_sand" xml:space="preserve"><value>Sand</value></data>
+  <data name="Theme_sand_Description" xml:space="preserve"><value>Varmt ljust med terrakotta</value></data>
   <data name="Filter_FixFirst" xml:space="preserve"><value>Åtgärda de här filtren först, eller ta bort dem:</value></data>
   <data name="Filter_FixFirstTitle" xml:space="preserve"><value>Filter</value></data>
   <data name="Enum_Aggregation_None" xml:space="preserve"><value>Ingen</value></data>

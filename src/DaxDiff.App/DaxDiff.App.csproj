@@ -23,15 +23,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>DAXDiff</AssemblyName>
     <RootNamespace>DaxDiff.App</RootNamespace>
-    <!-- "Outer join" logo: exe, taskbar and Start menu icon on Windows. -->
+    <!-- Logo: exe, taskbar and Start menu icon on Windows. -->
     <ApplicationIcon>Assets\DAXDiff.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
   <ItemGroup>
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
-    <!-- Numberskills design system fonts (SIL Open Font License), static instances of the variable fonts. -->
-    <AvaloniaResource Include="Fonts\*.ttf" />
     <AvaloniaResource Include="Assets\DAXDiff.ico" />
   </ItemGroup>
 

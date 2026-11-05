@@ -189,7 +189,7 @@ public sealed class MsalAuthService : IAuthService
                 Directory.CreateDirectory(_options.CacheDirectory);
                 var storage = new StorageCreationPropertiesBuilder("msal.cache", _options.CacheDirectory)
                     .WithMacKeyChain("DAXDiff", "MSALCache")
-                    .WithLinuxKeyring("se.numberskills.daxdiff.tokencache", MsalCacheHelper.LinuxKeyRingDefaultCollection,
+                    .WithLinuxKeyring("io.github.tanvir073.daxdiff.tokencache", MsalCacheHelper.LinuxKeyRingDefaultCollection,
                         "DAXDiff sign-in cache", new KeyValuePair<string, string>("Version", "1"),
                         new KeyValuePair<string, string>("ProductGroup", "DAXDiff"))
                     .Build();

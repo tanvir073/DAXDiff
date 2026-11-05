@@ -23,6 +23,8 @@ described in [docs/dev/releasing.md](docs/dev/releasing.md).
 
 - **The Windows app is the same app as on macOS and Linux** (Avalonia), replacing the Windows-only WPF app. It looks
   and works the same; projects, settings, sign-ins and the External Tools button carry over unchanged.
+- **New look**: a new logo, six new colour themes (Light, Dark, High contrast, Graphite, Forest and Sand; Light is
+  the default) and the operating system's own font. A previously chosen colour theme falls back to Light.
 - The MSI is named `DAXDiff-<version>-win-x64.msi`.
 - The Results page's details panel has a maximum height and scrolls, so it no longer pushes the grid off the page.
 

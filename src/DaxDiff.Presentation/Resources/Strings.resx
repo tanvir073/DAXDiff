@@ -217,26 +217,18 @@
   <data name="Dialog_Yes" xml:space="preserve"><value>_Yes</value></data>
   <data name="Dialog_No" xml:space="preserve"><value>_No</value></data>
   <data name="Dialog_Cancel" xml:space="preserve"><value>Cancel</value></data>
-  <data name="Theme_midnight" xml:space="preserve"><value>Midnight</value></data>
-  <data name="Theme_midnight_Description" xml:space="preserve"><value>Dark teal, the default</value></data>
-  <data name="Theme_daylight" xml:space="preserve"><value>Daylight</value></data>
-  <data name="Theme_daylight_Description" xml:space="preserve"><value>Light header</value></data>
-  <data name="Theme_amber" xml:space="preserve"><value>Amber</value></data>
-  <data name="Theme_amber_Description" xml:space="preserve"><value>Graphite and gold</value></data>
+  <data name="Theme_light" xml:space="preserve"><value>Light</value></data>
+  <data name="Theme_light_Description" xml:space="preserve"><value>Indigo header, the default</value></data>
+  <data name="Theme_dark" xml:space="preserve"><value>Dark</value></data>
+  <data name="Theme_dark_Description" xml:space="preserve"><value>Dark with soft indigo</value></data>
   <data name="Theme_contrast" xml:space="preserve"><value>High contrast</value></data>
   <data name="Theme_contrast_Description" xml:space="preserve"><value>Black and white with strong blue</value></data>
-  <data name="Theme_steel" xml:space="preserve"><value>Steel</value></data>
-  <data name="Theme_steel_Description" xml:space="preserve"><value>Slate blue #778DA9</value></data>
-  <data name="Theme_deepsea" xml:space="preserve"><value>Deep sea</value></data>
-  <data name="Theme_deepsea_Description" xml:space="preserve"><value>Navy blue #415A77</value></data>
-  <data name="Theme_dusk" xml:space="preserve"><value>Dusk</value></data>
-  <data name="Theme_dusk_Description" xml:space="preserve"><value>Violet grey #4A4E69</value></data>
-  <data name="Theme_ink" xml:space="preserve"><value>Dark</value></data>
-  <data name="Theme_ink_Description" xml:space="preserve"><value>Near black #040303</value></data>
-  <data name="Theme_blush" xml:space="preserve"><value>Blush</value></data>
-  <data name="Theme_blush_Description" xml:space="preserve"><value>Soft pink #FFA5AB</value></data>
-  <data name="Theme_plum" xml:space="preserve"><value>Plum</value></data>
-  <data name="Theme_plum_Description" xml:space="preserve"><value>Deep purple #582C4D</value></data>
+  <data name="Theme_graphite" xml:space="preserve"><value>Graphite</value></data>
+  <data name="Theme_graphite_Description" xml:space="preserve"><value>Dark grey with orange</value></data>
+  <data name="Theme_forest" xml:space="preserve"><value>Forest</value></data>
+  <data name="Theme_forest_Description" xml:space="preserve"><value>Light with deep green</value></data>
+  <data name="Theme_sand" xml:space="preserve"><value>Sand</value></data>
+  <data name="Theme_sand_Description" xml:space="preserve"><value>Warm light with terracotta</value></data>
   <data name="Filter_FixFirst" xml:space="preserve"><value>Fix these filters first, or remove them:</value></data>
   <data name="Filter_FixFirstTitle" xml:space="preserve"><value>Filters</value></data>
   <data name="Enum_Aggregation_None" xml:space="preserve"><value>None</value></data>
