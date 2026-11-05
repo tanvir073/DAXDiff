@@ -218,13 +218,13 @@
   <data name="Dialog_No" xml:space="preserve"><value>_Nej</value></data>
   <data name="Dialog_Cancel" xml:space="preserve"><value>Avbryt</value></data>
   <data name="Theme_midnight" xml:space="preserve"><value>Midnatt</value></data>
-  <data name="Theme_midnight_Description" xml:space="preserve"><value>Mörk blågrön, standard</value></data>
+  <data name="Theme_midnight_Description" xml:space="preserve"><value>Mörk blågrön</value></data>
   <data name="Theme_daylight" xml:space="preserve"><value>Dagsljus</value></data>
   <data name="Theme_daylight_Description" xml:space="preserve"><value>Ljust sidhuvud</value></data>
   <data name="Theme_amber" xml:space="preserve"><value>Bärnsten</value></data>
   <data name="Theme_amber_Description" xml:space="preserve"><value>Grafit och guld</value></data>
   <data name="Theme_graphite" xml:space="preserve"><value>Grafit</value></data>
-  <data name="Theme_graphite_Description" xml:space="preserve"><value>Mörkgrått med orange</value></data>
+  <data name="Theme_graphite_Description" xml:space="preserve"><value>Mörkgrått med orange, standard</value></data>
   <data name="Theme_contrast" xml:space="preserve"><value>Hög kontrast</value></data>
   <data name="Theme_contrast_Description" xml:space="preserve"><value>Svart och vitt med stark blå</value></data>
   <data name="Theme_steel" xml:space="preserve"><value>Stål</value></data>

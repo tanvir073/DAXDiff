@@ -218,13 +218,13 @@
   <data name="Dialog_No" xml:space="preserve"><value>_No</value></data>
   <data name="Dialog_Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Theme_midnight" xml:space="preserve"><value>Midnight</value></data>
-  <data name="Theme_midnight_Description" xml:space="preserve"><value>Dark teal, the default</value></data>
+  <data name="Theme_midnight_Description" xml:space="preserve"><value>Dark teal</value></data>
   <data name="Theme_daylight" xml:space="preserve"><value>Daylight</value></data>
   <data name="Theme_daylight_Description" xml:space="preserve"><value>Light header</value></data>
   <data name="Theme_amber" xml:space="preserve"><value>Amber</value></data>
   <data name="Theme_amber_Description" xml:space="preserve"><value>Graphite and gold</value></data>
   <data name="Theme_graphite" xml:space="preserve"><value>Graphite</value></data>
-  <data name="Theme_graphite_Description" xml:space="preserve"><value>Dark grey with orange</value></data>
+  <data name="Theme_graphite_Description" xml:space="preserve"><value>Dark grey with orange, the default</value></data>
   <data name="Theme_contrast" xml:space="preserve"><value>High contrast</value></data>
   <data name="Theme_contrast_Description" xml:space="preserve"><value>Black and white with strong blue</value></data>
   <data name="Theme_steel" xml:space="preserve"><value>Steel</value></data>

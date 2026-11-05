@@ -24,7 +24,7 @@ public sealed record AppTheme(string Id, string Name, string Description, ThemeT
 /// </summary>
 public static class ThemeCatalog
 {
-    public const string DefaultId = "midnight";
+    public const string DefaultId = "graphite";
 
     public static IReadOnlyList<AppTheme> Themes { get; } =
     [

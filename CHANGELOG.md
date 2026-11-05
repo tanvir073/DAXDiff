@@ -18,7 +18,7 @@ described in [docs/dev/releasing.md](docs/dev/releasing.md).
 - **macOS and Linux desktop app**: the desktop app now also runs on macOS (`.dmg`, Apple Silicon and Intel) and Linux
   (`.tar.gz`, x64 and ARM), built on Avalonia. Power BI Service models connect over XMLA or REST; Power BI Desktop
   files need Windows. Sign-ins are kept in the macOS Keychain or the Linux keyring.
-- **Graphite** colour theme: dark grey with orange accents (Settings → Appearance).
+- **Graphite** colour theme: dark grey with orange accents. It is the new default; a theme you already chose is kept.
 
 ### Changed
 
