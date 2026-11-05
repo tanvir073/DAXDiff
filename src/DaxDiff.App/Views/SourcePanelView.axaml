@@ -53,13 +53,13 @@
                                        IsVisible="{Binding State, Converter={StaticResource EnumEquals}, ConverterParameter=Working}" />
                         </Panel>
                     </Border>
-                    <!-- A and B chips in the theme colours, as everywhere in the app. -->
+                    <!-- A in teal, B in cyan, as everywhere in the app. -->
                     <Border Margin="0,0,10,0"
                             Classes.chipA="{Binding Side, Converter={StaticResource EnumEquals}, ConverterParameter=A}"
                             Classes.chipB="{Binding Side, Converter={StaticResource EnumEquals}, ConverterParameter=B}">
                         <TextBlock Text="{Binding Side}" />
                     </Border>
-                    <TextBlock Text="{Binding Title}" FontFamily="{StaticResource DisplayFont}" FontWeight="SemiBold" FontSize="22" Foreground="{DynamicResource HeadingBrush}"
+                    <TextBlock Text="{Binding Title}" FontFamily="{StaticResource DisplayFont}" FontSize="22" Foreground="{DynamicResource TealBrush}"
                                VerticalAlignment="Center" />
                 </DockPanel>
                 <TextBlock Text="{Binding Identity}" Classes="muted" FontSize="13" Margin="0,4,0,14"

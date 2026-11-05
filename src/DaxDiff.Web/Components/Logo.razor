@@ -1,10 +1,11 @@
-@* The desktop app's logo (MainWindow.axaml): models A and B as overlapping rounded squares with the matched rows as
-   the overlap, and the wordmark "DAX" bold + "Diff" regular. Colours come from the --logo-* tokens. *@
+@* The desktop app's logo (MainWindow.xaml): the "outer join" mark, models A and B as overlapping circles with the
+   matched rows as the lens, and the wordmark "DAX" regular + "DIFF" bold. Colours come from the --logo-* tokens. *@
 <span class="logo-lockup" role="img" aria-label="DAXDiff">
     <svg class="logo-mark" viewBox="0 0 100 100" aria-hidden="true">
-        <rect x="6" y="20" width="60" height="60" rx="16" fill="var(--logo-a)" />
-        <rect x="34" y="20" width="60" height="60" rx="16" fill="var(--logo-b)" />
-        <rect x="34" y="20" width="32" height="60" rx="16" fill="var(--logo-overlap)" stroke="var(--logo-gap)" stroke-width="6" />
+        <circle cx="36" cy="50" r="28" fill="var(--logo-a)" />
+        <circle cx="64" cy="50" r="28" fill="var(--logo-b)" />
+        <path d="M50,25.75 A28,28 0 0 1 50,74.25 A28,28 0 0 1 50,25.75 Z" fill="var(--logo-lens)"
+              stroke="var(--logo-gap)" stroke-width="6" stroke-linejoin="round" />
     </svg>
-    <span class="logo-word" aria-hidden="true"><b>DAX</b>Diff</span>
+    <span class="logo-word" aria-hidden="true">DAX<b>DIFF</b></span>
 </span>

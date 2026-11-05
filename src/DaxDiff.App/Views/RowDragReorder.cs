@@ -199,7 +199,7 @@ public sealed class RowDragReorder
         if (_line is null)
         {
             _line = new Border { Height = 2.5, IsHitTestVisible = false };
-            _line.Background = _grid.TryFindResource("HeadingBrush", _grid.ActualThemeVariant, out var brush) && brush is IBrush b ? b : Brushes.Teal;
+            _line.Background = _grid.TryFindResource("TealBrush", _grid.ActualThemeVariant, out var brush) && brush is IBrush b ? b : Brushes.Teal;
         }
 
         if (!ReferenceEquals(_lineRow, row))

@@ -19,7 +19,7 @@
             <views:SourcePanelView Grid.Column="0" DataContext="{Binding SourceA}" />
             <Button Grid.Column="1" Classes="round" Command="{Binding SwapCommand}" VerticalAlignment="Top" Margin="12,24,12,0"
                     ToolTip.Tip="{x:Static res:Ui.Sources_SwapTip}" AutomationProperties.Name="{x:Static res:Ui.Sources_Swap}">
-                <Path Data="M 12 0 L 16 4 L 12 8 M 16 4 H 0 M 4 10 L 0 14 L 4 18 M 0 14 H 16" Stroke="{DynamicResource HeadingBrush}" StrokeThickness="2"
+                <Path Data="M 12 0 L 16 4 L 12 8 M 16 4 H 0 M 4 10 L 0 14 L 4 18 M 0 14 H 16" Stroke="{DynamicResource TealBrush}" StrokeThickness="2"
                       StrokeLineCap="Round" StrokeJoin="Round" Width="18" Height="18" Stretch="Uniform" />
             </Button>
             <views:SourcePanelView Grid.Column="2" DataContext="{Binding SourceB}" />

@@ -6,7 +6,7 @@
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
-        <StyleInclude Source="avares://DAXDiff/Themes/DaxDiff.axaml" />
+        <StyleInclude Source="avares://DAXDiff/Themes/Numberskills.axaml" />
     </Application.Styles>
 
     <!-- Theme brushes (PageBrush, SurfaceBrush, …) are added at run time by Services/ThemeBrushes. -->

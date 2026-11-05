@@ -26,7 +26,7 @@
             <Setter Property="Margin" Value="0,12,0,0" />
         </Style>
         <Style Selector="DockPanel.readinessRow > Path">
-            <Setter Property="Stroke" Value="{DynamicResource HeadingBrush}" />
+            <Setter Property="Stroke" Value="{DynamicResource TealBrush}" />
             <Setter Property="StrokeThickness" Value="2" />
             <Setter Property="Width" Value="18" />
             <Setter Property="Height" Value="18" />
@@ -50,7 +50,7 @@
                         <Border DockPanel.Dock="Top" Classes="iconTile" Background="{DynamicResource AccentFillBrush}" Margin="0,0,0,14">
                             <Path Data="M 7 0 V 14 M 0 7 H 14" Width="16" Height="16" Stroke="{DynamicResource OnAccentBrush}" />
                         </Border>
-                        <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Ui.Home_NewTitle}" FontFamily="{StaticResource DisplayFont}" FontWeight="SemiBold" FontSize="24" Margin="0,0,0,8" />
+                        <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Ui.Home_NewTitle}" FontFamily="{StaticResource DisplayFont}" FontSize="24" Margin="0,0,0,8" />
                         <Button DockPanel.Dock="Bottom" Classes="primary" Command="{Binding NewCommand}" HorizontalAlignment="Left"
                                 Content="{x:Static res:Ui.Home_NewButton}" />
                         <TextBlock Text="{x:Static res:Ui.Home_NewText}" TextWrapping="Wrap" Foreground="{DynamicResource HeroMutedBrush}" LineHeight="21"
@@ -63,8 +63,8 @@
                         <Border DockPanel.Dock="Top" Classes="iconTile" Margin="0,0,0,14">
                             <Path Data="M 2 18 H 18 A 2 2 0 0 0 20 16 V 6 A 2 2 0 0 0 18 4 H 10 L 8 1 H 2 A 2 2 0 0 0 0 3 V 16 A 2 2 0 0 0 2 18 Z" />
                         </Border>
-                        <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Ui.Home_OpenTitle}" FontFamily="{StaticResource DisplayFont}" FontWeight="SemiBold" FontSize="24"
-                                   Foreground="{DynamicResource HeadingBrush}" Margin="0,0,0,8" />
+                        <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Ui.Home_OpenTitle}" FontFamily="{StaticResource DisplayFont}" FontSize="24"
+                                   Foreground="{DynamicResource TealBrush}" Margin="0,0,0,8" />
                         <Button DockPanel.Dock="Bottom" Classes="secondary" Command="{Binding OpenCommand}" HorizontalAlignment="Left"
                                 Content="{x:Static res:Ui.Home_OpenButton}" />
                         <TextBlock Text="{x:Static res:Ui.Home_OpenText}" TextWrapping="Wrap" Foreground="{DynamicResource MutedText}" LineHeight="21"

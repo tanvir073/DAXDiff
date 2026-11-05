@@ -33,7 +33,7 @@ public static class ThemeBrushes
         Set("NavBrush", Parse(t.Nav));
         Set("InkBrush", Parse(t.Text));
         Set("MutedText", Parse(t.Muted));
-        Set("HeadingBrush", Parse(t.Heading));
+        Set("TealBrush", Parse(t.Heading));
         Set("AccentBrush", Parse(t.Heading));
         Set("SubtleBorderBrush", Parse(t.Border));
         Set("StrongBorderBrush", Parse(t.Strong));
@@ -45,10 +45,10 @@ public static class ThemeBrushes
         Set("HeaderLineBrush", Parse(t.HeaderLine));
         Set("HeaderFieldBrush", Parse(t.HeaderField));
         Set("HeaderFieldHoverBrush", Mix(Parse(t.HeaderText), header, 0.16));
-        // The logo keeps its own colours: the light variant on a light header, the dark one otherwise.
-        Set("LogoABrush", Parse(lightHeader ? "#4b4fd6" : "#8f93ff"));
-        Set("LogoBBrush", Parse(lightHeader ? "#a9acff" : "#dcdcff"));
-        Set("LogoOverlapBrush", Parse(lightHeader ? "#23266b" : "#4b4fd6"));
+        // The "outer join" logo keeps its own colours: the light variant on a light header, the dark one otherwise.
+        Set("LogoABrush", Parse(lightHeader ? "#0284c7" : "#7dd3fc"));
+        Set("LogoBBrush", Parse(lightHeader ? "#7dd3fc" : "#e0f2fe"));
+        Set("LogoLensBrush", Parse("#024b60"));
         Set("AccentFillBrush", Parse(t.Accent));
         Set("OnAccentBrush", Parse(t.OnAccent));
         Set("AccentDeepBrush", Parse(t.AccentHover));
