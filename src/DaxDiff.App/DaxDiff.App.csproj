@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    DAXDiff desktop app for Windows, macOS and Linux (Avalonia). Shares its view models and text with the WPF app
-    through DaxDiff.Presentation; only views, dialogs and theme brushes live here.
+    DAXDiff desktop app for Windows, macOS and Linux (Avalonia). Its view models and text live in
+    DaxDiff.Presentation; only views, dialogs and theme brushes live here.
   -->
   <ItemGroup>
     <ProjectReference Include="..\DaxDiff.Presentation\DaxDiff.Presentation.csproj" />
@@ -23,15 +23,16 @@
     <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>DAXDiff</AssemblyName>
     <RootNamespace>DaxDiff.App</RootNamespace>
-    <ApplicationIcon>..\DaxDiff.Desktop\Assets\DAXDiff.ico</ApplicationIcon>
+    <!-- "Outer join" logo: exe, taskbar and Start menu icon on Windows. -->
+    <ApplicationIcon>Assets\DAXDiff.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Shared with the WPF app until it is retired. -->
-    <None Include="..\DaxDiff.Desktop\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
-    <AvaloniaResource Include="..\DaxDiff.Desktop\Fonts\*.ttf" Link="Fonts\%(Filename)%(Extension)" />
-    <AvaloniaResource Include="..\DaxDiff.Desktop\Assets\DAXDiff.ico" Link="Assets\DAXDiff.ico" />
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Numberskills design system fonts (SIL Open Font License), static instances of the variable fonts. -->
+    <AvaloniaResource Include="Fonts\*.ttf" />
+    <AvaloniaResource Include="Assets\DAXDiff.ico" />
   </ItemGroup>
 
 </Project>

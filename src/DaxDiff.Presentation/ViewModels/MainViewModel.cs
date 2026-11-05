@@ -7,12 +7,12 @@ using DaxDiff.Connectors;
 using DaxDiff.Connectors.Auth;
 using DaxDiff.Connectors.Desktop;
 using DaxDiff.Connectors.Service;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Services;
 using DaxDiff.Domain;
 using Microsoft.Extensions.Logging;
-using DaxDiff.Desktop.Resources;
+using DaxDiff.Presentation.Resources;
 
-namespace DaxDiff.Desktop.ViewModels;
+namespace DaxDiff.Presentation.ViewModels;
 
 /// <summary>A step in the left-hand menu. Steps that edit a project are disabled until one is open.</summary>
 public sealed partial class NavItem : ObservableObject

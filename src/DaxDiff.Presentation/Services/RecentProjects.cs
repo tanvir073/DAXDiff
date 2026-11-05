@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace DaxDiff.Desktop.Services;
+namespace DaxDiff.Presentation.Services;
 
 /// <summary>Most-recently-used project paths (paths only, no project content).</summary>
 public sealed class RecentProjects

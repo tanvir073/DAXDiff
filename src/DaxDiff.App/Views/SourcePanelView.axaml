@@ -1,13 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:res="using:DaxDiff.Desktop.Resources"
-             xmlns:vm="using:DaxDiff.Desktop.ViewModels"
+             xmlns:res="using:DaxDiff.Presentation.Resources"
+             xmlns:vm="using:DaxDiff.Presentation.ViewModels"
              xmlns:desk="using:DaxDiff.Connectors.Desktop"
              xmlns:svc="using:DaxDiff.Connectors.Service"
              x:Class="DaxDiff.App.Views.SourcePanelView"
              x:DataType="vm:SourcePanelViewModel">
     <UserControl.Styles>
-        <!-- Form spacing that WPF's implicit styles gave every field and button. -->
+        <!-- Form spacing for every field and button. -->
         <Style Selector="TextBox, ComboBox">
             <Setter Property="Margin" Value="0,0,0,8" />
         </Style>

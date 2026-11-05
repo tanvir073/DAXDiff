@@ -32,7 +32,8 @@ Report security problems privately (see [SECURITY.md](SECURITY.md)).
 - **Tests.** New behaviour needs unit tests. Use `Fixtures/Fixture.cs` and `FakeConnector` rather than real models.
 - **Text.** Every user-facing string goes in resources, in English and Swedish. `LocalizationTests` checks this.
 - **Desktop UI.** Use the theme's keyed styles and `DynamicResource` brushes, never hard-coded colours.
-- **Platform.** Keep Windows-only code in `DaxDiff.Connectors` and `DaxDiff.Desktop`, so the web app keeps building.
+- **Platform.** Keep native-client code (ADOMD, MSAL.NET, WMI) in `DaxDiff.Connectors`, so the web app keeps building, and guard
+  Windows-only calls with `OperatingSystem.IsWindows()`, so the desktop app still runs on macOS and Linux.
 - **Changelog.** Add a line under *Unreleased* in [CHANGELOG.md](CHANGELOG.md) for user-visible changes.
 - **Docs.** Update the [user guide](docs/user/README.md) or the [technical docs](docs/dev/README.md) when behaviour
   changes.

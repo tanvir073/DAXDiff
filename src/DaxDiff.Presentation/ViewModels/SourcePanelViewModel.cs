@@ -7,12 +7,12 @@ using DaxDiff.Connectors;
 using DaxDiff.Connectors.Auth;
 using DaxDiff.Connectors.Desktop;
 using DaxDiff.Connectors.Service;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Services;
 using DaxDiff.Domain;
 using Microsoft.Extensions.Logging;
-using DaxDiff.Desktop.Resources;
+using DaxDiff.Presentation.Resources;
 
-namespace DaxDiff.Desktop.ViewModels;
+namespace DaxDiff.Presentation.ViewModels;
 
 public enum ConnectionState
 {

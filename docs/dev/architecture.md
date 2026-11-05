@@ -3,12 +3,11 @@
 ## Projects
 
 ```text
-App (Avalonia) ─┐
-Desktop (WPF) ──┴► Presentation ──► Application ──► Comparison ──────► Domain
-                       │               ├────────► Export ──────────► Domain
-                       │               └────────► Connectors.Core ─► Domain
-                       └─────────► Connectors ──► Connectors.Core
-Web ────────────────────────────► Application
+App ──► Presentation ──► Application ──► Comparison ──────► Domain
+            │               ├────────► Export ──────────► Domain
+            │               └────────► Connectors.Core ─► Domain
+            └─────────► Connectors ──► Connectors.Core
+Web ─────────────────► Application
 ```
 
 | Project | Target | Responsibility |
@@ -19,13 +18,12 @@ Web ─────────────────────────�
 | `DaxDiff.Connectors.Core` | net10.0 | `IModelConnector`, auth abstractions, error classification, metadata parsers, the REST connector and discovery |
 | `DaxDiff.Connectors` | net10.0 | ADOMD.NET (Desktop session, XMLA), WMI session discovery (Windows only), MSAL with the encrypted token cache (DPAPI, Keychain or keyring), `ConnectorFactory` |
 | `DaxDiff.Application` | net10.0 | Run orchestration (parallel, retries, timeouts), project persistence and migration, product links |
-| `DaxDiff.Presentation` | net10.0 | View models (CommunityToolkit.Mvvm), their services and the desktop text, shared by the desktop apps; no UI toolkit |
-| `DaxDiff.App` | net10.0 | Cross-platform desktop app (Avalonia 12): views, dialogs, theme brushes. Windows, macOS, Linux |
-| `DaxDiff.Desktop` | net10.0-windows | WPF views, dialogs, theme brushes. Windows only; retired once `DaxDiff.App` matches it |
+| `DaxDiff.Presentation` | net10.0 | View models (CommunityToolkit.Mvvm), their services and the desktop text; no UI toolkit, so they are tested on every OS |
+| `DaxDiff.App` | net10.0 | Desktop app (Avalonia 12): views, dialogs, theme brushes. Windows, macOS, Linux |
 | `DaxDiff.Web` | net10.0 | Blazor WebAssembly app, MSAL.js, REST only |
 | `DaxDiff.Tests.Unit` | net10.0 | xUnit tests, run on Windows, Linux and macOS |
 
-Native-client code (ADOMD, MSAL.NET, WMI) stays in `Connectors` and the desktop apps, so the web app keeps building.
+Native-client code (ADOMD, MSAL.NET, WMI) stays in `Connectors` and the desktop app, so the web app keeps building.
 Windows-only calls are guarded with `OperatingSystem.IsWindows()`. CI builds and tests on Windows, Linux and macOS.
 
 `Directory.Build.props` sets Nullable, ImplicitUsings, the version and the package metadata for every project.

@@ -1,4 +1,4 @@
-namespace DaxDiff.Desktop.Services;
+namespace DaxDiff.Presentation.Services;
 
 /// <summary>
 /// Command-line arguments. Power BI Desktop External Tools launches the app with

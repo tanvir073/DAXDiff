@@ -55,7 +55,7 @@ Comparing a PBIX open in Power BI Desktop needs Windows, because Power BI Deskto
 ```powershell
 dotnet build
 dotnet test tests/DaxDiff.Tests.Unit
-dotnet run --project src/DaxDiff.Desktop
+dotnet run --project src/DaxDiff.App
 ```
 
 Requires the .NET 10 SDK. See [Building and testing](docs/dev/building.md) and [CONTRIBUTING.md](CONTRIBUTING.md).

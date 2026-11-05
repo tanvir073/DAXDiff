@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using DaxDiff.Domain;
-using DaxDiff.Desktop.Resources;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Resources;
+using DaxDiff.Presentation.Services;
 
-namespace DaxDiff.Desktop.ViewModels;
+namespace DaxDiff.Presentation.ViewModels;
 
 /// <summary>One inserted field in a comparison: key flag, aggregation and synonym (FR-006, FR-017, FR-018).</summary>
 public sealed partial class ComparisonFieldViewModel : ObservableObject

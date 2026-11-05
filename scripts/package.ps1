@@ -20,7 +20,7 @@ dotnet test "$root/tests/DaxDiff.Tests.Unit" -c $Configuration
 if ($LASTEXITCODE) { throw 'Tests failed.' }
 
 foreach ($dir in $app, $dist) { if (Test-Path $dir) { Remove-Item $dir -Recurse -Force } }
-dotnet publish "$root/src/DaxDiff.Desktop/DaxDiff.Desktop.csproj" -c $Configuration -r win-x64 --self-contained true -o $app
+dotnet publish "$root/src/DaxDiff.App/DaxDiff.App.csproj" -c $Configuration -r win-x64 --self-contained true -o $app
 if ($LASTEXITCODE) { throw 'Publish failed.' }
 
 dotnet build "$root/installer/DaxDiff.Installer.wixproj" -c $Configuration -p:AppDir=$app -o $dist

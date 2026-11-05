@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
-using DaxDiff.Desktop.Resources;
+using DaxDiff.Presentation.Resources;
 
 namespace DaxDiff.App.Views;
 

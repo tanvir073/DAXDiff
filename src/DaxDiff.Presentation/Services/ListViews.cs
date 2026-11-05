@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Specialized;
 
-namespace DaxDiff.Desktop.Services;
+namespace DaxDiff.Presentation.Services;
 
 /// <summary>
 /// A filtered and sorted view of a collection, which a list control shows. View models set the filter and sort; the UI
@@ -28,8 +28,7 @@ public interface IListView : IEnumerable
 public static class ListViews
 {
     /// <summary>
-    /// Returns the view of <paramref name="source"/>. Called once per source collection; the WPF app hands back the
-    /// collection's default view, so controls bound to the collection itself are filtered as well.
+    /// Returns the view of <paramref name="source"/>. Called once per source collection.
     /// </summary>
     public static Func<IEnumerable, IListView> Create { get; set; } = source => new FilteredListView(source);
 }

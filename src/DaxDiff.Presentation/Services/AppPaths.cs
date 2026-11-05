@@ -1,4 +1,4 @@
-namespace DaxDiff.Desktop.Services;
+namespace DaxDiff.Presentation.Services;
 
 /// <summary>Per-user locations. Nothing here is shared or roamed.</summary>
 public static class AppPaths

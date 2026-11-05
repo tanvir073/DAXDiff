@@ -1,8 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using DaxDiff.App.Views;
-using DaxDiff.Desktop.Services;
-using DaxDiff.Desktop.ViewModels;
+using DaxDiff.Presentation.Services;
+using DaxDiff.Presentation.ViewModels;
 
 namespace DaxDiff.App.Services;
 

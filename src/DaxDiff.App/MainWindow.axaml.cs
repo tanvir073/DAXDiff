@@ -1,5 +1,5 @@
 using Avalonia.Controls;
-using DaxDiff.Desktop.ViewModels;
+using DaxDiff.Presentation.ViewModels;
 
 namespace DaxDiff.App;
 

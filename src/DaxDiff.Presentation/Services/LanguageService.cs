@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using DaxDiff.Desktop.Resources;
+using DaxDiff.Presentation.Resources;
 
-namespace DaxDiff.Desktop.Services;
+namespace DaxDiff.Presentation.Services;
 
 /// <summary>A user-interface language; an empty <see cref="Code"/> follows the Windows display language.</summary>
 public sealed record AppLanguage(string Code, string Name);

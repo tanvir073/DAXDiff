@@ -2,7 +2,7 @@ using System.Globalization;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using DaxDiff.App.Services;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Services;
 
 namespace DaxDiff.App;
 

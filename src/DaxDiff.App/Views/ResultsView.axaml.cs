@@ -6,8 +6,8 @@ using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Interactivity;
-using DaxDiff.Desktop.Resources;
-using DaxDiff.Desktop.ViewModels;
+using DaxDiff.Presentation.Resources;
+using DaxDiff.Presentation.ViewModels;
 using DaxDiff.Domain;
 
 namespace DaxDiff.App.Views;
@@ -117,7 +117,7 @@ public partial class ResultsView : UserControl
                 Header = column.Header,
                 Tag = column,
                 CellTemplate = new FuncDataTemplate<ResultRowView>((_, _) => new ResultCell(column), supportsRecycling: true),
-                // Copying cells (Ctrl+C) takes the raw values, as WPF did.
+                // Copying cells (Ctrl+C) takes the raw values.
                 ClipboardContentBinding = new ReflectionBinding($"Cells[{column.Index}]") { Mode = BindingMode.OneWay },
                 SortMemberPath = column.Index.ToString(CultureInfo.InvariantCulture),
                 CanUserSort = true,
@@ -186,7 +186,7 @@ public partial class ResultsView : UserControl
             Classes.Set("invalidKey", status == RowStatus.InvalidKey);
         }
 
-        // Same formats as the WPF grid: numbers with up to ten decimals, Δ% as a percentage, BLANK for an empty key or value.
+        // Numbers with up to ten decimals, Δ% as a percentage, BLANK for an empty key or value.
         private string Format(object? value) => value switch
         {
             null => _column.Kind is ResultColumnKind.Value or ResultColumnKind.Key ? Strings.Blank : "",

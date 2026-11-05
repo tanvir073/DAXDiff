@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace DaxDiff.Desktop.Resources;
+namespace DaxDiff.Presentation.Resources;
 
 /// <summary>Fills a localized composite format from <see cref="Strings"/> with the user's regional number and date formats.</summary>
 public static class Localized

@@ -1,13 +1,13 @@
 using System.Globalization;
 using Avalonia.Media;
 using Avalonia.Styling;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Services;
 
 namespace DaxDiff.App.Services;
 
 /// <summary>
 /// Turns a <see cref="ThemeCatalog"/> theme into the brushes the views use with DynamicResource, so applying a theme
-/// recolours the open windows immediately. The brush names match the WPF app's.
+/// recolours the open windows immediately.
 /// </summary>
 public static class ThemeBrushes
 {
@@ -72,7 +72,7 @@ public static class ThemeBrushes
         // Fluent's own controls (menus, pop-ups, scroll bars) follow the theme's lightness and accent.
         app.RequestedThemeVariant = dark ? ThemeVariant.Dark : ThemeVariant.Light;
         r["SystemAccentColor"] = Parse(t.Accent);
-        // The DataGrid theme paints its header row from its own brush; use the page colour as in WPF.
+        // The DataGrid theme paints its header row from its own brush; use the page colour.
         Set("DataGridColumnHeaderBackgroundBrush", Parse(t.Page));
         Set("DataGridColumnHeaderForegroundBrush", Parse(t.Muted));
     }

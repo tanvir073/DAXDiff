@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace DaxDiff.Desktop.Services;
+namespace DaxDiff.Presentation.Services;
 
 /// <summary>Starts a new instance of DAXDiff, for example to show a newly chosen language.</summary>
 public static class AppRestarter

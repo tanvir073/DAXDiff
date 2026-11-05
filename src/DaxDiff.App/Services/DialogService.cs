@@ -3,8 +3,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using DaxDiff.App.Views;
-using DaxDiff.Desktop.Resources;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Resources;
+using DaxDiff.Presentation.Services;
 using DaxDiff.Domain;
 
 namespace DaxDiff.App.Services;
@@ -71,7 +71,7 @@ public sealed class DialogService : IDialogService
             : Modal.Run(() => dialog.ShowStandaloneAsync());
     }
 
-    /// <summary>Turns a WPF-style filter ("Projects (*.pbicomp)|*.pbicomp|All files (*.*)|*.*") into file types.</summary>
+    /// <summary>Turns a filter in the classic form ("Projects (*.pbicomp)|*.pbicomp|All files (*.*)|*.*") into file types.</summary>
     internal static List<FilePickerFileType> FileTypes(string filter)
     {
         var parts = filter.Split('|');

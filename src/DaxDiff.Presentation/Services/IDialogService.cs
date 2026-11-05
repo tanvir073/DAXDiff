@@ -1,4 +1,4 @@
-namespace DaxDiff.Desktop.Services;
+namespace DaxDiff.Presentation.Services;
 
 /// <summary>Message boxes and file pickers. Modal: each call returns once the user has answered.</summary>
 public interface IDialogService

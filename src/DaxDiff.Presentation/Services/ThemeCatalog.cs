@@ -1,6 +1,6 @@
-using DaxDiff.Desktop.Resources;
+using DaxDiff.Presentation.Resources;
 
-namespace DaxDiff.Desktop.Services;
+namespace DaxDiff.Presentation.Services;
 
 /// <summary>
 /// Colour tokens of one theme, as defined on the DAXDiff redesign canvas. Values are CSS colours (#rrggbb or rgba()).

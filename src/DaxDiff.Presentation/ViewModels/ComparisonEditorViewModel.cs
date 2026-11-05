@@ -7,10 +7,10 @@ using CommunityToolkit.Mvvm.Input;
 using DaxDiff.Application;
 using DaxDiff.Comparison;
 using DaxDiff.Domain;
-using DaxDiff.Desktop.Resources;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Resources;
+using DaxDiff.Presentation.Services;
 
-namespace DaxDiff.Desktop.ViewModels;
+namespace DaxDiff.Presentation.ViewModels;
 
 /// <summary>A pair as it will run: what is compared with what, under which synonym.</summary>
 public sealed record PairPreview(string Synonym, string Role, string A, string B);

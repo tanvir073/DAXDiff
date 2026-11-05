@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Services;
 
 namespace DaxDiff.Tests.Unit;
 

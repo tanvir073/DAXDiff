@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using DaxDiff.Domain;
-using DaxDiff.Desktop.Resources;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Resources;
+using DaxDiff.Presentation.Services;
 
-namespace DaxDiff.Desktop.ViewModels;
+namespace DaxDiff.Presentation.ViewModels;
 
 /// <summary>A searchable table → field tree for one model (FR-005).</summary>
 /// <remarks>

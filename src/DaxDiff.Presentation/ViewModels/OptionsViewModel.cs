@@ -4,11 +4,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DaxDiff.Application;
 using DaxDiff.Comparison;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Services;
 using DaxDiff.Domain;
-using DaxDiff.Desktop.Resources;
+using DaxDiff.Presentation.Resources;
 
-namespace DaxDiff.Desktop.ViewModels;
+namespace DaxDiff.Presentation.ViewModels;
 
 /// <summary>One comparison's filters, tolerances, normalization, limits and query preview (FR-008, FR-009).</summary>
 public sealed partial class OptionsViewModel : ObservableObject

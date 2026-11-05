@@ -7,7 +7,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using DaxDiff.Desktop.ViewModels;
+using DaxDiff.Presentation.ViewModels;
 using DaxDiff.Domain;
 
 namespace DaxDiff.App.Views;

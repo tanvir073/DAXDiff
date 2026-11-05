@@ -5,9 +5,9 @@ using CommunityToolkit.Mvvm.Input;
 using DaxDiff.Comparison;
 using DaxDiff.Connectors;
 using DaxDiff.Domain;
-using DaxDiff.Desktop.Resources;
+using DaxDiff.Presentation.Resources;
 
-namespace DaxDiff.Desktop.ViewModels;
+namespace DaxDiff.Presentation.ViewModels;
 
 /// <summary>What the filter editor can see: both models' metadata and connections, and the comparison's synonym pairs.</summary>
 public sealed record FilterEditorContext(

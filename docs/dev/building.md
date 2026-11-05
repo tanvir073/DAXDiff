@@ -3,8 +3,7 @@
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- Windows 10 or 11 for the WPF desktop app (`DaxDiff.Desktop`). Everything else, including the cross-platform app
-  (`DaxDiff.App`) and the tests, builds and runs on Windows, macOS and Linux.
+- Windows, macOS or Linux. Everything builds and the tests run on all three; the MSI can only be built on Windows.
 - Optional: Power BI Desktop, for trying local PBIX comparisons.
 
 ## Commands
@@ -13,17 +12,15 @@
 dotnet build                                   # whole solution (DaxDiff.sln)
 dotnet test tests/DaxDiff.Tests.Unit           # all unit tests
 dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngineTests"   # one class
-dotnet run --project src/DaxDiff.App           # cross-platform desktop app (Avalonia)
-dotnet run --project src/DaxDiff.Desktop       # WPF desktop app (Windows)
+dotnet run --project src/DaxDiff.App           # desktop app (Avalonia)
 dotnet run --project src/DaxDiff.Web --launch-profile http   # web app on http://localhost:5215
 ./scripts/build.ps1                            # Release restore, build, test, publish to ./publish
 ./scripts/package.ps1                          # Windows: MSI and portable zip in ./dist
 bash scripts/package-app.sh osx-arm64          # macOS .dmg / Linux .tar.gz in ./dist (run on that system)
 ```
 
-The desktop output is in `src/DaxDiff.Desktop/bin/Debug/net10.0-windows/win-x64/`, because a `RuntimeIdentifier` is
-set. If an application-control policy blocks the unsigned `DAXDiff.exe` ("Access is denied"), run
-`dotnet DAXDiff.dll` from that folder.
+The desktop output is in `src/DaxDiff.App/bin/Debug/net10.0/`. If an application-control policy blocks the unsigned
+`DAXDiff.exe` ("Access is denied"), run `dotnet DAXDiff.dll` from that folder.
 
 ## Packaging
 

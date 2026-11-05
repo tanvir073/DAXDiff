@@ -6,10 +6,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DaxDiff.Application;
 using DaxDiff.Connectors.Auth;
-using DaxDiff.Desktop.Resources;
-using DaxDiff.Desktop.Services;
+using DaxDiff.Presentation.Resources;
+using DaxDiff.Presentation.Services;
 
-namespace DaxDiff.Desktop.ViewModels;
+namespace DaxDiff.Presentation.ViewModels;
 
 /// <summary>Privacy, sign-in configuration, diagnostics location, version and session reset.</summary>
 public sealed partial class SettingsViewModel : ObservableObject

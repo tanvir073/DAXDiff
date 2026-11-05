@@ -1,8 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:res="using:DaxDiff.Desktop.Resources"
-             xmlns:vm="using:DaxDiff.Desktop.ViewModels"
-             xmlns:svc="using:DaxDiff.Desktop.Services"
+             xmlns:res="using:DaxDiff.Presentation.Resources"
+             xmlns:vm="using:DaxDiff.Presentation.ViewModels"
+             xmlns:svc="using:DaxDiff.Presentation.Services"
              x:Class="DaxDiff.App.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
     <UserControl.Styles>

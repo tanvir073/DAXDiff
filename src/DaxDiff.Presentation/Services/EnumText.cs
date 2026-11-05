@@ -1,4 +1,4 @@
-namespace DaxDiff.Desktop.Services;
+namespace DaxDiff.Presentation.Services;
 
 /// <summary>
 /// An enum value in the UI language: the Strings resource "Enum_&lt;Type&gt;_&lt;Value&gt;", else the value's name.

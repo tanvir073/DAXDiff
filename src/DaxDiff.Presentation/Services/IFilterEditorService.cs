@@ -1,6 +1,6 @@
-using DaxDiff.Desktop.ViewModels;
+using DaxDiff.Presentation.ViewModels;
 
-namespace DaxDiff.Desktop.Services;
+namespace DaxDiff.Presentation.Services;
 
 public interface IFilterEditorService
 {

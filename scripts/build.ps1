@@ -14,6 +14,6 @@ $root = Resolve-Path (Join-Path $PSScriptRoot '..')
 dotnet restore "$root/DaxDiff.sln"
 dotnet build "$root/DaxDiff.sln" -c $Configuration --no-restore
 dotnet test "$root/tests/DaxDiff.Tests.Unit" -c $Configuration --no-build
-dotnet publish "$root/src/DaxDiff.Desktop/DaxDiff.Desktop.csproj" -c $Configuration -o $Output --no-restore
+dotnet publish "$root/src/DaxDiff.App/DaxDiff.App.csproj" -c $Configuration -r win-x64 --self-contained false -o $Output
 
 Write-Host "Published to $Output"

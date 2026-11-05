@@ -7,7 +7,7 @@ Source of truth: `DAXDiff_Requirements.docx` (SRS v1.2, 26 Oct 2026; see its rev
 | Concern | Choice | Why |
 |---|---|---|
 | Runtime | .NET 10 (LTS), Windows x64 | Pinned LTS. Desktop attach and ADOMD are Windows-native |
-| UI | WPF + MVVM (CommunityToolkit.Mvvm) | Stable, virtualized `DataGrid`, high-DPI aware |
+| UI | Avalonia + MVVM (CommunityToolkit.Mvvm) | One desktop app for Windows, macOS and Linux (WPF until Nov 2026) |
 | Query / metadata | Microsoft.AnalysisServices.AdomdClient 19.x (DAX + DMVs) | Same code path for Desktop and Service XMLA; DMVs avoid a TOM dependency |
 | REST fallback | `HttpClient` against Power BI `executeQueries` | Bounded fallback when XMLA is unavailable (FR-003) |
 | Auth | MSAL.NET + Msal.Extensions (DPAPI-encrypted token cache) | Interactive delegated sign-in, no passwords (§9) |
@@ -23,7 +23,8 @@ src/DaxDiff.Comparison    DAX builder, key normalization, comparison engine, aut
 src/DaxDiff.Connectors    IModelConnector + Desktop / Service XMLA / Service REST connectors, session locator, MSAL auth, discovery
 src/DaxDiff.Export        Excel workbook writer
 src/DaxDiff.Application   Run orchestration (parallel queries, retries, timeouts, audit), project persistence
-src/DaxDiff.Desktop       WPF shell and view models
+src/DaxDiff.Presentation  View models and desktop text (no UI toolkit)
+src/DaxDiff.App           Avalonia shell and views
 tests/DaxDiff.Tests.Unit  Unit tests (engine, DAX builder, normalization, export, persistence, orchestration via fake connectors)
 ```
 
