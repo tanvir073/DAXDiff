@@ -19,7 +19,7 @@ Web ─────────────────► Application
 | `DaxDiff.Connectors` | net10.0 | ADOMD.NET (Desktop session, XMLA), WMI session discovery (Windows only), MSAL with the encrypted token cache (DPAPI, Keychain or keyring), `ConnectorFactory` |
 | `DaxDiff.Application` | net10.0 | Run orchestration (parallel, retries, timeouts), project persistence and migration, product links |
 | `DaxDiff.Presentation` | net10.0 | View models (CommunityToolkit.Mvvm), their services and the desktop text; no UI toolkit, so they are tested on every OS |
-| `DaxDiff.App` | net10.0 | Desktop app (Avalonia 12): views, dialogs, theme brushes. Windows, macOS, Linux |
+| `DaxDiff.App` | net10.0-windows on Windows, net10.0 elsewhere | Desktop app (Avalonia 12): views, dialogs, theme brushes. Windows, macOS, Linux. On Windows it includes Windows Forms for ADOMD.NET's own XMLA sign-in |
 | `DaxDiff.Web` | net10.0 | Blazor WebAssembly app, MSAL.js, REST only |
 | `DaxDiff.Tests.Unit` | net10.0 | xUnit tests, run on Windows, Linux and macOS |
 

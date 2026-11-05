@@ -18,13 +18,13 @@ dotnet run --project src/DaxDiff.Web --launch-profile http   # web app on http:/
 bash scripts/package-app.sh osx-arm64          # macOS .dmg or Linux .tar.gz of DaxDiff.App to ./dist (run on that OS)
 ```
 
-There is no linter configured. On the developer's machine, an application-control policy blocks the unsigned `DAXDiff.exe` with "Access is denied". Run the built app as `dotnet src/DaxDiff.App/bin/Debug/net10.0/DAXDiff.dll` instead.
+There is no linter configured. On the developer's machine, an application-control policy blocks the unsigned `DAXDiff.exe` with "Access is denied". Run the built app as `dotnet src/DaxDiff.App/bin/Debug/net10.0-windows/DAXDiff.dll` instead.
 
 ## Architecture
 
 The dependency direction is App → Presentation → {Application, Connectors} and Web → Application → {Comparison, Connectors.Core, Export} → Domain, with Connectors → Connectors.Core.
 
-- **Target frameworks:** everything targets `net10.0`, and the whole solution builds on Windows, macOS and Linux. `Connectors` is cross-platform: WMI session discovery returns nothing outside Windows (`DesktopSessionLocator.IsSupported`), and the MSAL cache uses DPAPI, the macOS Keychain or the Linux keyring, else memory only. ADOMD.NET reaches the Power BI XMLA endpoint on Linux and macOS (probed in CI), but a full query there is unverified. The tests run on Windows, Linux and macOS in CI.
+- **Target frameworks:** everything targets `net10.0` except the App, which targets `net10.0-windows` with Windows Forms when built on Windows (ADOMD.NET's own XMLA sign-in, used without a client ID, is a Windows Forms dialog and also needs `AnalysisServices.AppSettings.json` to mark the process as having a UI). The whole solution builds on Windows, macOS and Linux. `Connectors` is cross-platform: WMI session discovery returns nothing outside Windows (`DesktopSessionLocator.IsSupported`), and the MSAL cache uses DPAPI, the macOS Keychain or the Linux keyring, else memory only. ADOMD.NET reaches the Power BI XMLA endpoint on Linux and macOS (probed in CI), but a full query there is unverified. The tests run on Windows, Linux and macOS in CI.
 - **Connectors.Core vs Connectors.** `Connectors.Core` holds everything that also runs in the browser: `IModelConnector`, `IAuthService`/`AuthOptions`/`SourceSession`, `ErrorClassifier`, the metadata parsers and the REST connector, client and discovery. `Connectors` holds ADOMD (Desktop, XMLA), WMI session discovery, `MsalAuthService` (which maps `MsalException` itself) and `ConnectorFactory`. Namespaces did not change. Keep native-client code (ADOMD, MSAL.NET, WMI) out of Core and Application, or the web app stops building, and guard Windows-only calls with `OperatingSystem.IsWindows()`.
 - **Shared build settings:** `Directory.Build.props` sets Nullable, ImplicitUsings and the version for every project.
 
@@ -137,7 +137,7 @@ The desktop app (assembly `DAXDiff`). It holds the views, dialogs and theme brus
 - **Off Windows.** The Desktop source type stays selectable, but `SourcePanelView` hides its PBIX and session controls and shows `Source_DesktopWindowsOnly` when `DesktopSessionLocator.IsSupported` is false. MSAL gets the window handle only on Windows.
 - **Don't set `BuiltInComInteropSupport=false`**, because `System.Management` (WMI) then fails at type initialisation.
 - **Packaging.** Windows: `scripts/package.ps1` publishes the app self-contained for win-x64 into the MSI (`installer/`, which also registers `tools/DAXDiff.pbitool.json` on Power BI Desktop's External Tools ribbon) and a portable zip. macOS and Linux: `scripts/package-app.sh <rid>` builds a `.dmg` (ad-hoc signed `DAXDiff.app`) or a `.tar.gz`. The icons are `Assets/DAXDiff.ico` (exe) and `Assets/DAXDiff.png`.
-- **Seeing it.** Run `dotnet src/DaxDiff.App/bin/Debug/net10.0/DAXDiff.dll <project.pbicomp>`. UI Automation can invoke the nav buttons by their titles, and `PrintWindow` captures the window without needing focus.
+- **Seeing it.** Run `dotnet src/DaxDiff.App/bin/Debug/net10.0-windows/DAXDiff.dll <project.pbicomp>`. UI Automation can invoke the nav buttons by their titles, and `PrintWindow` captures the window without needing focus.
 
 ### Web (`DaxDiff.Web`, Blazor WebAssembly)
 

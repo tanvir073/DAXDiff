@@ -509,7 +509,7 @@ public sealed partial class SourcePanelViewModel : ObservableObject
             var error = ex as DaxDiffException ?? ErrorClassifier.Classify(ex, Title);
             error.WithSide(Side);
             StatusText = $"{error.Message} ({error.DiagnosticCode})";
-            _logger.LogWarning("Model {Side} operation failed with {Code}", Side, error.DiagnosticCode);
+            _logger.LogWarning(ex, "Model {Side} operation failed with {Code}", Side, error.DiagnosticCode);
             _dialogs.ShowError(error);
         }
     }

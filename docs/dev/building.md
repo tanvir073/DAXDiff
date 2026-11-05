@@ -19,7 +19,7 @@ dotnet run --project src/DaxDiff.Web --launch-profile http   # web app on http:/
 bash scripts/package-app.sh osx-arm64          # macOS .dmg / Linux .tar.gz in ./dist (run on that system)
 ```
 
-The desktop output is in `src/DaxDiff.App/bin/Debug/net10.0/`. If an application-control policy blocks the unsigned
+The desktop output is in `src/DaxDiff.App/bin/Debug/net10.0-windows/` on Windows (`net10.0/` on macOS and Linux). If an application-control policy blocks the unsigned
 `DAXDiff.exe` ("Access is denied"), run `dotnet DAXDiff.dll` from that folder.
 
 ## Packaging
