@@ -90,7 +90,8 @@ public partial class ResultsView : UserControl
 
     private void ColumnPicker_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (_syncingPicker || _viewModel is null)
+        // Closing the flyout detaches the list, which drops its ItemsSource and with it the selection; that is not a choice.
+        if (_syncingPicker || _viewModel is null || ColumnPickerList.ItemsSource is null)
             return;
         // SelectedItems is in click order; keep the result's column order instead.
         var chosen = (ColumnPickerList.SelectedItems?.Cast<string>() ?? []).ToHashSet();
