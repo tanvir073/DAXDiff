@@ -1,0 +1,202 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:DaxDiff.Presentation.Resources"
+             xmlns:vm="using:DaxDiff.Presentation.ViewModels"
+             xmlns:desk="using:DaxDiff.Connectors.Desktop"
+             xmlns:svc="using:DaxDiff.Connectors.Service"
+             x:Class="DaxDiff.App.Views.SourcePanelView"
+             x:DataType="vm:SourcePanelViewModel">
+    <UserControl.Styles>
+        <!-- Form spacing for every field and button. -->
+        <Style Selector="TextBox, ComboBox">
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="WrapPanel > Button">
+            <Setter Property="Margin" Value="0,0,8,8" />
+        </Style>
+        <Style Selector="Label">
+            <Setter Property="Padding" Value="0,2,0,5" />
+            <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+        </Style>
+        <Style Selector="Label AccessText">
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <!-- Connection state badge: neutral, then success, danger or working. -->
+        <Style Selector="Border.badge.working">
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource TileTextBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="card" Padding="0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="24,20,24,20">
+                <DockPanel>
+                    <Border DockPanel.Dock="Right" Classes="badge"
+                            Classes.success="{Binding State, Converter={StaticResource EnumEquals}, ConverterParameter=Connected}"
+                            Classes.danger="{Binding State, Converter={StaticResource EnumEquals}, ConverterParameter=Failed}"
+                            Classes.working="{Binding State, Converter={StaticResource EnumEquals}, ConverterParameter=Working}"
+                            AutomationProperties.LiveSetting="Polite">
+                        <Panel>
+                            <TextBlock Text="{x:Static res:Ui.Source_NotConnected}"
+                                       IsVisible="{Binding State, Converter={StaticResource EnumEquals}, ConverterParameter=NotConnected}" />
+                            <TextBlock Text="{x:Static res:Ui.Source_Connected}"
+                                       IsVisible="{Binding State, Converter={StaticResource EnumEquals}, ConverterParameter=Connected}" />
+                            <TextBlock Text="{x:Static res:Ui.Source_ConnectionFailed}"
+                                       IsVisible="{Binding State, Converter={StaticResource EnumEquals}, ConverterParameter=Failed}" />
+                            <TextBlock Text="{x:Static res:Ui.Source_Connecting}"
+                                       IsVisible="{Binding State, Converter={StaticResource EnumEquals}, ConverterParameter=Working}" />
+                        </Panel>
+                    </Border>
+                    <!-- A in teal, B in cyan, as everywhere in the app. -->
+                    <Border Margin="0,0,10,0"
+                            Classes.chipA="{Binding Side, Converter={StaticResource EnumEquals}, ConverterParameter=A}"
+                            Classes.chipB="{Binding Side, Converter={StaticResource EnumEquals}, ConverterParameter=B}">
+                        <TextBlock Text="{Binding Side}" />
+                    </Border>
+                    <TextBlock Text="{Binding Title}" FontFamily="{StaticResource DisplayFont}" FontSize="22" Foreground="{DynamicResource TealBrush}"
+                               VerticalAlignment="Center" />
+                </DockPanel>
+                <TextBlock Text="{Binding Identity}" Classes="muted" FontSize="13" Margin="0,4,0,14"
+                           AutomationProperties.Name="{x:Static res:Ui.Source_IdentityName}" />
+
+                <Border Classes="segmentGroup" HorizontalAlignment="Stretch" Margin="0,0,0,6">
+                    <UniformGrid Columns="3" AutomationProperties.Name="{x:Static res:Ui.Source_TypeName}">
+                        <RadioButton Classes="segment" Content="{x:Static res:Ui.Source_DesktopFile}" IsChecked="{Binding IsDesktop}"
+                                     ToolTip.Tip="{x:Static res:Ui.Source_DesktopFileTip}" />
+                        <RadioButton Classes="segment" Content="{x:Static res:Ui.Source_Xmla}" IsChecked="{Binding IsXmla}"
+                                     ToolTip.Tip="{x:Static res:Ui.Source_XmlaTip}" />
+                        <RadioButton Classes="segment" Content="{x:Static res:Ui.Source_Rest}" IsChecked="{Binding IsRest}"
+                                     ToolTip.Tip="{x:Static res:Ui.Source_RestTip}" />
+                    </UniformGrid>
+                </Border>
+
+                <!-- Desktop. Power BI Desktop only runs on Windows; elsewhere the kind stays selectable (projects made on
+                     Windows keep it), but session detection is replaced by a note. -->
+                <StackPanel IsVisible="{Binding IsDesktop}">
+                    <Border Classes="message" Margin="0,2,0,6"
+                            IsVisible="{Binding Source={x:Static desk:DesktopSessionLocator.IsSupported}, Converter={x:Static BoolConverters.Not}}">
+                        <TextBlock Text="{x:Static res:Ui.Source_DesktopWindowsOnly}" TextWrapping="Wrap" FontSize="13" LineHeight="19" />
+                    </Border>
+                    <StackPanel IsVisible="{x:Static desk:DesktopSessionLocator.IsSupported}">
+                        <TextBlock Text="{x:Static res:Ui.Source_PbixFile}" Classes="sectionTitle" />
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="{x:Static res:Ui.Source_Browse}" Command="{Binding BrowsePbixCommand}" Margin="8,0,0,8" />
+                            <TextBox Text="{Binding PbixPath}" AutomationProperties.Name="{x:Static res:Ui.Source_PbixPath}" />
+                        </DockPanel>
+                        <WrapPanel>
+                            <Button Content="{x:Static res:Ui.Source_OpenInDesktop}" Command="{Binding OpenPbixInDesktopCommand}" />
+                            <Button Content="{x:Static res:Ui.Source_DetectSessions}" Command="{Binding DetectSessionsCommand}" />
+                        </WrapPanel>
+                        <TextBlock Text="{x:Static res:Ui.Source_Running}" Classes="sectionTitle" Margin="0,4,0,6" />
+                        <ListBox ItemsSource="{Binding Sessions}" SelectedItem="{Binding SelectedSession}" Height="124" BorderThickness="1" CornerRadius="10"
+                                 AutomationProperties.Name="{x:Static res:Ui.Source_RunningName}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="desk:DesktopSession">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                                        <TextBlock FontSize="12.5" Foreground="{DynamicResource MutedText}" TextTrimming="CharacterEllipsis">
+                                            <Run Text="{Binding Server, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding PbixPath, Mode=OneWay}" /><Run Text=" " /><Run Text="{Binding WindowTitle, Mode=OneWay}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Service -->
+                <StackPanel IsVisible="{Binding IsService}">
+                    <Border Classes="message" Margin="0,2,0,6">
+                        <TextBlock Text="{Binding ServiceHint}" TextWrapping="Wrap" FontSize="13" LineHeight="19" />
+                    </Border>
+                    <Label Content="{x:Static res:Ui.Source_TenantLabel}" Target="{Binding #Tenant}" />
+                    <TextBox x:Name="Tenant" Text="{Binding Tenant, UpdateSourceTrigger=LostFocus}" AutomationProperties.Name="{x:Static res:Ui.Source_Tenant}"
+                             ToolTip.Tip="{x:Static res:Ui.Source_TenantTip}" />
+                    <Label Content="{x:Static res:Ui.Source_AccountLabel}" Target="{Binding #Account}" />
+                    <TextBox x:Name="Account" Text="{Binding AccountHint}" AutomationProperties.Name="{x:Static res:Ui.Source_Account}"
+                             PlaceholderText="{x:Static res:Ui.Source_AccountPlaceholder}" ToolTip.Tip="{x:Static res:Ui.Source_AccountTip}" />
+                    <!-- Own sign-in needs a client ID. Without one, ADOMD's own Microsoft sign-in opens on Test connection. -->
+                    <WrapPanel IsVisible="{Binding CanBrowseService}">
+                        <Button Content="{x:Static res:Ui.Source_SignIn}" Command="{Binding SignInCommand}" Classes="secondary"
+                                ToolTip.Tip="{x:Static res:Ui.Source_SignInTip}" />
+                        <Button Content="{x:Static res:Ui.Source_SignOut}" Command="{Binding SignOutCommand}" />
+                        <TextBlock Text="{Binding SignInStatusText}" VerticalAlignment="Center" Margin="4,0,0,8" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MutedText}" AutomationProperties.LiveSetting="Polite" />
+                    </WrapPanel>
+                    <TextBlock Text="{x:Static res:Ui.Source_SignInOnTest}" Classes="muted" FontSize="13" Margin="0,0,0,10"
+                               IsVisible="{Binding !CanBrowseService}" />
+
+                    <StackPanel IsVisible="{Binding CanBrowseService}">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="↻" Command="{Binding RefreshWorkspacesCommand}" Margin="8,6,0,4"
+                                    AutomationProperties.Name="{x:Static res:Ui.Source_RefreshWorkspaces}" ToolTip.Tip="{x:Static res:Ui.Source_RefreshWorkspacesTip}" />
+                            <TextBlock Text="{x:Static res:Ui.Source_Workspace}" Classes="sectionTitle" />
+                        </DockPanel>
+                        <TextBox Text="{Binding WorkspaceSearch}" AutomationProperties.Name="{x:Static res:Ui.Source_SearchWorkspaces}"
+                                 PlaceholderText="{x:Static res:Ui.Source_SearchWorkspaces}" ToolTip.Tip="{x:Static res:Ui.Source_SearchWorkspacesTip}" />
+                        <ComboBox ItemsSource="{Binding WorkspacesView.ItemsSource}" SelectedItem="{Binding SelectedWorkspace}"
+                                  AutomationProperties.Name="{x:Static res:Ui.Source_Workspace}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="svc:WorkspaceInfo"><TextBlock Text="{Binding Name}" /></DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock Text="{x:Static res:Ui.Source_SemanticModel}" Classes="sectionTitle" />
+                        <TextBox Text="{Binding DatasetSearch}" AutomationProperties.Name="{x:Static res:Ui.Source_SearchModels}"
+                                 PlaceholderText="{x:Static res:Ui.Source_SearchModels}" ToolTip.Tip="{x:Static res:Ui.Source_SearchModelsTip}" />
+                        <ComboBox ItemsSource="{Binding DatasetsView.ItemsSource}" SelectedItem="{Binding SelectedDataset}"
+                                  AutomationProperties.Name="{x:Static res:Ui.Source_SemanticModel}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="svc:DatasetInfo"><TextBlock Text="{Binding Name}" /></DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                    <Label Content="{x:Static res:Ui.Source_WorkspaceLabel}" Target="{Binding #Workspace}" />
+                    <TextBox x:Name="Workspace" Text="{Binding WorkspaceName}" AutomationProperties.Name="{x:Static res:Ui.Source_WorkspaceName}"
+                             PlaceholderText="{x:Static res:Ui.Source_WorkspacePlaceholder}" ToolTip.Tip="{x:Static res:Ui.Source_WorkspaceTip}" />
+                    <Label Content="{x:Static res:Ui.Source_ModelLabel}" Target="{Binding #Dataset}" />
+                    <TextBox x:Name="Dataset" Text="{Binding DatasetName}" AutomationProperties.Name="{x:Static res:Ui.Source_ModelName}" />
+                </StackPanel>
+
+                <WrapPanel Margin="0,12,0,0">
+                    <Button Content="{x:Static res:Ui.Source_TestConnection}" Command="{Binding TestConnectionCommand}" Classes="primary" />
+                    <Button Content="{x:Static res:Ui.Source_RefreshMetadata}" Command="{Binding RefreshMetadataCommand}" />
+                </WrapPanel>
+                <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap" Margin="0,2,0,4" LineHeight="20" AutomationProperties.LiveSetting="Polite"
+                           AutomationProperties.Name="{x:Static res:Ui.Source_ConnectionStatus}" />
+                <TextBlock Text="{Binding MetadataSummary}" Classes="muted" FontSize="13" />
+
+                <Border Classes="quietPanel" Margin="0,14,0,0" IsVisible="{Binding Capabilities, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Capabilities.TransportName}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                        <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="20">
+                            <Run Text="{x:Static res:Ui.Source_CapQuery}" Foreground="{DynamicResource MutedText}" /><Run Text="{Binding CanQueryText, Mode=OneWay}" />
+                            <Run Text="{x:Static res:Ui.Source_CapMetadata}" Foreground="{DynamicResource MutedText}" /><Run Text="{Binding Capabilities.Metadata, Mode=OneWay, Converter={StaticResource EnumText}}" />
+                            <Run Text="{x:Static res:Ui.Source_CapRowLimit}" Foreground="{DynamicResource MutedText}" /><Run Text="{Binding Capabilities.MaxRowsPerQuery, Mode=OneWay, TargetNullValue={x:Static res:Ui.Source_CapNoLimit}}" />
+                            <LineBreak /><Run Text="{x:Static res:Ui.Source_CapIdentity}" Foreground="{DynamicResource MutedText}" /><Run Text="{Binding SecurityContext, Mode=OneWay}" />
+                        </TextBlock>
+                        <ItemsControl ItemsSource="{Binding Capabilities.Notes}" Margin="0,4,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{Binding StringFormat='• {0}'}" Classes="muted" FontSize="12.5" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <ItemsControl ItemsSource="{Binding Metadata.Warnings}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{Binding StringFormat='⚠ {0}'}" TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource WarningBrush}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    View models, their services and the text of the desktop app (DaxDiff.App). No UI toolkit here, so the view models
+    can be tested on any OS: list filtering, dialogs, the filter pop-up and theme brushes are supplied by the app
+    (ListViews, IDialogService, IFilterEditorService, ThemeCatalog.Applier).
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\DaxDiff.Application\DaxDiff.Application.csproj" />
+    <ProjectReference Include="..\DaxDiff.Connectors\DaxDiff.Connectors.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- XAML text, read by the views with x:Static, so public. Strings is set up in Directory.Build.targets. -->
+    <EmbeddedResource Update="Resources\Ui.resx">
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>DaxDiff.Presentation.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Ui</StronglyTypedClassName>
+      <StronglyTypedFileName>$(IntermediateOutputPath)Ui.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedManifestPrefix>DaxDiff.Presentation.Resources</StronglyTypedManifestPrefix>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Strings.resx" PublicClass="true" />
+    <InternalsVisibleTo Include="DaxDiff.Tests.Unit" />
+  </ItemGroup>
+
+</Project>

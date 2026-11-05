@@ -24,7 +24,7 @@
   <data name="Xmla_InTenant" xml:space="preserve"><value>{0} i klientorganisationen {1}</value></data>
   <data name="Xmla_NoteNoClientId" xml:space="preserve"><value>Inget klient-ID har konfigurerats: ADOMD:s inbyggda interaktiva inloggning används.</value></data>
   <data name="Auth_NoClientId" xml:space="preserve"><value>Inget klient-ID för Entra ID har konfigurerats, så DAXDiff kan inte själv logga in i Power BI-tjänsten.</value></data>
-  <data name="Remedy_AuthNoClientId" xml:space="preserve"><value>Be din administratör om klient-ID:t för en appregistrering för DAXDiff och ange det under Inställningar (se docs/setup.md). XMLA-anslutningar fungerar ändå utan det: skriv arbetsytans och modellens namn och välj Testa anslutning; då visas Microsofts inloggning.</value></data>
+  <data name="Remedy_AuthNoClientId" xml:space="preserve"><value>Be din administratör om klient-ID:t för en appregistrering för DAXDiff och ange det under Inställningar (stegen finns i administratörsguiden i DAXDiffs dokumentation). XMLA-anslutningar fungerar ändå utan det: skriv arbetsytans och modellens namn och välj Testa anslutning; då visas Microsofts inloggning.</value></data>
   <data name="Auth_Cancelled" xml:space="preserve"><value>Inloggningen avbröts.</value></data>
   <data name="Remedy_AuthCancelled" xml:space="preserve"><value>Logga in igen för att fortsätta.</value></data>
   <data name="Auth_Failed" xml:space="preserve"><value>Inloggningen misslyckades: {0}</value></data>

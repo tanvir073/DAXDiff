@@ -1,0 +1,149 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:DaxDiff.Presentation.Resources"
+             xmlns:vm="using:DaxDiff.Presentation.ViewModels"
+             xmlns:svc="using:DaxDiff.Presentation.Services"
+             x:Class="DaxDiff.App.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Margin" Value="0,0,0,14" />
+        </Style>
+        <Style Selector="Label">
+            <Setter Property="Padding" Value="0,2,0,5" />
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style Selector="ListBox.themes > ListBoxItem" x:DataType="svc:AppTheme">
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="AutomationProperties.Name" Value="{Binding Name}" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel MaxWidth="860" HorizontalAlignment="Left">
+            <TextBlock Classes="eyebrow" Text="{x:Static res:Ui.Settings_Eyebrow}" />
+            <TextBlock Classes="pageTitle" Text="{x:Static res:Ui.Settings_Title}" />
+            <TextBlock Classes="pageHint" Text="{x:Static res:Ui.Settings_Hint}" />
+
+            <Border Classes="card">
+                <StackPanel>
+                    <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Settings_Appearance}" />
+                    <TextBlock Classes="muted" Text="{x:Static res:Ui.Settings_AppearanceHint}" FontSize="13" Margin="0,0,0,12" />
+                    <ListBox Classes="themes" ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}" BorderThickness="0" Padding="0"
+                             Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             AutomationProperties.Name="{x:Static res:Ui.Settings_Theme}">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="svc:AppTheme">
+                                <StackPanel Width="164" ToolTip.Tip="{Binding Description}">
+                                    <!-- Miniature of the window in this theme: header, menu and a hero card. -->
+                                    <Border Height="88" CornerRadius="10" BorderThickness="1" ClipToBounds="True"
+                                            BorderBrush="{Binding Tokens.Strong, Converter={StaticResource CssBrush}}"
+                                            Background="{Binding Tokens.Page, Converter={StaticResource CssBrush}}">
+                                        <Grid RowDefinitions="18,*">
+                                            <Border Background="{Binding Tokens.Header, Converter={StaticResource CssBrush}}" CornerRadius="9,9,0,0">
+                                                <Ellipse Width="8" Height="8" Fill="{Binding Tokens.Accent, Converter={StaticResource CssBrush}}"
+                                                         HorizontalAlignment="Right" Margin="0,0,8,0" />
+                                            </Border>
+                                            <Grid Grid.Row="1" ColumnDefinitions="34,*">
+                                                <Border Background="{Binding Tokens.Surface, Converter={StaticResource CssBrush}}"
+                                                        BorderBrush="{Binding Tokens.Strong, Converter={StaticResource CssBrush}}" BorderThickness="0,0,1,0"
+                                                        CornerRadius="0,0,0,9" />
+                                                <StackPanel Grid.Column="1" Margin="8,8,8,0">
+                                                    <Border Height="26" CornerRadius="5" Background="{Binding Tokens.Hero, Converter={StaticResource CssBrush}}">
+                                                        <Border Width="26" Height="9" CornerRadius="4.5" Background="{Binding Tokens.Accent, Converter={StaticResource CssBrush}}"
+                                                                HorizontalAlignment="Left" Margin="6,0,0,0" />
+                                                    </Border>
+                                                    <Border Height="22" CornerRadius="5" Margin="0,6,0,0"
+                                                            Background="{Binding Tokens.Surface, Converter={StaticResource CssBrush}}"
+                                                            BorderBrush="{Binding Tokens.Strong, Converter={StaticResource CssBrush}}" BorderThickness="1" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Margin="2,8,0,0" />
+                                    <TextBlock Text="{Binding Description}" FontSize="12" Foreground="{DynamicResource MutedText}" Margin="2,0,0,0"
+                                               TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel>
+                    <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Settings_Language_Title}" />
+                    <TextBlock Classes="muted" Text="{x:Static res:Ui.Settings_Language_Hint}" FontSize="13" Margin="0,0,0,10" />
+                    <Label Content="{x:Static res:Ui.Settings_Language_Label}" Target="{Binding #LanguageBox}" />
+                    <ComboBox x:Name="LanguageBox" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}"
+                              HorizontalAlignment="Left" MinWidth="240">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="svc:AppLanguage">
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel>
+                    <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Settings_SignInTitle}" />
+                    <Border Classes="message" Margin="0,0,0,10">
+                        <TextBlock Text="{Binding SignInStatus}" TextWrapping="Wrap" FontSize="13" />
+                    </Border>
+                    <Label Content="{x:Static res:Ui.Settings_ClientId}" Target="{Binding #ClientId}" />
+                    <TextBox x:Name="ClientId" Text="{Binding ClientId}" />
+                    <Label Content="{x:Static res:Ui.Settings_Tenant}" Target="{Binding #Tenant}" />
+                    <TextBox x:Name="Tenant" Text="{Binding TenantId}" />
+                    <TextBlock Classes="muted" Text="{x:Static res:Ui.Settings_ClientIdHint}" FontSize="13" Margin="0,0,0,12" />
+                    <WrapPanel ItemSpacing="8" LineSpacing="8">
+                        <Button Classes="primary" Content="{x:Static res:Ui.Settings_Save}" Command="{Binding SaveCommand}" />
+                        <Button Content="{x:Static res:Ui.Settings_SignOutAll}" Command="{Binding SignOutCommand}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel>
+                    <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Settings_Privacy}" />
+                    <TextBlock Text="{Binding PrivacyText}" TextWrapping="Wrap" LineHeight="21" />
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel>
+                    <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Settings_Help}" />
+                    <TextBlock Classes="muted" Text="{x:Static res:Ui.Settings_HelpHint}" FontSize="13" Margin="0,0,0,12" />
+                    <WrapPanel ItemSpacing="8" LineSpacing="8">
+                        <Button Content="{x:Static res:Ui.Settings_UserGuide}" Command="{Binding OpenUserGuideCommand}" />
+                        <Button Content="{x:Static res:Ui.Settings_ReportBug}" Command="{Binding ReportBugCommand}" />
+                        <Button Content="{x:Static res:Ui.Settings_ReleaseNotes}" Command="{Binding OpenReleasesCommand}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel>
+                    <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Settings_Diagnostics}" />
+                    <TextBlock LineHeight="22">
+                        <Run Text="{x:Static res:Ui.Settings_Version}" Foreground="{DynamicResource MutedText}" /><Run Text="{Binding Version, Mode=OneWay}" />
+                        <LineBreak /><Run Text="{x:Static res:Ui.Settings_Runtime}" Foreground="{DynamicResource MutedText}" /><Run Text="{Binding Runtime, Mode=OneWay}" />
+                        <LineBreak /><Run Text="{x:Static res:Ui.Settings_Logs}" Foreground="{DynamicResource MutedText}" /><Run Text="{Binding LogFolder, Mode=OneWay}" />
+                    </TextBlock>
+                    <WrapPanel ItemSpacing="8" LineSpacing="8" Margin="0,12,0,0">
+                        <Button Content="{x:Static res:Ui.Settings_OpenLogs}" Command="{Binding OpenLogsCommand}" />
+                        <Button Content="{x:Static res:Ui.Settings_Reset}" Command="{Binding ResetCommand}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

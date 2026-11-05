@@ -1,0 +1,125 @@
+# Publishes a GitHub Release when a version tag is pushed (docs/dev/releasing.md):
+#   git tag v0.2.0 && git push origin v0.2.0
+# The tag must equal v<Version> from Directory.Build.props. A version with a suffix (0.2.0-beta.1) becomes a
+# pre-release. The release notes are that version's section of CHANGELOG.md.
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Check the tag against Directory.Build.props and CHANGELOG.md
+        id: check
+        run: |
+          version="$(dotnet msbuild src/DaxDiff.Domain/DaxDiff.Domain.csproj -getProperty:Version | tr -d '[:space:]')"
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$version" != "$tag" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match Version $version in Directory.Build.props."
+            exit 1
+          fi
+          if ! grep -q "^## \[$version\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## [$version]' section."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  windows:
+    needs: version
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Test, publish, MSI and portable zip
+        shell: pwsh
+        run: ./scripts/package.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            dist/*.msi
+            dist/*.zip
+
+  web:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Publish the static site for self-hosting
+        run: |
+          dotnet publish src/DaxDiff.Web/DaxDiff.Web.csproj -c Release -o out
+          cd out/wwwroot
+          zip -qr "$GITHUB_WORKSPACE/DAXDiff-${{ needs.version.outputs.version }}-web.zip" .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: DAXDiff-*-web.zip
+
+  macos-linux:
+    # The cross-platform app (src/DaxDiff.App). .NET cross-compiles, so one runner per system covers both CPUs.
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { rid: osx-arm64, os: macos-latest }
+          - { rid: osx-x64, os: macos-latest }
+          - { rid: linux-x64, os: ubuntu-latest }
+          - { rid: linux-arm64, os: ubuntu-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: bash scripts/package-app.sh ${{ matrix.rid }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.rid }}
+          path: |
+            dist/*.dmg
+            dist/*.tar.gz
+
+  release:
+    needs: [version, windows, web, macos-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+          merge-multiple: true
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          # This version's section of CHANGELOG.md, without its heading.
+          awk -v h="## [$VERSION]" '
+            index($0, h) == 1 { found = 1; next }
+            found && index($0, "## [") == 1 { exit }
+            found && index($0, "[") == 1 && index($0, "]: ") > 0 { next }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          prerelease=""
+          case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
+          (cd assets && sha256sum * > SHA256SUMS.txt)
+          gh release create "$GITHUB_REF_NAME" assets/* \
+            --title "DAXDiff $VERSION" --notes-file notes.md $prerelease

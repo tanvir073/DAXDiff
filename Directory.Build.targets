@@ -14,13 +14,4 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <!--
-    WPF compiles XAML through a temporary project (<name>_wpftmp) that never runs the resource generator. Generate the
-    accessors before XAML compilation and hand the generated files to that temporary project.
-  -->
-  <Target Name="GenerateResourceAccessorsBeforeXaml" BeforeTargets="MarkupCompilePass1" DependsOnTargets="PrepareResourceNames;CoreResGen"
-          Condition="'$(UseWPF)' == 'true'" />
-  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('_wpftmp'))">
-    <Compile Include="$(IntermediateOutputPath)*.Designer.cs" />
-  </ItemGroup>
 </Project>

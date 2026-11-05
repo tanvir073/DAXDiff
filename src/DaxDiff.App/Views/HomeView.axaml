@@ -1,0 +1,191 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:DaxDiff.Presentation.Resources"
+             xmlns:vm="using:DaxDiff.Presentation.ViewModels"
+             xmlns:views="using:DaxDiff.App.Views"
+             x:Class="DaxDiff.App.Views.HomeView"
+             x:DataType="vm:HomeViewModel">
+    <UserControl.Styles>
+        <!-- Numbered step in the "How it works" strip. -->
+        <Style Selector="Border.stepNumber">
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Background" Value="{DynamicResource ChipBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource ChipTextBrush}" />
+            <Setter Property="TextElement.FontWeight" Value="SemiBold" />
+            <Setter Property="TextElement.FontSize" Value="12.5" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="0,0,12,0" />
+        </Style>
+        <Style Selector="Border.stepNumber.last">
+            <Setter Property="Background" Value="{DynamicResource AccentFillBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource OnAccentBrush}" />
+        </Style>
+        <Style Selector="DockPanel.readinessRow">
+            <Setter Property="Margin" Value="0,12,0,0" />
+        </Style>
+        <Style Selector="DockPanel.readinessRow > Path">
+            <Setter Property="Stroke" Value="{DynamicResource TealBrush}" />
+            <Setter Property="StrokeThickness" Value="2" />
+            <Setter Property="Width" Value="18" />
+            <Setter Property="Height" Value="18" />
+            <Setter Property="Stretch" Value="Uniform" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="0,2,12,0" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel MaxWidth="1200" Margin="0,0,0,8">
+            <!-- Hero -->
+            <TextBlock Classes="eyebrow" Text="{x:Static res:Ui.Home_Eyebrow}" />
+            <TextBlock Classes="pageTitle" Text="{x:Static res:Ui.Home_Title}" FontSize="36" />
+            <TextBlock Classes="pageHint" FontSize="15" LineHeight="24" Margin="0,4,0,24" Text="{x:Static res:Ui.Home_Intro}" />
+
+            <!-- Ways in -->
+            <Grid ColumnDefinitions="*,16,*" Margin="0,0,0,20">
+                <Border Classes="featureCard" Padding="24">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Top" Classes="iconTile" Background="{DynamicResource AccentFillBrush}" Margin="0,0,0,14">
+                            <Path Data="M 7 0 V 14 M 0 7 H 14" Width="16" Height="16" Stroke="{DynamicResource OnAccentBrush}" />
+                        </Border>
+                        <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Ui.Home_NewTitle}" FontFamily="{StaticResource DisplayFont}" FontSize="24" Margin="0,0,0,8" />
+                        <Button DockPanel.Dock="Bottom" Classes="primary" Command="{Binding NewCommand}" HorizontalAlignment="Left"
+                                Content="{x:Static res:Ui.Home_NewButton}" />
+                        <TextBlock Text="{x:Static res:Ui.Home_NewText}" TextWrapping="Wrap" Foreground="{DynamicResource HeroMutedBrush}" LineHeight="21"
+                                   Margin="0,0,0,18" />
+                    </DockPanel>
+                </Border>
+
+                <Border Grid.Column="2" Classes="card" Padding="24">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Top" Classes="iconTile" Margin="0,0,0,14">
+                            <Path Data="M 2 18 H 18 A 2 2 0 0 0 20 16 V 6 A 2 2 0 0 0 18 4 H 10 L 8 1 H 2 A 2 2 0 0 0 0 3 V 16 A 2 2 0 0 0 2 18 Z" />
+                        </Border>
+                        <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Ui.Home_OpenTitle}" FontFamily="{StaticResource DisplayFont}" FontSize="24"
+                                   Foreground="{DynamicResource TealBrush}" Margin="0,0,0,8" />
+                        <Button DockPanel.Dock="Bottom" Classes="secondary" Command="{Binding OpenCommand}" HorizontalAlignment="Left"
+                                Content="{x:Static res:Ui.Home_OpenButton}" />
+                        <TextBlock Text="{x:Static res:Ui.Home_OpenText}" TextWrapping="Wrap" Foreground="{DynamicResource MutedText}" LineHeight="21"
+                                   Margin="0,0,0,18" />
+                    </DockPanel>
+                </Border>
+            </Grid>
+
+            <!-- Recent projects and connection readiness -->
+            <Grid ColumnDefinitions="3*,16,2*" Margin="0,0,0,20">
+                <Border Classes="card" Padding="0" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Home_Recent}" Margin="24,20,24,12" />
+                        <TextBlock Text="{x:Static res:Ui.Home_NoRecent}" Foreground="{DynamicResource MutedText}" TextWrapping="Wrap" Margin="24,0,24,22"
+                                   IsVisible="{Binding !Recent.Count}" />
+                        <ItemsControl ItemsSource="{Binding Recent}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:RecentProject">
+                                    <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="24,12">
+                                        <DockPanel>
+                                            <Border DockPanel.Dock="Left" Classes="iconTile" Margin="0,0,14,0" VerticalAlignment="Center">
+                                                <Path Width="16" Height="18"
+                                                      Data="M 10 0 H 2 A 2 2 0 0 0 0 2 V 18 A 2 2 0 0 0 2 20 H 14 A 2 2 0 0 0 16 18 V 6 Z M 10 0 V 6 H 16" />
+                                            </Border>
+                                            <Button DockPanel.Dock="Right" Content="{x:Static res:Ui.Home_OpenRecent}" Margin="12,0,0,0" VerticalAlignment="Center"
+                                                    Command="{Binding $parent[views:HomeView].((vm:HomeViewModel)DataContext).OpenRecentCommand}"
+                                                    CommandParameter="{Binding Path}"
+                                                    AutomationProperties.Name="{Binding Name, StringFormat={x:Static res:Ui.Home_OpenRecentName}}" />
+                                            <StackPanel VerticalAlignment="Center" ToolTip.Tip="{Binding Path}">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding Folder}" FontSize="12.5" Foreground="{DynamicResource MutedText}" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Classes="card" Padding="24,20" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Home_Readiness}" Margin="0,0,0,2" />
+                        <TextBlock Classes="muted" Text="{x:Static res:Ui.Home_ReadinessHint}" FontSize="13" />
+
+                        <DockPanel Classes="readinessRow">
+                            <Path DockPanel.Dock="Left" Data="M 2 3 H 22 V 17 H 2 Z M 8 21 H 16 M 12 17 V 21" />
+                            <StackPanel>
+                                <TextBlock Text="Power BI Desktop" FontWeight="SemiBold" />
+                                <TextBlock Classes="muted" Text="{x:Static res:Ui.Home_DesktopNeeds}" FontSize="13" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <DockPanel Classes="readinessRow">
+                            <Path DockPanel.Dock="Left" Data="M 17.5 19 H 9 A 7 7 0 1 1 15.7 10 H 17.5 A 4.5 4.5 0 1 1 17.5 19 Z" />
+                            <StackPanel>
+                                <TextBlock Text="{x:Static res:Ui.Home_Xmla}" FontWeight="SemiBold" />
+                                <TextBlock Classes="muted" Text="{x:Static res:Ui.Home_XmlaNeeds}" FontSize="13" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <DockPanel Classes="readinessRow">
+                            <Path DockPanel.Dock="Left" Data="M 3 5 A 9 3 0 1 0 21 5 A 9 3 0 1 0 3 5 M 3 5 V 19 A 9 3 0 0 0 21 19 V 5 M 3 12 A 9 3 0 0 0 21 12" />
+                            <StackPanel>
+                                <TextBlock Text="{x:Static res:Ui.Home_Rest}" FontWeight="SemiBold" />
+                                <TextBlock Classes="muted" Text="{x:Static res:Ui.Home_RestNeeds}" FontSize="13" Margin="0,2,0,6" />
+                                <Border Classes="badge success" IsVisible="{Binding ClientIdConfigured}">
+                                    <TextBlock Text="{x:Static res:Ui.Home_ClientIdSet}" />
+                                </Border>
+                                <Border Classes="badge accent" IsVisible="{Binding !ClientIdConfigured}">
+                                    <TextBlock Text="{x:Static res:Ui.Home_ClientIdNotSet}" />
+                                </Border>
+                            </StackPanel>
+                        </DockPanel>
+
+                        <Border Classes="message" Margin="0,16,0,0">
+                            <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="19" Text="{x:Static res:Ui.Home_Identity}" />
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- How it works -->
+            <Border Classes="card" Padding="0">
+                <UniformGrid Columns="4">
+                    <DockPanel Margin="20,18">
+                        <Border Classes="stepNumber"><TextBlock Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                        <StackPanel>
+                            <TextBlock Text="{x:Static res:Ui.Home_Step1}" FontWeight="SemiBold" />
+                            <TextBlock Classes="muted" Text="{x:Static res:Ui.Home_Step1Hint}" FontSize="13" />
+                        </StackPanel>
+                    </DockPanel>
+                    <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1,0,0,0">
+                        <DockPanel Margin="20,18">
+                            <Border Classes="stepNumber"><TextBlock Text="2" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                            <StackPanel>
+                                <TextBlock Text="{x:Static res:Ui.Home_Step2}" FontWeight="SemiBold" />
+                                <TextBlock Classes="muted" Text="{x:Static res:Ui.Home_Step2Hint}" FontSize="13" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                    <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1,0,0,0">
+                        <DockPanel Margin="20,18">
+                            <Border Classes="stepNumber"><TextBlock Text="3" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                            <StackPanel>
+                                <TextBlock Text="{x:Static res:Ui.Home_Step3}" FontWeight="SemiBold" />
+                                <TextBlock Classes="muted" Text="{x:Static res:Ui.Home_Step3Hint}" FontSize="13" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                    <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1,0,0,0">
+                        <DockPanel Margin="20,18">
+                            <Border Classes="stepNumber last"><TextBlock Text="4" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                            <StackPanel>
+                                <TextBlock Text="{x:Static res:Ui.Home_Step4}" FontWeight="SemiBold" />
+                                <TextBlock Classes="muted" Text="{x:Static res:Ui.Home_Step4Hint}" FontSize="13" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                </UniformGrid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -3,8 +3,22 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-    <Version>0.1.0</Version>
+    <!--
+      The one place the version is set (Semantic Versioning, see docs/dev/releasing.md). Version is
+      VersionPrefix[-VersionSuffix], for example 0.2.0 or 0.2.0-beta.1. A release is tagged v<Version>, and the release
+      workflow refuses a tag that does not match. The MSI uses VersionPrefix, because Windows Installer only accepts
+      numbers. The build appends the commit (+sha) to the informational version shown in Settings, logs and workbooks.
+    -->
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+    <!-- Spelled out because the WiX SDK does not derive Version from the prefix and suffix as the .NET SDK does. -->
+    <Version Condition="'$(VersionSuffix)' == ''">$(VersionPrefix)</Version>
+    <Version Condition="'$(VersionSuffix)' != ''">$(VersionPrefix)-$(VersionSuffix)</Version>
     <Company>DAXDiff</Company>
     <Product>DAXDiff</Product>
+    <Authors>Tanvir Ahmad</Authors>
+    <Copyright>Copyright © 2026 Tanvir Ahmad</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/tanvir073/DAXDiff</RepositoryUrl>
   </PropertyGroup>
 </Project>

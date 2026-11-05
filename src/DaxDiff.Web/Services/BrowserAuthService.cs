@@ -55,7 +55,7 @@ public sealed class BrowserAuthService : IAuthService
         if (!IsConfigured)
             throw new DaxDiffException(ErrorCategory.Configuration, "AUTH-NO-CLIENT",
                 "No Entra ID client ID is configured, so DAXDiff cannot sign in to the Power BI service.",
-                "Enter the client ID of a DAXDiff single-page app registration in Settings (see docs/web.md).");
+                "Enter the client ID of a DAXDiff single-page app registration in Settings. Your administrator can find the steps in the DAXDiff administrator guide.");
 
         try
         {
