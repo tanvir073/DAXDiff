@@ -1,5 +1,5 @@
 <!--
-    Numberskills design system for Avalonia, on top of the Fluent theme: type, surfaces and control styles.
+    DAXDiff design for Avalonia, on top of the Fluent theme: type, surfaces and control styles.
     Colours are DynamicResource brushes set by Services/ThemeBrushes from the chosen theme.
     Style classes:
       TextBlock  eyebrow, pageTitle, pageHint, cardTitle, sectionTitle, muted, kpiValue

@@ -1,6 +1,6 @@
 # Fonts
 
-Fonts of the Numberskills design system, served as web fonts:
+Fonts of the DAXDiff design, served as web fonts:
 
 - **Bricolage Grotesque** (display), by Mathieu Triay. Static instance at weight 400, optical size 32.
 - **Onest** (text), by Dmitri Voloshin. Static instances at weights 400, 500, 600 and 700 (700 for the wordmark).

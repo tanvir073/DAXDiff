@@ -17,7 +17,7 @@ public static class ThemeBrushes
         var t = theme.Tokens;
         var surface = Parse(t.Surface);
         var dark = Luminance(surface) < 0.4;
-        var warning = Parse(dark ? "#f0b455" : "#8a4b00");
+        var warning = Parse(dark ? "#f0b465" : "#8a4b10");
         var success = Parse(t.Success);
         var danger = Parse(t.Danger);
         var header = Over(Parse(t.HeaderField), Parse(t.Header));
@@ -46,9 +46,9 @@ public static class ThemeBrushes
         Set("HeaderFieldBrush", Parse(t.HeaderField));
         Set("HeaderFieldHoverBrush", Mix(Parse(t.HeaderText), header, 0.16));
         // The "outer join" logo keeps its own colours: the light variant on a light header, the dark one otherwise.
-        Set("LogoABrush", Parse(lightHeader ? "#0284c7" : "#7dd3fc"));
-        Set("LogoBBrush", Parse(lightHeader ? "#7dd3fc" : "#e0f2fe"));
-        Set("LogoLensBrush", Parse("#024b60"));
+        Set("LogoABrush", Parse(lightHeader ? "#0284d7" : "#7dd3ec"));
+        Set("LogoBBrush", Parse(lightHeader ? "#7dd3ec" : "#e0f2ee"));
+        Set("LogoLensBrush", Parse("#024b70"));
         Set("AccentFillBrush", Parse(t.Accent));
         Set("OnAccentBrush", Parse(t.OnAccent));
         Set("AccentDeepBrush", Parse(t.AccentHover));

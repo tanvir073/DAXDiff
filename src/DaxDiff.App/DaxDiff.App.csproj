@@ -30,7 +30,7 @@
 
   <ItemGroup>
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
-    <!-- Numberskills design system fonts (SIL Open Font License), static instances of the variable fonts. -->
+    <!-- DAXDiff fonts (SIL Open Font License), static instances of the variable fonts. -->
     <AvaloniaResource Include="Fonts\*.ttf" />
     <AvaloniaResource Include="Assets\DAXDiff.ico" />
   </ItemGroup>

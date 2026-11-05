@@ -40,7 +40,7 @@ case "$rid" in
 <dict>
   <key>CFBundleName</key><string>DAXDiff</string>
   <key>CFBundleDisplayName</key><string>DAXDiff</string>
-  <key>CFBundleIdentifier</key><string>se.numberskills.daxdiff</string>
+  <key>CFBundleIdentifier</key><string>io.github.tanvir073.daxdiff</string>
   <key>CFBundleVersion</key><string>${version%%-*}</string>
   <key>CFBundleShortVersionString</key><string>${version}</string>
   <key>CFBundleExecutable</key><string>DAXDiff</string>

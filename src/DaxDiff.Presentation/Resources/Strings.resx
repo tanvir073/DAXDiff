@@ -226,17 +226,17 @@
   <data name="Theme_contrast" xml:space="preserve"><value>High contrast</value></data>
   <data name="Theme_contrast_Description" xml:space="preserve"><value>Black and white with strong blue</value></data>
   <data name="Theme_steel" xml:space="preserve"><value>Steel</value></data>
-  <data name="Theme_steel_Description" xml:space="preserve"><value>Slate blue #778DA9</value></data>
+  <data name="Theme_steel_Description" xml:space="preserve"><value>Slate blue #778DB9</value></data>
   <data name="Theme_deepsea" xml:space="preserve"><value>Deep sea</value></data>
-  <data name="Theme_deepsea_Description" xml:space="preserve"><value>Navy blue #415A77</value></data>
+  <data name="Theme_deepsea_Description" xml:space="preserve"><value>Navy blue #415A87</value></data>
   <data name="Theme_dusk" xml:space="preserve"><value>Dusk</value></data>
-  <data name="Theme_dusk_Description" xml:space="preserve"><value>Violet grey #4A4E69</value></data>
+  <data name="Theme_dusk_Description" xml:space="preserve"><value>Violet grey #4A4E79</value></data>
   <data name="Theme_ink" xml:space="preserve"><value>Dark</value></data>
-  <data name="Theme_ink_Description" xml:space="preserve"><value>Near black #040303</value></data>
+  <data name="Theme_ink_Description" xml:space="preserve"><value>Near black #040313</value></data>
   <data name="Theme_blush" xml:space="preserve"><value>Blush</value></data>
-  <data name="Theme_blush_Description" xml:space="preserve"><value>Soft pink #FFA5AB</value></data>
+  <data name="Theme_blush_Description" xml:space="preserve"><value>Soft pink #FFA5BB</value></data>
   <data name="Theme_plum" xml:space="preserve"><value>Plum</value></data>
-  <data name="Theme_plum_Description" xml:space="preserve"><value>Deep purple #582C4D</value></data>
+  <data name="Theme_plum_Description" xml:space="preserve"><value>Deep purple #582C5D</value></data>
   <data name="Filter_FixFirst" xml:space="preserve"><value>Fix these filters first, or remove them:</value></data>
   <data name="Filter_FixFirstTitle" xml:space="preserve"><value>Filters</value></data>
   <data name="Enum_Aggregation_None" xml:space="preserve"><value>None</value></data>
