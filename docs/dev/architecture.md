@@ -83,7 +83,7 @@ Windows-only calls are guarded with `OperatingSystem.IsWindows()`. CI builds and
   `settings.json`, and applies the External Tools arguments.
 - `MainViewModel` owns the project lifecycle. Comparisons are drafts until saved (FR-021): `ComparisonEditorViewModel`
   keeps a `SavedDefinition`, which is what runs and what is written.
-- Theme: `Themes/DaxDiff.axaml` and `ThemeBrushes` (10 colour themes from `ThemeCatalog`). Reference brushes with `DynamicResource`.
+- Theme: `Themes/DaxDiff.axaml` and `ThemeBrushes` (11 colour themes from `ThemeCatalog`). Reference brushes with `DynamicResource`.
 - Language: English and Swedish. All user-facing text is in `Resources/*.resx`; `LocalizationTests` fails on a
   missing Swedish key or mismatched placeholders.
 

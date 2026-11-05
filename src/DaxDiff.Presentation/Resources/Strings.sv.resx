@@ -223,6 +223,8 @@
   <data name="Theme_daylight_Description" xml:space="preserve"><value>Ljust sidhuvud</value></data>
   <data name="Theme_amber" xml:space="preserve"><value>Bärnsten</value></data>
   <data name="Theme_amber_Description" xml:space="preserve"><value>Grafit och guld</value></data>
+  <data name="Theme_graphite" xml:space="preserve"><value>Grafit</value></data>
+  <data name="Theme_graphite_Description" xml:space="preserve"><value>Mörkgrått med orange</value></data>
   <data name="Theme_contrast" xml:space="preserve"><value>Hög kontrast</value></data>
   <data name="Theme_contrast_Description" xml:space="preserve"><value>Svart och vitt med stark blå</value></data>
   <data name="Theme_steel" xml:space="preserve"><value>Stål</value></data>

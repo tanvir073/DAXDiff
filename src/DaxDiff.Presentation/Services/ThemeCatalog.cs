@@ -55,6 +55,15 @@ public static class ThemeCatalog
             "#23212e", "#ffffff",
             "#23212e", "#ffffff", "rgba(255,255,255,0.76)",
             "#2e7d42", "#b42328")),
+        new("graphite", Strings.Theme_graphite, Strings.Theme_graphite_Description, new(
+            "#161616", "#202020", "#1b1b1b", "#ededed", "#a8a8a8", "#ffffff",
+            "rgba(255,255,255,0.10)", "rgba(255,255,255,0.24)", "#707070",
+            "#0f0f0f", "#ededed", "rgba(237,237,237,0.70)", "rgba(255,255,255,0.14)", "rgba(255,255,255,0.06)",
+            "#ff9a3c", "#1a1a1a", "#ffb066", "#ffb066",
+            "#3a2c1f", "#ffd2a6", "#2e2620", "#ffd2a6",
+            "#ededed", "#161616",
+            "#2c2c2c", "#ffffff", "rgba(255,255,255,0.74)",
+            "#5bcf8a", "#ff8a80")),
         new("contrast", Strings.Theme_contrast, Strings.Theme_contrast_Description, new(
             "#ffffff", "#ffffff", "#ffffff", "#000000", "#2b2b3b", "#000000",
             "#000000", "#000000", "#000000",
