@@ -17,8 +17,8 @@ jobs:
     outputs:
       version: ${{ steps.check.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Check the tag against Directory.Build.props and CHANGELOG.md
@@ -40,14 +40,14 @@ jobs:
     needs: version
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Test, publish, MSI and portable zip
         shell: pwsh
         run: ./scripts/package.ps1
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows
           path: |
@@ -58,8 +58,8 @@ jobs:
     needs: version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Publish the static site for self-hosting
@@ -67,7 +67,7 @@ jobs:
           dotnet publish src/DaxDiff.Web/DaxDiff.Web.csproj -c Release -o out
           cd out/wwwroot
           zip -qr "$GITHUB_WORKSPACE/DAXDiff-${{ needs.version.outputs.version }}-web.zip" .
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: web
           path: DAXDiff-*-web.zip
@@ -85,12 +85,12 @@ jobs:
           - { rid: linux-arm64, os: ubuntu-latest }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - run: bash scripts/package-app.sh ${{ matrix.rid }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: app-${{ matrix.rid }}
           path: |
@@ -101,8 +101,8 @@ jobs:
     needs: [version, windows, web, macos-linux]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           path: assets
           merge-multiple: true
