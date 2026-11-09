@@ -1,0 +1,78 @@
+# The desktop and web apps open this form with "version" and "os" filled in (src/DaxDiff.Application/ProductLinks.cs).
+# Keep those field ids, or the pre-fill stops working.
+name: Bug report
+description: Something in DAXDiff does not work as described.
+title: "[Bug]: "
+labels: [bug, "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. **Do not paste confidential data**: no tokens, passwords, customer names or
+        real values from your models. Replace them with made-up examples. Security problems go to a private
+        advisory instead (see SECURITY.md).
+
+  - type: input
+    id: version
+    attributes:
+      label: App and version
+      description: Settings → Diagnostics and version shows it. "Report a bug" in the app fills this in.
+      placeholder: Desktop 0.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: For the web app, also name the browser.
+      placeholder: Windows 11 24H2 / macOS 15 / Ubuntu 24.04 / Edge 131
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sources
+    attributes:
+      label: Kinds of source involved
+      multiple: true
+      options:
+        - Power BI Desktop (local PBIX)
+        - Power BI Service over XMLA
+        - Power BI Service over REST
+        - Sample project
+        - Not related to a source
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Include the exact error message and its diagnostic code (for example REST-403), if one was shown.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a project with ...
+        2. On the Comparisons page ...
+        3. Run ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log excerpt (optional)
+      description: |
+        Desktop logs are in the folder opened by Settings → Open log folder. They contain no values or DAX text,
+        but check them for names you would rather not share.
+      render: text

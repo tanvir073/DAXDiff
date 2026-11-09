@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question
+    url: https://github.com/tanvir073/DAXDiff/discussions
+    about: Questions, ideas and help with using DAXDiff.
+  - name: User guide
+    url: https://github.com/tanvir073/DAXDiff/blob/main/docs/user/README.md
+    about: How to install DAXDiff, connect models and build comparisons.
+  - name: Report a security vulnerability
+    url: https://github.com/tanvir073/DAXDiff/security/advisories/new
+    about: Report security problems privately, not as a public issue.

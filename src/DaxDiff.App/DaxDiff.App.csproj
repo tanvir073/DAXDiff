@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    DAXDiff desktop app for Windows, macOS and Linux (Avalonia). Its view models and text live in
+    DaxDiff.Presentation; only views, dialogs and theme brushes live here.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\DaxDiff.Presentation\DaxDiff.Presentation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>DAXDiff</AssemblyName>
+    <RootNamespace>DaxDiff.App</RootNamespace>
+    <!-- "Outer join" logo: exe, taskbar and Start menu icon on Windows. -->
+    <ApplicationIcon>Assets\DAXDiff.ico</ApplicationIcon>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <!--
+    On Windows, ADOMD.NET's own XMLA sign-in (used when no Entra client ID is configured) is a Windows Forms dialog,
+    and ADOMD only offers it in a process it knows has a UI (AnalysisServices.AppSettings.json). Without both, an XMLA
+    connection fails with "an external access-token is required".
+  -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <!-- Avalonia's types share names with Windows Forms', so leave its implicit usings out. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+    <None Update="AnalysisServices.AppSettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- DAXDiff fonts (SIL Open Font License), static instances of the variable fonts. -->
+    <AvaloniaResource Include="Fonts\*.ttf" />
+    <AvaloniaResource Include="Assets\DAXDiff.ico" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,20 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DaxDiff.App.Views.MessageWindow"
+        Width="480" SizeToContent="Height" CanResize="False" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource InkBrush}">
+    <DockPanel Margin="24,20,24,16">
+        <StackPanel x:Name="Buttons" DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0" Spacing="8" />
+        <DockPanel>
+            <Border x:Name="Tone" DockPanel.Dock="Left" Width="34" Height="34" CornerRadius="17" VerticalAlignment="Top" Margin="0,0,14,0"
+                    Background="{DynamicResource AccentSoftBrush}">
+                <TextBlock x:Name="Glyph" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="16"
+                           Foreground="{DynamicResource TileTextBrush}" />
+            </Border>
+            <ScrollViewer MaxHeight="420" VerticalScrollBarVisibility="Auto">
+                <SelectableTextBlock x:Name="Text" TextWrapping="Wrap" LineHeight="21" />
+            </ScrollViewer>
+        </DockPanel>
+    </DockPanel>
+</Window>

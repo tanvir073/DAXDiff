@@ -50,19 +50,27 @@ public sealed partial class DesktopSessionLocator
     [GeneratedRegex("\"(?<path>[^\"]+\\.pbi[xt])\"", RegexOptions.IgnoreCase)]
     private static partial Regex PbixArgument();
 
+    /// <summary>Power BI Desktop only runs on Windows, so there is nothing to find elsewhere.</summary>
+    public static bool IsSupported => OperatingSystem.IsWindows();
+
     public IReadOnlyList<DesktopSession> FindSessions()
     {
+        if (!OperatingSystem.IsWindows())
+            return [];
         try
         {
             return FindViaWmi();
         }
-        catch (Exception ex) when (ex is ManagementException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException)
+        // TypeInitializationException: System.Management could not start (for example without built-in COM interop).
+        catch (Exception ex) when (ex is ManagementException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException
+                                       or TypeInitializationException or PlatformNotSupportedException)
         {
             _logger.LogWarning(ex, "WMI session discovery failed; scanning workspace folders instead");
             return FindViaWorkspaceFolders();
         }
     }
 
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     private List<DesktopSession> FindViaWmi()
     {
         var processes = new Dictionary<int, (int Parent, string? CommandLine, string Name)>();

@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:DaxDiff.Presentation.Resources"
+             xmlns:vm="using:DaxDiff.Presentation.ViewModels"
+             x:Class="DaxDiff.App.Views.RunView"
+             x:DataType="vm:RunViewModel">
+    <UserControl.Styles>
+        <Style Selector="TextBlock.runStatus">
+            <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
+        </Style>
+        <Style Selector="TextBlock.runStatus.unsaved">
+            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom" Margin="16,0,0,26">
+                    <Button Content="{x:Static res:Ui.Run_Cancel}" Command="{Binding RunCancelCommand}" />
+                    <Button Classes="primary" Command="{Binding RunCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M 0 0 L 9 5.5 L 0 11 Z" Fill="{DynamicResource OnAccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <AccessText Text="{x:Static res:Ui.Run_Run}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Classes="eyebrow" Text="{x:Static res:Ui.Run_Step}" />
+                    <TextBlock Classes="pageTitle" Text="{x:Static res:Ui.Run_Title}" />
+                    <TextBlock Classes="pageHint" Text="{x:Static res:Ui.Run_Hint}" />
+                </StackPanel>
+            </DockPanel>
+
+            <Grid ColumnDefinitions="*,14,*" Margin="0,0,0,14">
+                <Border Classes="card">
+                    <DockPanel>
+                        <DockPanel DockPanel.Dock="Top">
+                            <StackPanel Orientation="Horizontal" Spacing="6" DockPanel.Dock="Right" VerticalAlignment="Top">
+                                <Button Content="{x:Static res:Ui.Run_All}" Command="{Binding IncludeAllCommand}" MinHeight="30" Padding="12,0" />
+                                <Button Content="{x:Static res:Ui.Run_None}" Command="{Binding IncludeNoneCommand}" MinHeight="30" Padding="12,0" />
+                            </StackPanel>
+                            <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Run_ToRun}" />
+                        </DockPanel>
+                        <ScrollViewer MaxHeight="170" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Comparisons}" AutomationProperties.Name="{x:Static res:Ui.Run_ToRun}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ComparisonEditorViewModel">
+                                        <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                                            <DockPanel>
+                                                <TextBlock DockPanel.Dock="Right" Classes="runStatus" Classes.unsaved="{Binding !IsSaved}"
+                                                           Text="{Binding RunStatusText}" Margin="12,0,0,0" FontSize="12.5"
+                                                           TextTrimming="CharacterEllipsis" MaxWidth="300" VerticalAlignment="Center" ToolTip.Tip="{Binding RunStatusText}" />
+                                                <CheckBox Content="{Binding Name}" IsChecked="{Binding IncludeInRun}" IsEnabled="{Binding IsSaved}" />
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+
+                <Border Grid.Column="2" Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="cardTitle" Text="{x:Static res:Ui.Run_Scope}" />
+                        <DockPanel Margin="0,0,0,6">
+                            <Border Classes="chipA" Margin="0,0,10,0" VerticalAlignment="Top"><TextBlock Text="A" /></Border>
+                            <TextBlock Text="{Binding ScopeA}" TextWrapping="Wrap" />
+                        </DockPanel>
+                        <DockPanel Margin="0,0,0,10">
+                            <Border Classes="chipB" Margin="0,0,10,0" VerticalAlignment="Top"><TextBlock Text="B" /></Border>
+                            <TextBlock Text="{Binding ScopeB}" TextWrapping="Wrap" />
+                        </DockPanel>
+                        <Border Classes="message">
+                            <CheckBox IsChecked="{Binding AcknowledgedScope}" VerticalContentAlignment="Top" Foreground="{DynamicResource SelectionTextBrush}">
+                                <TextBlock TextWrapping="Wrap" FontSize="13" LineHeight="19" Text="{x:Static res:Ui.Run_Acknowledge}" />
+                            </CheckBox>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Classes="card" Padding="20,14" Margin="0,0,0,14">
+                <StackPanel>
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Foreground="{DynamicResource MutedText}">
+                            <Run Text="{x:Static res:Ui.Run_Elapsed}" /><Run Text="{Binding Elapsed, Mode=OneWay}" FontFamily="{StaticResource MonoFont}" />
+                        </TextBlock>
+                        <TextBlock Text="{Binding Current}" FontWeight="SemiBold" AutomationProperties.LiveSetting="Polite" TextTrimming="CharacterEllipsis" />
+                    </DockPanel>
+                    <ProgressBar IsIndeterminate="{Binding IsRunning}" Height="6" MinHeight="6" Margin="0,10,0,4" IsVisible="{Binding IsRunning}" />
+                    <Grid ColumnDefinitions="*,14,*" Margin="0,10,0,0">
+                        <Border Classes="quietPanel">
+                            <DockPanel>
+                                <Border Classes="chipA" Margin="0,0,10,0" VerticalAlignment="Top"><TextBlock Text="A" /></Border>
+                                <TextBlock Text="{Binding StatusA}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+                            </DockPanel>
+                        </Border>
+                        <Border Grid.Column="2" Classes="quietPanel">
+                            <DockPanel>
+                                <Border Classes="chipB" Margin="0,0,10,0" VerticalAlignment="Top"><TextBlock Text="B" /></Border>
+                                <TextBlock Text="{Binding StatusB}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+            <TextBlock Classes="sectionTitle" Text="{x:Static res:Ui.Run_Log}" Margin="0,0,0,6" />
+        </StackPanel>
+        <ListBox ItemsSource="{Binding Log}" FontFamily="{StaticResource MonoFont}" FontSize="12.5" AutomationProperties.Name="{x:Static res:Ui.Run_Log}" />
+    </DockPanel>
+</UserControl>

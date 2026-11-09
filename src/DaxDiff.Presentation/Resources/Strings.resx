@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Language_System" xml:space="preserve"><value>Same as Windows</value></data>
+  <data name="Language_SaveFailed" xml:space="preserve"><value>The language could not be saved: {0}</value></data>
+  <data name="Main_ProjectFilter" xml:space="preserve"><value>DAXDiff project (*.pbicomp)|*.pbicomp</value></data>
+  <data name="Main_RunFinished" xml:space="preserve"><value>Run finished: {0}.</value></data>
+  <data name="Nav_Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Nav_Home_Hint" xml:space="preserve"><value>New or open a project</value></data>
+  <data name="Nav_Sources" xml:space="preserve"><value>Sources</value></data>
+  <data name="Nav_Sources_Hint" xml:space="preserve"><value>Connect model A and B</value></data>
+  <data name="Nav_Comparisons" xml:space="preserve"><value>Comparisons</value></data>
+  <data name="Nav_Comparisons_Hint" xml:space="preserve"><value>Fields, keys, synonyms</value></data>
+  <data name="Nav_Options" xml:space="preserve"><value>Options</value></data>
+  <data name="Nav_Options_Hint" xml:space="preserve"><value>Filters and tolerances</value></data>
+  <data name="Nav_Run" xml:space="preserve"><value>Run</value></data>
+  <data name="Nav_Run_Hint" xml:space="preserve"><value>Execute comparisons</value></data>
+  <data name="Nav_Results" xml:space="preserve"><value>Results</value></data>
+  <data name="Nav_Results_Hint" xml:space="preserve"><value>Inspect and export</value></data>
+  <data name="Nav_Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Nav_Settings_Hint" xml:space="preserve"><value>Sign-in, privacy, diagnostics</value></data>
+  <data name="Main_NoProject" xml:space="preserve"><value>No project</value></data>
+  <data name="Main_UnsavedChanges" xml:space="preserve"><value>Unsaved changes</value></data>
+  <data name="Main_AllChangesSaved" xml:space="preserve"><value>All changes saved</value></data>
+  <data name="Main_StartHint" xml:space="preserve"><value>Create a new project or open an existing one to start.</value></data>
+  <data name="Main_StepConnected" xml:space="preserve"><value>{0} of 2 connected</value></data>
+  <data name="Main_StepNoComparisons" xml:space="preserve"><value>None yet</value></data>
+  <data name="Main_StepOneComparison" xml:space="preserve"><value>1 comparison</value></data>
+  <data name="Main_StepComparisons" xml:space="preserve"><value>{0} comparisons</value></data>
+  <data name="Main_StepResults" xml:space="preserve"><value>{0} result(s)</value></data>
+  <data name="Main_NewProjectFileName" xml:space="preserve"><value>New project</value></data>
+  <data name="Main_NewProjectDialogTitle" xml:space="preserve"><value>Create a new project</value></data>
+  <data name="Comparisons_DefaultName" xml:space="preserve"><value>Comparison {0}</value></data>
+  <data name="Main_ProjectCreated" xml:space="preserve"><value>Project created at {0}. Choose the two models, then define comparisons.</value></data>
+  <data name="Main_OpenProjectDialogTitle" xml:space="preserve"><value>Open project</value></data>
+  <data name="Main_ProjectReadFailed" xml:space="preserve"><value>The project file could not be read.</value></data>
+  <data name="Main_ProjectReadFailedRemedy" xml:space="preserve"><value>Check the file path and permissions.</value></data>
+  <data name="Main_ProjectUpgraded" xml:space="preserve"><value>Project upgraded from an older format; save it to keep the new format. Reconnect both models to validate the comparisons.</value></data>
+  <data name="Main_ProjectOpened" xml:space="preserve"><value>Project opened. Reconnect both models; comparisons are validated against fresh metadata.</value></data>
+  <data name="Main_ProjectSaved" xml:space="preserve"><value>Project saved (sources and saved comparisons; no credentials, tokens or results).</value></data>
+  <data name="Main_UnsavedComparisonsIntro" xml:space="preserve"><value>These comparisons have unsaved changes:</value></data>
+  <data name="Main_UnsavedComparisonsQuestion" xml:space="preserve"><value>Save them too? (No keeps their last saved versions in the project.)</value></data>
+  <data name="Main_UnsavedComparisonsTitle" xml:space="preserve"><value>Unsaved comparisons</value></data>
+  <data name="Main_SavedTo" xml:space="preserve"><value>Saved to {0}. Runs use the saved version of each comparison.</value></data>
+  <data name="Main_SaveProjectAsDialogTitle" xml:space="preserve"><value>Save project as</value></data>
+  <data name="Main_ProjectSavedAs" xml:space="preserve"><value>Project saved as {0}.</value></data>
+  <data name="Main_ProjectClosed" xml:space="preserve"><value>Project closed.</value></data>
+  <data name="Main_ProjectSaveFailed" xml:space="preserve"><value>The project could not be saved.</value></data>
+  <data name="Main_ProjectSaveFailedRemedy" xml:space="preserve"><value>Choose a folder you can write to.</value></data>
+  <data name="Main_DiscardDetail" xml:space="preserve"><value>Includes unsaved changes to: {0}.</value></data>
+  <data name="Main_SaveChangesQuestion" xml:space="preserve"><value>Save changes to the project '{0}'?</value></data>
+  <data name="Main_SidesSwapped" xml:space="preserve"><value>Sides swapped, including every comparison's fields and filters. Test both connections again.</value></data>
+  <data name="Main_LaunchedFromDesktop" xml:space="preserve"><value>Launched from Power BI Desktop ({0}). Create or open a project; model A will be attached to that session.</value></data>
+  <data name="Source_Title" xml:space="preserve"><value>Model {0}</value></data>
+  <data name="Source_SessionsNone" xml:space="preserve"><value>No running Power BI Desktop models found. Open the PBIX in Power BI Desktop, then detect again.</value></data>
+  <data name="Source_SessionsOne" xml:space="preserve"><value>One running model found. Verify it is the right file, then Test.</value></data>
+  <data name="Source_SessionsMany" xml:space="preserve"><value>{0} running models found. Pick the right one by file name and port.</value></data>
+  <data name="Source_PbixFilter" xml:space="preserve"><value>Power BI files (*.pbix;*.pbip)|*.pbix;*.pbip|All files (*.*)|*.*</value></data>
+  <data name="Source_PbixDialogTitle" xml:space="preserve"><value>Choose the PBIX to compare</value></data>
+  <data name="Source_OpenInDesktopHint" xml:space="preserve"><value>DAXDiff queries the model while it is open in Power BI Desktop. Choose 'Open in Power BI Desktop', wait for it to load, then 'Detect sessions'.</value></data>
+  <data name="Source_ChoosePbixFirst" xml:space="preserve"><value>Choose a PBIX file first.</value></data>
+  <data name="Source_OpenInDesktopFailed" xml:space="preserve"><value>Could not open the file with Power BI Desktop.</value></data>
+  <data name="Source_OpenInDesktopFailedRemedy" xml:space="preserve"><value>Make sure Power BI Desktop is installed and associated with .pbix files.</value></data>
+  <data name="Source_LaunchedSession" xml:space="preserve"><value>Launched from Power BI Desktop</value></data>
+  <data name="Source_AttachedExternal" xml:space="preserve"><value>Attached from Power BI Desktop External Tools ({0}). Test the connection to load metadata.</value></data>
+  <data name="Source_ServiceHintSignIn" xml:space="preserve"><value>Each model signs in separately, so A and B can be in the same tenant or in different tenants, as the same or different users.</value></data>
+  <data name="Source_ServiceHintNoClientId" xml:space="preserve"><value>No Entra client ID is configured (Settings), so DAXDiff cannot sign in to browse workspaces or use REST. XMLA works without it: enter your account, the workspace (or its connection link) and the model, then Test connection. Microsoft's sign-in uses that account, and asks for it when it is not signed in yet.</value></data>
+  <data name="Source_NotSignedIn" xml:space="preserve"><value>Not signed in</value></data>
+  <data name="Source_SignedInAs" xml:space="preserve"><value>Signed in as {0}</value></data>
+  <data name="Source_TenantSuffix" xml:space="preserve"><value> (tenant {0})</value></data>
+  <data name="Source_SetupDocHint" xml:space="preserve"><value>The administrator guide describes the app registration steps (Settings → Help and feedback → User guide, then For administrators).</value></data>
+  <data name="Source_SignInDialogTitle" xml:space="preserve"><value>Sign in to Power BI</value></data>
+  <data name="Source_SigningIn" xml:space="preserve"><value>Signing in…</value></data>
+  <data name="Source_SignedInWorkspaces" xml:space="preserve"><value>Signed in as {0}. {1} workspace(s) available.</value></data>
+  <data name="Source_SignedOut" xml:space="preserve"><value>Signed out.</value></data>
+  <data name="Source_LoadingWorkspaces" xml:space="preserve"><value>Loading workspaces…</value></data>
+  <data name="Source_WorkspacesAvailable" xml:space="preserve"><value>{0} workspace(s) available.</value></data>
+  <data name="Source_NoCapacity" xml:space="preserve"><value>This workspace is not on Premium/PPU/Fabric capacity, so XMLA is likely unavailable. Consider the REST transport.</value></data>
+  <data name="Source_LoadingModels" xml:space="preserve"><value>Loading semantic models…</value></data>
+  <data name="Source_ModelsInWorkspace" xml:space="preserve"><value>{0} semantic model(s) in {1}.</value></data>
+  <data name="Source_UsesRls" xml:space="preserve"><value>This model uses row-level security: results will reflect your role membership.</value></data>
+  <data name="Source_NotConnected" xml:space="preserve"><value>Not connected.</value></data>
+  <data name="Source_NoMetadata" xml:space="preserve"><value>No metadata loaded.</value></data>
+  <data name="Source_MetadataSummary" xml:space="preserve"><value>{0} tables, {1} columns, {2} measures</value></data>
+  <data name="Source_LastRefresh" xml:space="preserve"><value>; last refresh {0:yyyy-MM-dd HH:mm} UTC</value></data>
+  <data name="Source_NotConfigured" xml:space="preserve"><value>Not configured</value></data>
+  <data name="Source_Restored" xml:space="preserve"><value>Saved source restored. Sign in and Test to reload metadata.</value></data>
+  <data name="Source_SelectSessionFirst" xml:space="preserve"><value>Select a running Power BI Desktop session first (Detect sessions).</value></data>
+  <data name="Source_SelectModelFirst" xml:space="preserve"><value>Enter or select a workspace and semantic model first.</value></data>
+  <data name="Source_Connecting" xml:space="preserve"><value>Connecting…</value></data>
+  <data name="Source_LoadingMetadata" xml:space="preserve"><value>Connected. Loading metadata…</value></data>
+  <data name="Source_ConnectedVia" xml:space="preserve"><value>Connected via {0}.</value></data>
+  <data name="Comparisons_CopyName" xml:space="preserve"><value>{0} copy</value></data>
+  <data name="Comparisons_DeleteQuestion" xml:space="preserve"><value>Delete the comparison '{0}'?</value></data>
+  <data name="Comparisons_SelectInTreeFirst" xml:space="preserve"><value>Select a table or a field in the model {0} tree first.</value></data>
+  <data name="Comparisons_FieldAlreadyIn" xml:space="preserve"><value>That field is already in the comparison.</value></data>
+  <data name="Comparisons_ColumnsAlreadyIn" xml:space="preserve"><value>All those columns are already in the comparison.</value></data>
+  <data name="Comparisons_SelectInGridFirst" xml:space="preserve"><value>Select one or more fields in the model {0} grid first (Ctrl+click or Shift+click to select several).</value></data>
+  <data name="Comparisons_ConnectTargetFirst" xml:space="preserve"><value>Connect model {0} first (Sources page) so its tables and columns are known.</value></data>
+  <data name="Comparisons_FieldsAdded" xml:space="preserve"><value>{0} field(s) added to model {1}.</value></data>
+  <data name="Comparisons_FieldsAlreadyThere" xml:space="preserve"><value>{0} were already there.</value></data>
+  <data name="Comparisons_NotFoundInModel" xml:space="preserve"><value>Not found in model {0} (no table and column with the same name):</value></data>
+  <data name="Comparisons_AddSameTitle" xml:space="preserve"><value>Add same columns</value></data>
+  <data name="Comparisons_NoNewMatches" xml:space="preserve"><value>No new matches found. Synonyms are matched by equivalent names and the synonym dictionary.</value></data>
+  <data name="Comparisons_SynonymsSet" xml:space="preserve"><value>{0} model B synonym(s) set:</value></data>
+  <data name="Comparisons_SynonymPair" xml:space="preserve"><value>{0} → '{1}' (pairs with {2})</value></data>
+  <data name="Comparisons_AmbiguousSetByHand" xml:space="preserve"><value>Ambiguous, set these by hand:</value></data>
+  <data name="Comparisons_MatchSynonymsTitle" xml:space="preserve"><value>Match synonyms</value></data>
+  <data name="Comparisons_ConnectBothFirst" xml:space="preserve"><value>Connect both models first (Sources page).</value></data>
+  <data name="Comparisons_NoEquivalent" xml:space="preserve"><value>{0}: no equivalent found</value></data>
+  <data name="Comparisons_AddedAs" xml:space="preserve"><value>{0} as '{1}'</value></data>
+  <data name="Comparisons_NoFieldsAdded" xml:space="preserve"><value>No model B fields were added.</value></data>
+  <data name="Comparisons_AddedFields" xml:space="preserve"><value>Added {0} model B field(s):</value></data>
+  <data name="Comparisons_NotMatchedInsertByHand" xml:space="preserve"><value>Not matched, insert these by hand:</value></data>
+  <data name="Comparisons_AddMatchingTitle" xml:space="preserve"><value>Add matching model B fields</value></data>
+  <data name="Editor_UnsavedChanges" xml:space="preserve"><value>Unsaved changes – runs use the last saved version</value></data>
+  <data name="Editor_NotSavedYet" xml:space="preserve"><value>Not saved yet – save to run it</value></data>
+  <data name="Editor_Saved" xml:space="preserve"><value>Saved</value></data>
+  <data name="Editor_NotSavedRun" xml:space="preserve"><value>Not saved yet – save it on the Comparisons page to run it</value></data>
+  <data name="Editor_SavedVersionErrors" xml:space="preserve"><value>{0} error(s) in the saved version</value></data>
+  <data name="Editor_KeysValues" xml:space="preserve"><value>{0} key(s), {1} value(s)</value></data>
+  <data name="Editor_NewerChangesSuffix" xml:space="preserve"><value> · newer changes not saved</value></data>
+  <data name="Editor_ErrorsToFix" xml:space="preserve"><value>{0} error(s) to fix</value></data>
+  <data name="Editor_KeysValuesCompared" xml:space="preserve"><value>{0} key(s), {1} value(s) compared</value></data>
+  <data name="Editor_UnnamedComparison" xml:space="preserve"><value>Unnamed comparison</value></data>
+  <data name="Editor_NoCounterpart" xml:space="preserve"><value>No model {0} field named '{1}': not compared</value></data>
+  <data name="Field_MeasureType" xml:space="preserve"><value>Measure · {0}</value></data>
+  <data name="Tree_Hidden" xml:space="preserve"><value>{0} (hidden)</value></data>
+  <data name="Tree_HiddenSuffix" xml:space="preserve"><value> · hidden</value></data>
+  <data name="Tree_AccessibleMeasure" xml:space="preserve"><value>Measure {0} in {1}, {2}</value></data>
+  <data name="Tree_AccessibleColumn" xml:space="preserve"><value>Column {0} in {1}, {2}</value></data>
+  <data name="Options_NoFilters" xml:space="preserve"><value>No filters.</value></data>
+  <data name="Options_FiltersSummary" xml:space="preserve"><value>{0} filter(s): {1}</value></data>
+  <data name="Options_CannotGenerateQuery" xml:space="preserve"><value>Cannot generate a query yet: {0}</value></data>
+  <data name="Options_ConnectBothFirst" xml:space="preserve"><value>Connect both models first.</value></data>
+  <data name="Options_FixErrorsFirst" xml:space="preserve"><value>Fix the comparison's errors first:</value></data>
+  <data name="Options_Estimating" xml:space="preserve"><value>Estimating…</value></data>
+  <data name="Options_Estimate" xml:space="preserve"><value>Estimated keys – A: {0:N0}, B: {1:N0}.</value></data>
+  <data name="Options_EstimateExceedsCap" xml:space="preserve"><value>Exceeds the row cap ({0:N0}): the run would be Partial. Add filters or raise the cap.</value></data>
+  <data name="Options_EstimateFailed" xml:space="preserve"><value>Estimate failed.</value></data>
+  <data name="Run_Waiting" xml:space="preserve"><value>Waiting</value></data>
+  <data name="Run_NotConnected" xml:space="preserve"><value>not connected</value></data>
+  <data name="Run_TickOne" xml:space="preserve"><value>Tick at least one saved comparison to run. Comparisons are saved with 'Save comparison' on the Comparisons page.</value></data>
+  <data name="Run_ConnectBothFirst" xml:space="preserve"><value>Connect and test both models in the Sources step first.</value></data>
+  <data name="Run_CurrentOf" xml:space="preserve"><value>{0} ({1} of {2})</value></data>
+  <data name="Run_Queued" xml:space="preserve"><value>Queued</value></data>
+  <data name="Run_Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Run_Finished" xml:space="preserve"><value>Finished</value></data>
+  <data name="Results_BannerComplete" xml:space="preserve"><value>{0}: Complete — every query returned in full.</value></data>
+  <data name="Results_BannerPartial" xml:space="preserve"><value>{0}: PARTIAL — results are incomplete. Missing differences do not prove equality.</value></data>
+  <data name="Results_BannerCancelled" xml:space="preserve"><value>{0}: CANCELLED — the run did not finish.</value></data>
+  <data name="Results_BannerFailed" xml:space="preserve"><value>{0}: FAILED — {1}</value></data>
+  <data name="Results_SourceDetails" xml:space="preserve"><value>Evaluated {0:yyyy-MM-dd HH:mm:ss} UTC · run {1} · tolerance {2} (abs {3}, rel {4}) · queries {5}</value></data>
+  <data name="Results_KpiKeys" xml:space="preserve"><value>Keys</value></data>
+  <data name="Results_KpiInvalidKeys" xml:space="preserve"><value>Invalid keys</value></data>
+  <data name="Results_MeasureStats" xml:space="preserve"><value>{0}: {1:N0} mismatch(es) of {2:N0}; totals A {3:N2} / B {4:N2}; max |Δ| {5:N4}</value></data>
+  <data name="Results_SelectRow" xml:space="preserve"><value>Select a row to see details.</value></data>
+  <data name="Results_DetailStatus" xml:space="preserve"><value>Status: {0}</value></data>
+  <data name="Results_DetailReason" xml:space="preserve"><value>Reason: {0}</value></data>
+  <data name="Results_NotApplicable" xml:space="preserve"><value>N/A</value></data>
+  <data name="Results_DetailNormalizedKey" xml:space="preserve"><value>Normalized key: {0}</value></data>
+  <data name="Blank" xml:space="preserve"><value>(Blank)</value></data>
+  <data name="Results_ColumnStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="Results_ColumnReason" xml:space="preserve"><value>Reason</value></data>
+  <data name="Results_VisibleCount" xml:space="preserve"><value>{0:N0} of {1:N0} rows</value></data>
+  <data name="Results_RowsOmitted" xml:space="preserve"><value>({0:N0} more not listed by the comparison's result settings)</value></data>
+  <data name="Results_ExcelFilter" xml:space="preserve"><value>Excel workbook (*.xlsx)|*.xlsx</value></data>
+  <data name="Results_ExportDialogTitle" xml:space="preserve"><value>Export comparison</value></data>
+  <data name="Export_Sensitive" xml:space="preserve"><value>The workbook may contain sensitive business data from both models.</value></data>
+  <data name="Export_Destination" xml:space="preserve"><value>Destination: {0}</value></data>
+  <data name="Export_AllDataRows" xml:space="preserve"><value>All data rows: {0}</value></data>
+  <data name="Export_DaxText" xml:space="preserve"><value>DAX text: {0}</value></data>
+  <data name="Export_Included" xml:space="preserve"><value>included</value></data>
+  <data name="Export_AllDataOmitted" xml:space="preserve"><value>omitted (differences only)</value></data>
+  <data name="Export_DaxOmitted" xml:space="preserve"><value>omitted (hashes only)</value></data>
+  <data name="Export_IncompleteRun" xml:space="preserve"><value>This run is {0}; the workbook will be labelled accordingly.</value></data>
+  <data name="Export_Continue" xml:space="preserve"><value>Continue?</value></data>
+  <data name="Export_NoticeTitle" xml:space="preserve"><value>Export – sensitivity notice</value></data>
+  <data name="Export_Done" xml:space="preserve"><value>Exported to {0}.</value></data>
+  <data name="Export_OpenNow" xml:space="preserve"><value>Open it now?</value></data>
+  <data name="Export_DoneTitle" xml:space="preserve"><value>Export complete</value></data>
+  <data name="Export_WriteFailed" xml:space="preserve"><value>The workbook could not be written.</value></data>
+  <data name="Export_WriteFailedRemedy" xml:space="preserve"><value>Close the file if it is open in Excel, or choose another folder.</value></data>
+  <data name="Results_DefaultFileName" xml:space="preserve"><value>Comparison</value></data>
+  <data name="Filter_SelectedCount" xml:space="preserve"><value>{0:N0} selected</value></data>
+  <data name="Filter_ChooseColumn" xml:space="preserve"><value>Choose a column</value></data>
+  <data name="Filter_ChooseColumnA" xml:space="preserve"><value>Choose the model A column.</value></data>
+  <data name="Filter_ChooseColumnB" xml:space="preserve"><value>Choose the model B column to apply the same filter to.</value></data>
+  <data name="Filter_NoSecondCondition" xml:space="preserve"><value>(no second condition)</value></data>
+  <data name="Filter_NotConnected" xml:space="preserve"><value>Models are not connected, so values cannot be listed. Type values below and Add.</value></data>
+  <data name="Filter_LoadingValues" xml:space="preserve"><value>Loading values…</value></data>
+  <data name="Filter_ShowingFirst" xml:space="preserve"><value>Showing the first {0:N0} values of each model. Search to find others.</value></data>
+  <data name="Filter_DistinctValuesAB" xml:space="preserve"><value>{0:N0} distinct value(s) in models A and B.</value></data>
+  <data name="Filter_DistinctValuesA" xml:space="preserve"><value>{0:N0} distinct value(s) in model A.</value></data>
+  <data name="Filter_LoadValuesFailed" xml:space="preserve"><value>Could not load values: {0}</value></data>
+  <data name="Filter_WindowTitle" xml:space="preserve"><value>Filters – {0}</value></data>
+  <data name="Filter_Problem" xml:space="preserve"><value>Filter {0} ({1}): {2}</value></data>
+  <data name="Settings_OpenUrlFailed" xml:space="preserve"><value>No web browser could be opened. Open this address yourself:
+
+{0}</value></data>
+  <data name="Settings_ThemeSaveFailed" xml:space="preserve"><value>The theme is applied but could not be saved for next time: {0}</value></data>
+  <data name="Settings_SignInConfigured" xml:space="preserve"><value>Configured. Each source signs in separately on the Sources page (own tenant and account).</value></data>
+  <data name="Settings_SignInNotConfigured" xml:space="preserve"><value>No client ID: XMLA uses the built-in sign-in; workspace browsing and REST are unavailable.</value></data>
+  <data name="Settings_Privacy" xml:space="preserve"><value>DAXDiff runs locally and sends no telemetry. Queries are read-only and run with your own identity. Sign-in tokens are kept only in your encrypted token cache (Windows data protection, the macOS Keychain or the Linux keyring) and never written to projects, logs or exports. Logs contain no measure values, key values or DAX text; queries are identified by SHA-256 hash.</value></data>
+  <data name="Settings_ClientIdInvalid" xml:space="preserve"><value>The client ID must be a GUID (Application ID of an Entra public-client app registration).</value></data>
+  <data name="Settings_SavedRestart" xml:space="preserve"><value>Saved. Restart DAXDiff for the sign-in settings to take effect.</value></data>
+  <data name="Settings_SignedOutAll" xml:space="preserve"><value>Signed out of every account and cleared the token cache. Sign in again on the Sources page.</value></data>
+  <data name="Settings_ResetQuestion" xml:space="preserve"><value>Discard the current comparison (sources, mappings, options and results)?</value></data>
+  <data name="Dialog_DiagnosticCode" xml:space="preserve"><value>Diagnostic code: {0}</value></data>
+  <data name="Dialog_ProblemTitle" xml:space="preserve"><value>DAXDiff – problem</value></data>
+  <data name="Dialog_Open" xml:space="preserve"><value>Open</value></data>
+  <data name="Dialog_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Dialog_Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Dialog_Yes" xml:space="preserve"><value>_Yes</value></data>
+  <data name="Dialog_No" xml:space="preserve"><value>_No</value></data>
+  <data name="Dialog_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Theme_midnight" xml:space="preserve"><value>Midnight</value></data>
+  <data name="Theme_midnight_Description" xml:space="preserve"><value>Dark teal</value></data>
+  <data name="Theme_daylight" xml:space="preserve"><value>Daylight</value></data>
+  <data name="Theme_daylight_Description" xml:space="preserve"><value>Light header</value></data>
+  <data name="Theme_amber" xml:space="preserve"><value>Amber</value></data>
+  <data name="Theme_amber_Description" xml:space="preserve"><value>Graphite and gold</value></data>
+  <data name="Theme_graphite" xml:space="preserve"><value>Graphite</value></data>
+  <data name="Theme_graphite_Description" xml:space="preserve"><value>Dark grey with orange, the default</value></data>
+  <data name="Theme_contrast" xml:space="preserve"><value>High contrast</value></data>
+  <data name="Theme_contrast_Description" xml:space="preserve"><value>Black and white with strong blue</value></data>
+  <data name="Theme_steel" xml:space="preserve"><value>Steel</value></data>
+  <data name="Theme_steel_Description" xml:space="preserve"><value>Slate blue #778DB9</value></data>
+  <data name="Theme_deepsea" xml:space="preserve"><value>Deep sea</value></data>
+  <data name="Theme_deepsea_Description" xml:space="preserve"><value>Navy blue #415A87</value></data>
+  <data name="Theme_dusk" xml:space="preserve"><value>Dusk</value></data>
+  <data name="Theme_dusk_Description" xml:space="preserve"><value>Violet grey #4A4E79</value></data>
+  <data name="Theme_ink" xml:space="preserve"><value>Dark</value></data>
+  <data name="Theme_ink_Description" xml:space="preserve"><value>Like dark mode in Windows</value></data>
+  <data name="Theme_blush" xml:space="preserve"><value>Blush</value></data>
+  <data name="Theme_blush_Description" xml:space="preserve"><value>Soft pink #FFA5BB</value></data>
+  <data name="Theme_plum" xml:space="preserve"><value>Plum</value></data>
+  <data name="Theme_plum_Description" xml:space="preserve"><value>Deep purple #582C5D</value></data>
+  <data name="Filter_FixFirst" xml:space="preserve"><value>Fix these filters first, or remove them:</value></data>
+  <data name="Filter_FixFirstTitle" xml:space="preserve"><value>Filters</value></data>
+  <data name="Enum_Aggregation_None" xml:space="preserve"><value>None</value></data>
+  <data name="Enum_Aggregation_Sum" xml:space="preserve"><value>Sum</value></data>
+  <data name="Enum_Aggregation_Average" xml:space="preserve"><value>Average</value></data>
+  <data name="Enum_Aggregation_Min" xml:space="preserve"><value>Min</value></data>
+  <data name="Enum_Aggregation_Max" xml:space="preserve"><value>Max</value></data>
+  <data name="Enum_Aggregation_Count" xml:space="preserve"><value>Count</value></data>
+  <data name="Enum_Aggregation_DistinctCount" xml:space="preserve"><value>Distinct count</value></data>
+  <data name="Enum_Aggregation_Concatenate" xml:space="preserve"><value>Concatenate</value></data>
+  <data name="Enum_ToleranceMode_Exact" xml:space="preserve"><value>Exact</value></data>
+  <data name="Enum_ToleranceMode_Tolerance" xml:space="preserve"><value>Tolerance</value></data>
+  <data name="Enum_NullPolicy_Strict" xml:space="preserve"><value>Strict</value></data>
+  <data name="Enum_NullPolicy_BlankEqualsZero" xml:space="preserve"><value>Blank equals zero</value></data>
+  <data name="Enum_TextComparison_Ordinal" xml:space="preserve"><value>Ordinal (case-sensitive)</value></data>
+  <data name="Enum_TextComparison_OrdinalIgnoreCase" xml:space="preserve"><value>Ordinal, ignore case</value></data>
+  <data name="Enum_PercentBaseline_A" xml:space="preserve"><value>Model A</value></data>
+  <data name="Enum_PercentBaseline_B" xml:space="preserve"><value>Model B</value></data>
+  <data name="Enum_UnicodeNormalization_None" xml:space="preserve"><value>None</value></data>
+  <data name="Enum_UnicodeNormalization_FormC" xml:space="preserve"><value>Form C (NFC)</value></data>
+  <data name="Enum_UnicodeNormalization_FormKC" xml:space="preserve"><value>Form KC (NFKC)</value></data>
+  <data name="Enum_DuplicateKeyPolicy_Fail" xml:space="preserve"><value>Fail the run</value></data>
+  <data name="Enum_DuplicateKeyPolicy_Diagnose" xml:space="preserve"><value>Diagnose (report and exclude)</value></data>
+  <data name="Enum_ResultFilter_All" xml:space="preserve"><value>All</value></data>
+  <data name="Enum_ResultFilter_Match" xml:space="preserve"><value>Match</value></data>
+  <data name="Enum_ResultFilter_Mismatch" xml:space="preserve"><value>Mismatch</value></data>
+  <data name="Enum_ResultFilter_OnlyInA" xml:space="preserve"><value>Only in A</value></data>
+  <data name="Enum_ResultFilter_OnlyInB" xml:space="preserve"><value>Only in B</value></data>
+  <data name="Enum_ResultFilter_InvalidKey" xml:space="preserve"><value>Invalid key</value></data>
+  <data name="Enum_RowStatus_Match" xml:space="preserve"><value>Match</value></data>
+  <data name="Enum_RowStatus_Mismatch" xml:space="preserve"><value>Mismatch</value></data>
+  <data name="Enum_RowStatus_OnlyInA" xml:space="preserve"><value>Only in A</value></data>
+  <data name="Enum_RowStatus_OnlyInB" xml:space="preserve"><value>Only in B</value></data>
+  <data name="Enum_RowStatus_InvalidKey" xml:space="preserve"><value>Invalid key</value></data>
+  <data name="Enum_SourceKind_DesktopSession" xml:space="preserve"><value>Power BI Desktop</value></data>
+  <data name="Enum_SourceKind_ServiceXmla" xml:space="preserve"><value>Power BI service (XMLA)</value></data>
+  <data name="Enum_SourceKind_ServiceRest" xml:space="preserve"><value>Power BI service (REST)</value></data>
+  <data name="Enum_ConnectionState_NotConnected" xml:space="preserve"><value>Not connected</value></data>
+  <data name="Enum_ConnectionState_Working" xml:space="preserve"><value>Working</value></data>
+  <data name="Enum_ConnectionState_Connected" xml:space="preserve"><value>Connected</value></data>
+  <data name="Enum_ConnectionState_Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="Enum_RunStatus_Complete" xml:space="preserve"><value>Complete</value></data>
+  <data name="Enum_RunStatus_Partial" xml:space="preserve"><value>Partial</value></data>
+  <data name="Enum_RunStatus_Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="Enum_RunStatus_Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="Enum_ResultRows_All" xml:space="preserve"><value>Matches and differences</value></data>
+  <data name="Enum_ResultRows_DifferencesOnly" xml:space="preserve"><value>Differences only</value></data>
+  <data name="Enum_DataKind_Unknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="Enum_DataKind_Text" xml:space="preserve"><value>Text</value></data>
+  <data name="Enum_DataKind_Integer" xml:space="preserve"><value>Integer</value></data>
+  <data name="Enum_DataKind_Decimal" xml:space="preserve"><value>Decimal</value></data>
+  <data name="Enum_DataKind_Double" xml:space="preserve"><value>Double</value></data>
+  <data name="Enum_DataKind_Boolean" xml:space="preserve"><value>True/false</value></data>
+  <data name="Enum_DataKind_DateTime" xml:space="preserve"><value>Date/time</value></data>
+  <data name="Enum_FieldKind_Column" xml:space="preserve"><value>Column</value></data>
+  <data name="Enum_FieldKind_Measure" xml:space="preserve"><value>Measure</value></data>
+  <data name="Enum_FieldRole_Key" xml:space="preserve"><value>Key</value></data>
+  <data name="Enum_FieldRole_Value" xml:space="preserve"><value>Value</value></data>
+  <data name="Enum_MetadataSupport_None" xml:space="preserve"><value>None</value></data>
+  <data name="Enum_MetadataSupport_Partial" xml:space="preserve"><value>Partial</value></data>
+  <data name="Enum_MetadataSupport_Full" xml:space="preserve"><value>Full</value></data>
+  <data name="Common_Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Common_No" xml:space="preserve"><value>No</value></data>
+  <data name="Language_RestartTitle" xml:space="preserve"><value>Change language</value></data>
+  <data name="Language_RestartQuestion" xml:space="preserve"><value>The language is saved. Restart DAXDiff now to switch to it?
+
+Your open project reopens after the restart; reconnect the models there. Choose No to switch the next time you start DAXDiff.</value></data>
+  <data name="Language_RestartFailed" xml:space="preserve"><value>DAXDiff could not restart itself: {0}
+Close DAXDiff and start it again to switch the language.</value></data>
+  <data name="Language_RestartNoPath" xml:space="preserve"><value>the path of the running program is unknown.</value></data>
+  <data name="Results_ColumnsAll" xml:space="preserve"><value>All columns ({0} with differences)</value></data>
+  <data name="Results_ColumnsSome" xml:space="preserve"><value>Only: {0}</value></data>
+</root>

@@ -6,3 +6,4 @@ TestResults/
 publish/
 *.pbicomp.bak
 dist/
+.claude/worktrees/

@@ -1,7 +1,7 @@
 # Builds DAXDiff web (src/DaxDiff.Web) and deploys it to this repository's GitHub Pages site
 # (https://<owner>.github.io/<repo>/). Only the compiled static site is served.
 #
-# One-time setup (docs/web.md): Settings -> Pages -> Source: GitHub Actions.
+# One-time setup (docs/dev/web-deployment.md): Settings -> Pages -> Source: GitHub Actions.
 #   - Optional variable DAXDIFF_CLIENT_ID: Entra ID client ID baked into appsettings.json (not a secret)
 #   - Optional variable PAGES_BASE_PATH: defaults to /<repository name>/ ; use / for a custom domain
 name: Web (GitHub Pages)
@@ -31,8 +31,7 @@ concurrency:
 
 jobs:
   test:
-    # The unit tests reference the Windows connectors, so they run on Windows.
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4

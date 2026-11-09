@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:DaxDiff.Presentation.Resources"
+             xmlns:vm="using:DaxDiff.Presentation.ViewModels"
+             xmlns:views="using:DaxDiff.App.Views"
+             x:Class="DaxDiff.App.Views.SourcesView"
+             x:DataType="vm:SourcesViewModel">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top">
+            <Button DockPanel.Dock="Right" Command="{Binding NextCommand}" Classes="secondary" VerticalAlignment="Bottom"
+                    Margin="16,0,0,18" Content="{x:Static res:Ui.Sources_Next}" />
+            <StackPanel>
+                <TextBlock Text="{x:Static res:Ui.Sources_Step}" Classes="eyebrow" />
+                <TextBlock Text="{x:Static res:Ui.Sources_Title}" Classes="pageTitle" />
+                <TextBlock Classes="pageHint" Text="{x:Static res:Ui.Sources_Hint}" />
+            </StackPanel>
+        </DockPanel>
+        <Grid ColumnDefinitions="*,Auto,*">
+            <views:SourcePanelView Grid.Column="0" DataContext="{Binding SourceA}" />
+            <Button Grid.Column="1" Classes="round" Command="{Binding SwapCommand}" VerticalAlignment="Top" Margin="12,24,12,0"
+                    ToolTip.Tip="{x:Static res:Ui.Sources_SwapTip}" AutomationProperties.Name="{x:Static res:Ui.Sources_Swap}">
+                <Path Data="M 12 0 L 16 4 L 12 8 M 16 4 H 0 M 4 10 L 0 14 L 4 18 M 0 14 H 16" Stroke="{DynamicResource TealBrush}" StrokeThickness="2"
+                      StrokeLineCap="Round" StrokeJoin="Round" Width="18" Height="18" Stretch="Uniform" />
+            </Button>
+            <views:SourcePanelView Grid.Column="2" DataContext="{Binding SourceB}" />
+        </Grid>
+    </DockPanel>
+</UserControl>

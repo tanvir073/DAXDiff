@@ -1,4 +1,4 @@
-/* Numberskills design system for DAXDiff web. Colour tokens match the desktop themes (Services/ThemeService.cs):
+/* DAXDiff web design. Colour tokens match the desktop themes (DaxDiff.Presentation/Services/ThemeCatalog.cs):
    Daylight in light mode, Midnight in dark mode. Fonts are the desktop's embedded fonts (SIL Open Font License). */
 
 @font-face { font-family: "Bricolage Grotesque"; src: url("../fonts/BricolageGrotesque-Regular.ttf") format("truetype"); font-weight: 400 800; font-display: swap; }
@@ -9,17 +9,17 @@
 
 :root {
     color-scheme: light;
-    --page: #f6f8f9; --surface: #ffffff; --nav: #ffffff; --text: #1b2328; --muted: #56636a; --heading: #1b2328;
-    --border: rgba(27,35,40,0.10); --strong: rgba(27,35,40,0.22); --field: #87959c;
-    --header: #ffffff; --header-text: #1b2328; --header-muted: #56636a; --header-line: rgba(27,35,40,0.14); --header-field: #f1f4f5;
-    --logo-a: #0284c7; --logo-b: #7dd3fc; --logo-lens: #024b60;
-    --accent: #03607a; --on-accent: #ffffff; --accent-hover: #024b60; --link: #03607a;
-    --sel-bg: #e3f1f4; --sel-text: #03607a; --tile-bg: #e3f1f4; --tile-text: #03607a;
-    --chip-a: #1b2328; --chip-a-text: #ffffff;
-    --hero: #03607a; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.84);
-    --success: #147a4b; --danger: #b42318; --warning: #8a5a00;
-    --success-soft: rgba(20,122,75,0.10); --danger-soft: rgba(180,35,24,0.09); --warning-soft: rgba(138,90,0,0.10); --info-soft: #e3f1f4;
-    --radius: 14px; --shadow: 0 1px 2px rgba(27,35,40,0.05);
+    --page: #f6f8e9; --surface: #ffffff; --nav: #ffffff; --text: #1b2338; --muted: #56637a; --heading: #1b2338;
+    --border: rgba(27,35,56,0.10); --strong: rgba(27,35,56,0.22); --field: #8795ac;
+    --header: #ffffff; --header-text: #1b2338; --header-muted: #56637a; --header-line: rgba(27,35,56,0.14); --header-field: #f1f4e5;
+    --logo-a: #0284d7; --logo-b: #7dd3ec; --logo-lens: #024b70;
+    --accent: #03608a; --on-accent: #ffffff; --accent-hover: #024b70; --link: #03608a;
+    --sel-bg: #e3f1e4; --sel-text: #03608a; --tile-bg: #e3f1e4; --tile-text: #03608a;
+    --chip-a: #1b2338; --chip-a-text: #ffffff;
+    --hero: #03608a; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.84);
+    --success: #147a5b; --danger: #b42328; --warning: #8a5a10;
+    --success-soft: rgba(20,122,91,0.10); --danger-soft: rgba(180,35,40,0.09); --warning-soft: rgba(138,90,16,0.10); --info-soft: #e3f1e4;
+    --radius: 14px; --shadow: 0 1px 2px rgba(27,35,56,0.05);
     --font-heading: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
     --font-text: "Onest", "Segoe UI", system-ui, sans-serif;
     --font-code: ui-monospace, "Cascadia Mono", Consolas, monospace;
@@ -28,32 +28,32 @@
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
         color-scheme: dark;
-        --page: #0a161b; --surface: #10232a; --nav: #0d1d23; --text: #e6f1f2; --muted: #a3b9bf; --heading: #ffffff;
-        --border: rgba(255,255,255,0.10); --strong: rgba(255,255,255,0.24); --field: #62808a;
-        --header: #061014; --header-text: #e6f1f2; --header-muted: rgba(230,241,242,0.72); --header-line: rgba(255,255,255,0.14); --header-field: rgba(255,255,255,0.06);
-        --logo-a: #7dd3fc; --logo-b: #e0f2fe;
-        --accent: #2fc7d8; --on-accent: #0d1927; --accent-hover: #5fd6e3; --link: #7fdde6;
-        --sel-bg: #17353f; --sel-text: #9fe7ea; --tile-bg: #17353f; --tile-text: #9fe7ea;
-        --chip-a: #e6f1f2; --chip-a-text: #0a161b;
-        --hero: #133a45; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.76);
-        --success: #5ad69a; --danger: #ff8f80; --warning: #f2c46d;
-        --success-soft: rgba(90,214,154,0.12); --danger-soft: rgba(255,143,128,0.12); --warning-soft: rgba(242,196,109,0.12); --info-soft: #17353f;
+        --page: #0a162b; --surface: #10233a; --nav: #0d1d33; --text: #e6f1e2; --muted: #a3b9cf; --heading: #ffffff;
+        --border: rgba(255,255,255,0.10); --strong: rgba(255,255,255,0.24); --field: #62809a;
+        --header: #061024; --header-text: #e6f1e2; --header-muted: rgba(230,241,226,0.72); --header-line: rgba(255,255,255,0.14); --header-field: rgba(255,255,255,0.06);
+        --logo-a: #7dd3ec; --logo-b: #e0f2ee;
+        --accent: #2fc7e8; --on-accent: #0d1937; --accent-hover: #5fd6f3; --link: #7fddf6;
+        --sel-bg: #17354f; --sel-text: #9fe7fa; --tile-bg: #17354f; --tile-text: #9fe7fa;
+        --chip-a: #e6f1e2; --chip-a-text: #0a162b;
+        --hero: #133a55; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.76);
+        --success: #5ad6aa; --danger: #ff8f90; --warning: #f2c47d;
+        --success-soft: rgba(90,214,170,0.12); --danger-soft: rgba(255,143,144,0.12); --warning-soft: rgba(242,196,125,0.12); --info-soft: #17354f;
         --shadow: none;
     }
 }
 
 :root[data-theme="dark"] {
     color-scheme: dark;
-    --page: #0a161b; --surface: #10232a; --nav: #0d1d23; --text: #e6f1f2; --muted: #a3b9bf; --heading: #ffffff;
-    --border: rgba(255,255,255,0.10); --strong: rgba(255,255,255,0.24); --field: #62808a;
-    --header: #061014; --header-text: #e6f1f2; --header-muted: rgba(230,241,242,0.72); --header-line: rgba(255,255,255,0.14); --header-field: rgba(255,255,255,0.06);
-    --logo-a: #7dd3fc; --logo-b: #e0f2fe;
-    --accent: #2fc7d8; --on-accent: #0d1927; --accent-hover: #5fd6e3; --link: #7fdde6;
-    --sel-bg: #17353f; --sel-text: #9fe7ea; --tile-bg: #17353f; --tile-text: #9fe7ea;
-    --chip-a: #e6f1f2; --chip-a-text: #0a161b;
-    --hero: #133a45; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.76);
-    --success: #5ad69a; --danger: #ff8f80; --warning: #f2c46d;
-    --success-soft: rgba(90,214,154,0.12); --danger-soft: rgba(255,143,128,0.12); --warning-soft: rgba(242,196,109,0.12); --info-soft: #17353f;
+    --page: #0a162b; --surface: #10233a; --nav: #0d1d33; --text: #e6f1e2; --muted: #a3b9cf; --heading: #ffffff;
+    --border: rgba(255,255,255,0.10); --strong: rgba(255,255,255,0.24); --field: #62809a;
+    --header: #061024; --header-text: #e6f1e2; --header-muted: rgba(230,241,226,0.72); --header-line: rgba(255,255,255,0.14); --header-field: rgba(255,255,255,0.06);
+    --logo-a: #7dd3ec; --logo-b: #e0f2ee;
+    --accent: #2fc7e8; --on-accent: #0d1937; --accent-hover: #5fd6f3; --link: #7fddf6;
+    --sel-bg: #17354f; --sel-text: #9fe7fa; --tile-bg: #17354f; --tile-text: #9fe7fa;
+    --chip-a: #e6f1e2; --chip-a-text: #0a162b;
+    --hero: #133a55; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,0.76);
+    --success: #5ad6aa; --danger: #ff8f90; --warning: #f2c47d;
+    --success-soft: rgba(90,214,170,0.12); --danger-soft: rgba(255,143,144,0.12); --warning-soft: rgba(242,196,125,0.12); --info-soft: #17354f;
     --shadow: none;
 }
 

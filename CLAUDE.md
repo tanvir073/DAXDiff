@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-DAXDiff is a Windows WPF desktop app that compares the evaluated output of two Power BI semantic models. A project holds two sources and any number of comparisons. Each comparison picks columns (or measures) on both sides, marks key columns, aggregates the rest, and pairs fields by synonym. DAXDiff evaluates both sides at the key grain, full-outer-joins the results and exports an Excel audit workbook. The spec is `DAXDiff_Requirements.docx` (SRS v1.2). Code comments, tests and `docs/implementation-plan.md` cite its IDs (FR-xxx, NFR-xx, AT-xx, §n), so keep citing them.
+DAXDiff is a desktop app (Windows, macOS and Linux, built on Avalonia) plus a browser app that compare the evaluated output of two Power BI semantic models. A project holds two sources and any number of comparisons. Each comparison picks columns (or measures) on both sides, marks key columns, aggregates the rest, and pairs fields by synonym. DAXDiff evaluates both sides at the key grain, full-outer-joins the results and exports an Excel audit workbook. The spec is `docs/dev/DAXDiff_Requirements.docx` (SRS v1.2). Code comments, tests and `docs/dev/implementation-plan.md` cite its IDs (FR-xxx, NFR-xx, AT-xx, §n), so keep citing them.
 
 ## Commands
 
@@ -11,22 +11,22 @@ dotnet build                                   # whole solution (DaxDiff.sln)
 dotnet test tests/DaxDiff.Tests.Unit           # all unit tests
 dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngineTests"          # one class
 dotnet test tests/DaxDiff.Tests.Unit --filter "FullyQualifiedName~ComparisonEngineTests.AT04_AbsoluteTolerance"  # one test
-dotnet run --project src/DaxDiff.Desktop       # launch the app
+dotnet run --project src/DaxDiff.App           # launch the desktop app (Avalonia)
 dotnet run --project src/DaxDiff.Web --launch-profile http   # web app on http://localhost:5215
 ./scripts/build.ps1                            # Release restore/build/test/publish to ./publish
-./scripts/package.ps1                          # self-contained publish + MSI (WiX 5, installer/) to ./dist
+./scripts/package.ps1                          # self-contained publish, MSI (WiX 5, installer/) and portable zip to ./dist
+bash scripts/package-app.sh osx-arm64          # macOS .dmg or Linux .tar.gz of DaxDiff.App to ./dist (run on that OS)
 ```
 
-There is no linter configured. On the developer's machine, an application-control policy blocks the unsigned `DAXDiff.exe` with "Access is denied". Run the built app as `dotnet <output>/DAXDiff.dll` instead. The desktop output lands in `bin/Debug/net10.0-windows/win-x64/` because a `RuntimeIdentifier` is set.
+There is no linter configured. On the developer's machine, an application-control policy blocks the unsigned `DAXDiff.exe` with "Access is denied". Run the built app as `dotnet src/DaxDiff.App/bin/Debug/net10.0-windows/DAXDiff.dll` instead.
 
 ## Architecture
 
-The dependency direction is Desktop → {Application, Connectors} and Web → Application → {Comparison, Connectors.Core, Export} → Domain, with Connectors → Connectors.Core.
+The dependency direction is App → Presentation → {Application, Connectors} and Web → Application → {Comparison, Connectors.Core, Export} → Domain, with Connectors → Connectors.Core.
 
-- **Target frameworks:** `Domain`, `Comparison`, `Export`, `Connectors.Core`, `Application` and `Web` target `net10.0`. `Connectors`, `Desktop` and the test project target `net10.0-windows`, because Connectors uses `System.Management` for WMI and ADOMD.
-- **Connectors.Core vs Connectors.** `Connectors.Core` holds everything without a Windows dependency: `IModelConnector`, `IAuthService`/`AuthOptions`/`SourceSession`, `ErrorClassifier`, the metadata parsers and the REST connector, client and discovery. `Connectors` holds ADOMD (Desktop, XMLA), WMI session discovery, `MsalAuthService` (which maps `MsalException` itself) and `ConnectorFactory`. Namespaces did not change. Keep Windows-only code out of Core and Application, or the web app stops building.
+- **Target frameworks:** everything targets `net10.0` except the App, which targets `net10.0-windows` with Windows Forms when built on Windows (ADOMD.NET's own XMLA sign-in, used without a client ID, is a Windows Forms dialog and also needs `AnalysisServices.AppSettings.json` to mark the process as having a UI). The whole solution builds on Windows, macOS and Linux. `Connectors` is cross-platform: WMI session discovery returns nothing outside Windows (`DesktopSessionLocator.IsSupported`), and the MSAL cache uses DPAPI, the macOS Keychain or the Linux keyring, else memory only. ADOMD.NET reaches the Power BI XMLA endpoint on Linux and macOS (probed in CI), but a full query there is unverified. The tests run on Windows, Linux and macOS in CI.
+- **Connectors.Core vs Connectors.** `Connectors.Core` holds everything that also runs in the browser: `IModelConnector`, `IAuthService`/`AuthOptions`/`SourceSession`, `ErrorClassifier`, the metadata parsers and the REST connector, client and discovery. `Connectors` holds ADOMD (Desktop, XMLA), WMI session discovery, `MsalAuthService` (which maps `MsalException` itself) and `ConnectorFactory`. Namespaces did not change. Keep native-client code (ADOMD, MSAL.NET, WMI) out of Core and Application, or the web app stops building, and guard Windows-only calls with `OperatingSystem.IsWindows()`.
 - **Shared build settings:** `Directory.Build.props` sets Nullable, ImplicitUsings and the version for every project.
-- **Implicit usings in Desktop:** WPF projects don't get `System.IO` implicitly, so the Desktop csproj adds `<Using Include="System.IO" />`.
 
 ### Data model: project → comparisons → compiled pairs
 
@@ -89,10 +89,15 @@ The dependency direction is Desktop → {Application, Connectors} and Web → Ap
 - **Session discovery.** `DesktopSessionLocator` finds Power BI Desktop sessions through WMI: `msmdsrv.exe` processes, their `-s <dataDir>` argument, the UTF-16 `msmdsrv.port.txt` file, and the parent `PBIDesktop.exe` process. If WMI fails it falls back to scanning the workspace folders.
 - **Errors.** All errors become `DaxDiffException` (category, diagnostic code, remedy, side, transient flag) through `ErrorClassifier`. Its message heuristics are covered by tests in `ConnectorParsingTests`.
 
-### Desktop (`DaxDiff.Desktop`, MVVM with CommunityToolkit.Mvvm)
+### Presentation (`DaxDiff.Presentation`, view models of the desktop app)
 
-- **Startup.** `App.OnStartup` builds a Generic Host with Serilog file logging to `%LOCALAPPDATA%\DAXDiff\logs`. It reads `appsettings.json` plus the optional user override `%LOCALAPPDATA%\DAXDiff\settings.json`, then shows `MainWindow` and applies the External Tools arguments (`--server` and `--database`, or positional `localhost:port`). The attach waits until a project is created or opened.
-- **Project lifecycle.** `MainViewModel` owns it: New project creates the file first, then Open, Save, Close, and an unsaved-changes prompt (also on window close). The project steps in the nav are disabled until a project is open.
+- **What lives here.** The view models (`ViewModels/`), their non-UI services (`AppPaths`, `LaunchArguments`, `RecentProjects`, `LanguageService`/`UserSettings`, `AppRestarter`, `ThemeCatalog`, `EnumText`), the `IDialogService` and `IFilterEditorService` interfaces, and the desktop text (`Resources/Strings*.resx`, `Ui*.resx`). It targets `net10.0` and references no UI toolkit, so the view models are tested on every OS. Namespaces are `DaxDiff.Presentation.*`.
+- **The app supplies the toolkit parts at startup.**
+  - `ListViews.Create`: view models never use a toolkit collection view. They create an `IListView` (filter, sort, `Refresh`, `Count`) and the UI binds to its `ItemsSource`. The default is `FilteredListView`, an observable list that resets on change.
+  - `ThemeCatalog.Applier` turns a theme's CSS tokens into brushes (`ThemeBrushes.Apply`).
+  - `MainViewModel.ShutdownRequested` asks the app to close (used by Restart).
+- **Threading.** Don't use toolkit timers or dispatchers in view models. Await on the UI thread instead (`RunViewModel.TickAsync` uses `PeriodicTimer`), because Avalonia does not marshal `PropertyChanged` from other threads.
+- **Project lifecycle.** `MainViewModel` owns it: New project creates the file first, then Open, Save, Close, and an unsaved-changes prompt (also on window close). The project steps in the nav are disabled until a project is open. The External Tools arguments (`--server` and `--database`, or positional `localhost:port`) go through `ApplyLaunchArguments`; the attach waits until a project is created or opened.
 - **Comparisons are drafts until saved (FR-021).**
   - `ComparisonEditorViewModel` keeps `SavedDefinition`, the version that runs and is written to the project. The editor's live state is a draft.
   - `IsModified` compares JSON fingerprints of the two. `Save` commits the draft and raises `SaveRequested`, which makes the shell write the project file. `Commit()` commits without writing.
@@ -104,33 +109,54 @@ The dependency direction is Desktop → {Application, Connectors} and Web → Ap
   - The Options page (`OptionsPageViewModel`) shows the selected comparison's options. Run executes the ticked comparisons one after another, in their saved versions. Results keeps the latest result per comparison.
   - Filters are edited in `FilterEditorWindow` (`FilterEditorViewModel` / `FilterItemViewModel`), opened by `IFilterEditorService` through `OptionsViewModel.EditFiltersRequested`. The value list is loaded from both connected models (first 1,000 values each, searchable).
   - "Add same to B/A" (`ComparisonsViewModel.CopyToB/CopyToA`) copies the selected grid rows to the other model by exact table and column name (measures by name).
-- **Theme.** `Themes/Numberskills.xaml` (merged in `App.xaml`) implements the Numberskills design system: the embedded fonts (`Fonts/`, Bricolage Grotesque for headings and Onest for text) and implicit styles for every standard control.
-  - **Colours are user-selectable.** `Services/ThemeService` holds 10 colour themes (tokens from the design canvas; Midnight is the default, and an unknown saved id falls back to it) and builds the brush dictionary that replaces the first merged dictionary of `App.xaml` at run time. The user picks a theme on Settings → Appearance; it is saved as `Appearance:Theme` in the user settings file.
-  - Always reference brushes with `DynamicResource` (a `StaticResource` brush never changes with the theme and fails if no theme is loaded yet). Text on a fill uses the fill's pair: `ChipBrush`/`ChipTextBrush` for selected states, `AccentFillBrush`/`OnAccentBrush`, `HeroBrush`/`HeroTextBrush`, `MintBrush`/`SelectionTextBrush`, `AccentSoftBrush`/`TileTextBrush`, and the `Header*` brushes on the header. Never hard-code White for text or surfaces, because some themes are dark.
-  - Use its keyed styles rather than local colours: `PrimaryButton` (one main action per page), `SecondaryButton`, `LightButton` (on the teal header), `Card`, `CardTitle`, `Eyebrow`/`PageTitle`/`PageHint` for page headers, `Badge` tones, `Segment`/`SegmentGroup`, `SideChipA`/`SideChipB`, `Message` tones and `CodeBox`.
-  - A TextBox's `Tag` is shown as placeholder text.
-  - Pill shapes bind `CornerRadius` through `PillRadiusConverter`, because a large fixed radius renders as an ellipse in WPF.
 - **Language (English and Swedish).** Every user-facing string lives in resources, never in code or XAML.
-  - Each project has `Resources/Strings.resx` (English, the neutral language) and `Strings.sv.resx`. `Directory.Build.targets` generates the typed class `<RootNamespace>.Resources.Strings` at build time. Desktop also has `Resources/Ui.resx` for XAML text, used as `{x:Static res:Ui.Key}`. A target generates these classes before WPF's XAML pass, because the XAML temporary project would not see them otherwise.
-  - Format with `string.Format(CultureInfo.CurrentCulture, Strings.Key, …)`; Desktop has `Localized.Format`. Enums show through `EnumTextConverter` (resource `Enum_<Type>_<Value>`).
-  - `LanguageService` sets only the UI culture at startup (Settings → Language, saved as `Appearance:Language`; empty means the Windows language). Text is read once when screens are built, so a change needs a restart: Settings offers one, and `MainViewModel.Restart` saves through the unsaved-changes prompt and relaunches with the project path (`AppRestarter`, which also handles the `dotnet DAXDiff.dll` form). Numbers and dates follow Windows regional settings. Logs, diagnostic codes, DAX and the names saved in project files stay English.
+  - Each project has `Resources/Strings.resx` (English, the neutral language) and `Strings.sv.resx`. `Directory.Build.targets` generates the typed class `<RootNamespace>.Resources.Strings` at build time. The desktop text, including `Resources/Ui.resx` for XAML (`{x:Static res:Ui.Key}`), lives in Presentation.
+  - Format with `string.Format(CultureInfo.CurrentCulture, Strings.Key, …)` or `Localized.Format`. Enums show through `EnumTextConverter` (resource `Enum_<Type>_<Value>`).
+  - `LanguageService` sets only the UI culture at startup (Settings → Language, saved as `Appearance:Language`; empty means the system language). Text is read once when screens are built, so a change needs a restart: Settings offers one, and `MainViewModel.Restart` saves through the unsaved-changes prompt and relaunches with the project path (`AppRestarter`, which also handles the `dotnet DAXDiff.dll` form). Numbers and dates follow the regional settings. Logs, diagnostic codes, DAX and the names saved in project files stay English.
   - Never parse message text. Use structured data instead, such as `ValidationIssue.Side`, or `MappingValidator.ValidateFilter(filter, a, b)` for the pop-up's "this filter" wording.
   - Tests run with the English UI culture (`Fixtures/TestCulture.cs`). `LocalizationTests` fails if a key lacks a Swedish translation or the placeholders differ. The web app ships English only (`SatelliteResourceLanguages`).
-- **Pages.** Each page is mapped to a view by `DataTemplate`s in `MainWindow.xaml`. The results grid builds its columns in code (`ResultsView.xaml.cs`) and binds to `ResultRowView.Cells[i]`. Sorting uses a custom comparer (`ResultsViewModel.Sort`).
-- **Typed command parameters.** A `CommandParameter` set in XAML arrives as a string, so a `RelayCommand<bool?>` throws. Use separate commands or a `string` parameter.
-- **Rendering.** Views reference styles and converters defined in `App.xaml` with `StaticResource`, so rendering a view outside the running app requires `new App().InitializeComponent()` first.
+
+### App (`DaxDiff.App`, Avalonia 12, Windows, macOS and Linux)
+
+The desktop app (assembly `DAXDiff`). It holds the views, dialogs and theme brushes; everything else is in Presentation.
+
+- **Startup.** `App.OnFrameworkInitializationCompleted` builds a Generic Host with Serilog file logging to `AppPaths.Logs`. It reads `appsettings.json` plus the optional user override `settings.json` in the DAXDiff folder, applies the language and theme, then shows `MainWindow` and applies the launch arguments.
+- **Theme.** `Themes/DaxDiff.axaml` (Fluent underneath) implements the DAXDiff design: the embedded fonts (`Fonts/`, Bricolage Grotesque for headings and Onest for text) and style classes, listed in its header: `card`, `primary` (one main action per page), `pageTitle`, `muted`, `chipA`, `segment`, and so on. Use them rather than local colours.
+  - **Colours are user-selectable.** `ThemeCatalog` (Presentation) holds 11 colour themes (tokens from the design canvas; Graphite is the default, and an unknown saved id falls back to it). `Services/ThemeBrushes` writes the brushes into `Application.Resources`, including the DataGrid header brushes and the Fluent light/dark variant. The user picks a theme on Settings → Appearance; it is saved as `Appearance:Theme` in the user settings file.
+  - Always reference brushes with `DynamicResource`, and put colours that a state changes in styles, never as local values on the element. Text on a fill uses the fill's pair: `ChipBrush`/`ChipTextBrush` for selected states, `AccentFillBrush`/`OnAccentBrush`, `HeroBrush`/`HeroTextBrush`, `MintBrush`/`SelectionTextBrush`, `AccentSoftBrush`/`TileTextBrush`, and the `Header*` brushes on the header. Never hard-code White for text or surfaces, because some themes are dark.
+- **Idioms.**
+  - Use `IsVisible="{Binding X}"`/`{Binding !X}` rather than visibility converters.
+  - Show state with `Classes.name="{Binding …}"` plus a style; enum states go through the `EnumEquals` converter.
+  - Use `ToolTip.Tip`, `$parent[Type]` and `PlaceholderText`.
+  - Compiled bindings are on, so every view and template needs `x:DataType`.
+  - `{Binding !X}` is one-way. For radio pairs, bind the other button two-way.
+  - Avalonia controls have no implicit margins, so use `Spacing`/`ItemSpacing`.
+- **Pages.** Each page is mapped to a view by `Window.DataTemplates` in `MainWindow.axaml`.
+- **Dialogs are synchronous.** `Services/DialogService` and `FilterEditorService` show Avalonia's async dialogs inside `Modal.Run`, which pushes a nested `DispatcherFrame`, so `IDialogService` stays synchronous. `Views/MessageWindow` is the message box.
+- **Lists.** Bind to `IListView.ItemsSource` (a `FilteredListView`). It resets on every change, which clears grid selection, so `ComparisonsView` re-selects moved rows. `ResultsView` handles `Sorting` itself and calls `ResultsViewModel.Sort`. It builds its columns in code on `ColumnsChanged` and binds them to `ResultRowView.Cells[i]`; its cells format their own values.
+- **Off Windows.** The Desktop source type stays selectable, but `SourcePanelView` hides its PBIX and session controls and shows `Source_DesktopWindowsOnly` when `DesktopSessionLocator.IsSupported` is false. MSAL gets the window handle only on Windows.
+- **Don't set `BuiltInComInteropSupport=false`**, because `System.Management` (WMI) then fails at type initialisation.
+- **Packaging.** Windows: `scripts/package.ps1` publishes the app self-contained for win-x64 into the MSI (`installer/`, which also registers `tools/DAXDiff.pbitool.json` on Power BI Desktop's External Tools ribbon) and a portable zip. macOS and Linux: `scripts/package-app.sh <rid>` builds a `.dmg` (ad-hoc signed `DAXDiff.app`) or a `.tar.gz`. The icons are `Assets/DAXDiff.ico` (exe) and `Assets/DAXDiff.png`.
+- **Seeing it.** Run `dotnet src/DaxDiff.App/bin/Debug/net10.0-windows/DAXDiff.dll <project.pbicomp>`. UI Automation can invoke the nav buttons by their titles, and `PrintWindow` captures the window without needing focus.
 
 ### Web (`DaxDiff.Web`, Blazor WebAssembly)
 
-- **Browser-only.** A static site: sign-in through MSAL.js (`wwwroot/lib/msal-browser`, vendored 4.x, via `wwwroot/js/auth.js`), queries through `ServiceRestConnector`, comparison and Excel export in WebAssembly. Nothing runs on a server. See `docs/web.md`.
+- **Browser-only.** A static site: sign-in through MSAL.js (`wwwroot/lib/msal-browser`, vendored 4.x, via `wwwroot/js/auth.js`), queries through `ServiceRestConnector`, comparison and Excel export in WebAssembly. Nothing runs on a server. See `docs/dev/web-deployment.md`.
 - **State.** `ProjectState` (singleton) holds the open project, two `SourceState`s (each with its own `BrowserAuthService`, so FR-002 holds), the run and the latest result per comparison. Components derive from `ProjectComponent` to re-render on its `Changed` event.
 - **Only REST.** Desktop-session sources are reported as unsupported. XMLA references are connected over REST by resolving workspace and model names. Comparison editing is not in the web app yet.
 - **Files.** `wwwroot/js/files.js` uses the File System Access API where available (Save writes back), else upload and download.
 - **Sample.** `SampleConnector` serves an in-memory sample project, used to try the app and for headless smoke tests.
 - **Publishing.** `WasmFingerprintAssets` is off so `index.html` needs no inline import map under its CSP meta tag. Domain and Application are trimmer roots, for reflection-based project JSON. `.github/workflows/web-pages.yml` deploys to this repo's GitHub Pages site (`https://tanvir073.github.io/DAXDiff/`) on pushes to `main` and `dev`.
 
+## Docs, versioning and releases
+
+- **Two audiences.** `docs/user/` is the user and administrator guide (no code internals; the apps link to it through `ProductLinks`). `docs/dev/` is technical. Update the matching one when behaviour changes, and add user-visible changes under *Unreleased* in `CHANGELOG.md` (Keep a Changelog).
+- **Version.** `VersionPrefix`/`VersionSuffix` in `Directory.Build.props` is the only place (SemVer). The MSI uses `VersionPrefix` only, because Windows Installer is numeric. The app shows the informational version (`+sha`) through `ComparisonRunner.AppVersion`.
+- **Releases.** Pushing tag `v<Version>` runs `.github/workflows/release.yml`. It fails unless the tag matches the props version and `CHANGELOG.md` has a `## [<Version>]` section. It attaches the MSI, the portable zip, the web zip and `SHA256SUMS.txt`. `ci.yml` builds and tests every PR. `main` is protected (pull requests with passing CI only), and Dependabot opens monthly update PRs into `dev`. Process: `docs/dev/releasing.md`.
+- **Links and bug reports.** `Application/ProductLinks` holds the repository, guide and release URLs. `NewBugReport` pre-fills `.github/ISSUE_TEMPLATE/bug_report.yml` through its `version` and `os` field ids; `ProductLinksTests` guards those ids. Never point in-app text at repository paths such as `docs/...`, because installed users have no repository.
+
 ## Testing
 
-xUnit tests are in `tests/DaxDiff.Tests.Unit`. `Fixtures/Fixture.cs` builds synthetic metadata, configs and `QueryResult`s. Its helpers are `Key(...)`, `Value(...)`, `Field(...)`, and `config.With(o => o with { ... })` for changing options. `Fixtures/FakeConnector.cs` is an in-memory `IModelConnector`; use it for orchestration tests instead of real models. Test names are prefixed with the requirement or acceptance-test ID they cover, such as `AT07_…` or `FR018_…`. The Desktop project (a WinExe) has no tests; to exercise its view models, use an offscreen harness.
+xUnit tests are in `tests/DaxDiff.Tests.Unit`. `Fixtures/Fixture.cs` builds synthetic metadata, configs and `QueryResult`s. Its helpers are `Key(...)`, `Value(...)`, `Field(...)`, and `config.With(o => o with { ... })` for changing options. `Fixtures/FakeConnector.cs` is an in-memory `IModelConnector`; use it for orchestration tests instead of real models. Test names are prefixed with the requirement or acceptance-test ID they cover, such as `AT07_…` or `FR018_…`. The App project has no tests; its view models are in Presentation and are tested there.
 
-Nothing has been verified against live Power BI models yet; this is Stage 0 in `docs/implementation-plan.md`. That covers Desktop attach, XMLA, REST and the DMV/INFO.VIEW queries, so treat connector behaviour against real services as unconfirmed.
+Nothing has been verified against live Power BI models yet; this is Stage 0 in `docs/dev/implementation-plan.md`. That covers Desktop attach, XMLA, REST and the DMV/INFO.VIEW queries, so treat connector behaviour against real services as unconfirmed.

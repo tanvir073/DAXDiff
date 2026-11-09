@@ -1,0 +1,28 @@
+# Monthly update pull requests for NuGet packages and GitHub Actions, into dev (docs/dev/releasing.md).
+# Related packages are grouped so one pull request updates them together.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    groups:
+      avalonia:
+        patterns: ["Avalonia*"]
+      microsoft:
+        patterns: ["Microsoft.*", "System.*"]
+      tests:
+        patterns: ["xunit*", "Microsoft.NET.Test.Sdk", "coverlet*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: dev
+    labels: [dependencies]
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
