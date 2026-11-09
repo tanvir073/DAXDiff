@@ -7,8 +7,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AnalysisServices.AdomdClient" Version="19.118.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.91.1" />
-    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.91.1" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.92.0" />
+    <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.92.0" />
     <PackageReference Include="System.Management" Version="10.0.14" />
   </ItemGroup>
 
