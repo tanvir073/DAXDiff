@@ -8,6 +8,7 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 5
+    labels: [dependencies]
     groups:
       avalonia:
         patterns: ["Avalonia*"]
@@ -19,6 +20,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     target-branch: dev
+    labels: [dependencies]
     schedule:
       interval: monthly
     groups:
