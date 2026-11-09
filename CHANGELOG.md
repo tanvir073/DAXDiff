@@ -6,44 +6,29 @@ described in [docs/dev/releasing.md](docs/dev/releasing.md).
 
 ## [Unreleased]
 
-### Added
+## [0.1.0] - 2026-11-09
 
-- MIT licence.
-- Separate user documentation (`docs/user/`) and technical documentation (`docs/dev/`).
-- **Report a bug**, **User guide** and **Release notes** in Settings (desktop and web). A bug report opens a GitHub
-  issue form with the version and operating system filled in.
-- GitHub issue forms for bug reports and feature requests, a pull-request checklist and a security policy.
-- Continuous integration on every pull request, and a release workflow that publishes the MSI installer, a portable
-  zip and a self-hostable web build to GitHub Releases when a version is tagged.
-- **macOS and Linux desktop app**: the desktop app now also runs on macOS (`.dmg`, Apple Silicon and Intel) and Linux
-  (`.tar.gz`, x64 and ARM), built on Avalonia. Power BI Service models connect over XMLA or REST; Power BI Desktop
-  files need Windows. Sign-ins are kept in the macOS Keychain or the Linux keyring.
-- **Graphite** colour theme: dark grey with orange accents. It is the new default; a theme you already chose is kept.
-
-### Changed
-
-- The **Dark** colour theme now looks like dark mode in Windows: charcoal grey instead of near-black, with the light-blue
-  Windows accent.
-- **The Windows app is the same app as on macOS and Linux** (Avalonia), replacing the Windows-only WPF app. It looks
-  and works the same; projects, settings, sign-ins and the External Tools button carry over unchanged.
-- The MSI is named `DAXDiff-<version>-win-x64.msi`.
-- The Results page's details panel has a maximum height and scrolls, so it no longer pushes the grid off the page.
-
-### Fixed
-
-- The MSI failed to build from a clean output folder (ICE50: the Start menu shortcut's icon must come from the exe).
-
-## [0.1.0]
-
-First preview, not yet verified against live Power BI models.
+First public preview. It is well covered by unit tests but has not yet been verified widely against live Power BI
+models; please report anything that does not work.
 
 ### Added
 
-- Desktop app (Windows): projects with two sources and any number of comparisons; Power BI Desktop, Service XMLA and
-  Service REST sources with per-source sign-in; keys, aggregations, synonyms, basic and advanced filters, tolerances
-  and key normalization; parallel runs with retries and timeouts; results grid and Excel audit workbook; English and
-  Swedish; colour themes.
-- Web app (browser): opens projects, connects Service models over REST, runs comparisons and exports the workbook.
+- **Desktop app for Windows, macOS and Linux** (Avalonia): projects with two sources and any number of comparisons;
+  Power BI Desktop (Windows), Service XMLA and Service REST sources with per-source sign-in, so the two models can be
+  in different tenants; keys, aggregations, synonyms, basic and advanced filters, tolerances and key normalization;
+  parallel runs with retries and timeouts; results grid with a column picker and the Excel audit workbook; English and
+  Swedish; eleven colour themes, with **Graphite** (dark grey with orange) as the default and a **Dark** theme like dark
+  mode in Windows.
+- Downloads: Windows MSI installer (which also adds DAXDiff to Power BI Desktop's External Tools ribbon) and portable
+  zip, macOS `.dmg` (Apple Silicon and Intel) and Linux `.tar.gz` (x64 and ARM). Sign-ins are kept in an encrypted
+  per-user cache (Windows), the macOS Keychain or the Linux keyring.
+- **Web app** (https://tanvir073.github.io/DAXDiff/): opens projects, connects Service models over REST, runs
+  comparisons and exports the workbook, all in the browser.
+- XMLA works without an Entra client ID, through Microsoft's own sign-in; a client ID adds workspace browsing and REST.
+- **Report a bug**, **User guide** and **Release notes** in Settings. A bug report opens a GitHub issue form with the
+  version and operating system filled in.
+- User guide and administrator guide (`docs/user/`), technical documentation (`docs/dev/`), MIT licence, code of
+  conduct, security policy, issue forms and Discussions.
 
 [Unreleased]: https://github.com/tanvir073/DAXDiff/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/tanvir073/DAXDiff/releases/tag/v0.1.0

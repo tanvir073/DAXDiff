@@ -44,11 +44,17 @@ Comparing a PBIX open in Power BI Desktop needs Windows, because Power BI Deskto
 - **No secrets at rest.** Projects, logs and workbooks never contain tokens or passwords. Logs contain no values or DAX.
 - **No telemetry.** Nothing is sent anywhere except to Microsoft for sign-in and to the models you query.
 
-## Feedback
+## Feedback and help
 
-- Found a bug? Use **Settings → Report a bug** in the app, or [open a bug report](https://github.com/tanvir073/DAXDiff/issues/new/choose).
-- Have an idea? [Request a feature](https://github.com/tanvir073/DAXDiff/issues/new/choose).
+- Found a bug? Use **Settings → Report a bug** in the app, or [open a bug report](https://github.com/tanvir073/DAXDiff/issues/new?template=bug_report.yml).
+- Have an idea? [Request a feature](https://github.com/tanvir073/DAXDiff/issues/new?template=feature_request.yml).
+- A question? Ask in [Discussions](https://github.com/tanvir073/DAXDiff/discussions); see also [SUPPORT.md](SUPPORT.md).
 - Security problem? Report it privately; see [SECURITY.md](SECURITY.md).
+
+## Contributing
+
+Fork the repository, branch from `dev` and open a pull request; [CONTRIBUTING.md](CONTRIBUTING.md) has the details.
+Everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Build from source
 

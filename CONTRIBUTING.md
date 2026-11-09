@@ -8,10 +8,14 @@ Use the [issue forms](https://github.com/tanvir073/DAXDiff/issues/new/choose). I
 opens the form with your version and operating system filled in. Never include tokens or confidential model data.
 Report security problems privately (see [SECURITY.md](SECURITY.md)).
 
+Questions are welcome in [Discussions](https://github.com/tanvir073/DAXDiff/discussions). Everyone taking part
+follows the [code of conduct](CODE_OF_CONDUCT.md).
+
 ## Making a change
 
 1. For anything larger than a small fix, open an issue first so the approach can be agreed.
-2. Branch from `dev`: `feature/<short-name>` or `fix/<short-name>`.
+2. [Fork the repository](https://github.com/tanvir073/DAXDiff/fork) (or, as a maintainer, use a branch) and branch
+   from `dev`: `feature/<short-name>` or `fix/<short-name>`.
 3. Build and test (see [Building and testing](docs/dev/building.md)):
 
    ```powershell
@@ -19,7 +23,8 @@ Report security problems privately (see [SECURITY.md](SECURITY.md)).
    dotnet test tests/DaxDiff.Tests.Unit
    ```
 
-4. Open a pull request into `dev`. CI must pass.
+4. Open a pull request into `dev`. CI must pass, and the maintainer reviews it. `main` only takes pull requests,
+   for releases.
 
 ## Guidelines
 

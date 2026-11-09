@@ -40,7 +40,7 @@ adds a line under **Unreleased**, in *Added*, *Changed*, *Fixed*, *Removed* or *
 |---|---|
 | `dev` | Integration of finished work; deploys the web app |
 | `ppe` | Pre-production: what is being tested before release |
-| `main` | Released code; deploys the web app; release tags are made here |
+| `main` | Released code; deploys the web app; release tags are made here. Protected: pull requests with passing CI only |
 | `feature/*`, `fix/*` | Short-lived work branches, merged into `dev` through pull requests |
 
 ## Making a release
@@ -48,7 +48,8 @@ adds a line under **Unreleased**, in *Added*, *Changed*, *Fixed*, *Removed* or *
 1. On `dev`, move the *Unreleased* entries in `CHANGELOG.md` into a new section `## [0.2.0] - 2026-11-20` and update
    the compare links at the bottom.
 2. Set `VersionPrefix` (and `VersionSuffix`) in `Directory.Build.props`.
-3. Merge `dev` → `ppe`, test, then `ppe` → `main`.
+3. Merge `dev` → `ppe`, test, then open a pull request from `ppe` into `main` and merge it once CI passes. `main` is
+   protected: it only takes pull requests whose CI checks pass, and it cannot be force-pushed or deleted.
 4. Tag `main` and push the tag:
 
    ```powershell
@@ -69,6 +70,11 @@ The **Release** workflow (`.github/workflows/release.yml`) then:
 
 If the workflow fails, fix the problem, delete the tag (`git push origin :v0.2.0` and `git tag -d v0.2.0`) and tag
 again. Never move a tag that has already produced a published release; release a new patch version instead.
+
+## Dependency updates
+
+Dependabot (`.github/dependabot.yml`) opens grouped pull requests into `dev` once a month for NuGet packages and GitHub
+Actions. Merge them like any other pull request once CI passes.
 
 ## Code signing
 

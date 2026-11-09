@@ -152,7 +152,7 @@ The desktop app (assembly `DAXDiff`). It holds the views, dialogs and theme brus
 
 - **Two audiences.** `docs/user/` is the user and administrator guide (no code internals; the apps link to it through `ProductLinks`). `docs/dev/` is technical. Update the matching one when behaviour changes, and add user-visible changes under *Unreleased* in `CHANGELOG.md` (Keep a Changelog).
 - **Version.** `VersionPrefix`/`VersionSuffix` in `Directory.Build.props` is the only place (SemVer). The MSI uses `VersionPrefix` only, because Windows Installer is numeric. The app shows the informational version (`+sha`) through `ComparisonRunner.AppVersion`.
-- **Releases.** Pushing tag `v<Version>` runs `.github/workflows/release.yml`. It fails unless the tag matches the props version and `CHANGELOG.md` has a `## [<Version>]` section. It attaches the MSI, the portable zip, the web zip and `SHA256SUMS.txt`. `ci.yml` builds and tests every PR. Process: `docs/dev/releasing.md`.
+- **Releases.** Pushing tag `v<Version>` runs `.github/workflows/release.yml`. It fails unless the tag matches the props version and `CHANGELOG.md` has a `## [<Version>]` section. It attaches the MSI, the portable zip, the web zip and `SHA256SUMS.txt`. `ci.yml` builds and tests every PR. `main` is protected (pull requests with passing CI only), and Dependabot opens monthly update PRs into `dev`. Process: `docs/dev/releasing.md`.
 - **Links and bug reports.** `Application/ProductLinks` holds the repository, guide and release URLs. `NewBugReport` pre-fills `.github/ISSUE_TEMPLATE/bug_report.yml` through its `version` and `os` field ids; `ProductLinksTests` guards those ids. Never point in-app text at repository paths such as `docs/...`, because installed users have no repository.
 
 ## Testing
